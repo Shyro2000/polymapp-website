@@ -4,43 +4,52 @@
   <meta charset="UTF-8">
   <title>Kontakt - PolymApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
     body { 
       font-family: Arial, sans-serif; 
       margin: 0; 
       line-height: 1.5; 
     }
+
     header {
       background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
       color: white;
       padding: 40px 20px;
       text-align: center;
     }
+
     nav {
       background: #222;
       padding: 10px;
       text-align: center;
     }
+
     nav a {
       color: white;
       margin: 0 10px;
       text-decoration: none;
     }
+
     .container {
       max-width: 900px;
       margin: auto;
       padding: 20px;
     }
+
     h2 {
       color: #B00000;
     }
+
     form {
       display: flex;
       flex-direction: column;
     }
+
     label {
       margin: 10px 0 5px;
     }
+
     input, textarea {
       padding: 8px;
       margin-bottom: 15px;
@@ -50,6 +59,7 @@
       border-radius: 4px;
       font-size: 14px;
     }
+
     button {
       background-color: #F60100;
       color: white;
@@ -60,9 +70,11 @@
       border-radius: 4px;
       width: fit-content;
     }
+
     button:hover {
       background-color: #B80000;
     }
+
     footer {
       text-align: center;
       padding: 20px;
@@ -71,6 +83,7 @@
     }
   </style>
 </head>
+
 <body>
 
 <header>
@@ -89,7 +102,13 @@
   <h2>Schreib uns</h2>
   <p>Fülle das Formular aus und wir melden uns so schnell wie möglich bei dir.</p>
 
-  <form id="contactForm" action="https://formsubmit.co/info@polymapp.ch" method="POST">
+  <form action="https://formsubmit.co/info@polymapp.ch" method="POST">
+
+    <!-- Sicherheit & Konfiguration -->
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_subject" value="Neue Kontaktanfrage - PolymApp">
+    <input type="hidden" name="_template" value="table">
+
     <label for="email">Ihre E-Mail-Adresse <span>*</span></label>
     <input type="email" id="email" name="email" required>
 
@@ -99,13 +118,6 @@
     <button type="submit">Nachricht senden</button>
   </form>
 </div>
-
-<script>
-  document.getElementById('contactForm').addEventListener('submit', function(e) {
-    alert('Danke! Deine Nachricht wurde gesendet.');
-    this.reset();
-  });
-</script>
 
 <footer>
   <p>PolymApp</p>
