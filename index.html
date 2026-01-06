@@ -2,38 +2,79 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>PolymApp</title>
+  <title>Kontakt - PolymApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
     body { 
       font-family: Arial, sans-serif; 
-      margin: 0;
-      line-height: 1.5;
+      margin: 0; 
+      line-height: 1.5; 
     }
+
     header {
       background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
       color: white;
       padding: 40px 20px;
       text-align: center;
     }
+
     nav {
       background: #222;
       padding: 10px;
       text-align: center;
     }
+
     nav a {
       color: white;
       margin: 0 10px;
       text-decoration: none;
     }
+
     .container {
       max-width: 900px;
       margin: auto;
       padding: 20px;
     }
+
     h2 {
       color: #B00000;
     }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin: 10px 0 5px;
+    }
+
+    input, textarea {
+      padding: 8px;
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #F60100;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    button:hover {
+      background-color: #B80000;
+    }
+
     footer {
       text-align: center;
       padding: 20px;
@@ -42,11 +83,12 @@
     }
   </style>
 </head>
+
 <body>
 
 <header>
   <h1>PolymApp</h1>
-  <h2>THE Mechanic App</h2>
+  <h2>Kontakt</h2>
 </header>
 
 <nav>
@@ -57,62 +99,24 @@
 </nav>
 
 <div class="container">
+  <h2>Schreib uns</h2>
+  <p>Fülle das Formular aus und wir melden uns so schnell wie möglich bei dir.</p>
 
-  <h2>Was ist PolymApp?</h2>
-  <p><strong>PolymApp ist die ultimative App für CNC-Fachkräfte - entwickelt von einem erfahrenen Polymechaniker.</strong><br>
-  Sie vereint alle wichtigen Nachschlagefunktionen in einer App: ISO-Toleranzen, Gewinde, Freistiche, Werkstoffe, Oberflächenangaben und vieles mehr - jederzeit verfügbar, auch offline.</p>
+  <form action="https://formsubmit.co/info@polymapp.ch" method="POST">
 
-  <h2>Warum PolymApp?</h2>
-  <p><strong>Weil Effizienz zählt.</strong><br>
-  PolymApp liefert präzise Antworten in Sekunden - klar, übersichtlich und ohne Informationsflut.<br>
-  Statt mühsam Tabellen zu durchsuchen, genügt oft ein Foto, und die passenden ISO-Toleranzen inklusive Beschichtung erscheinen sofort.</p>
+    <!-- Sicherheit & Konfiguration -->
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_subject" value="Neue Kontaktanfrage – PolymApp">
+    <input type="hidden" name="_template" value="table">
 
-  <p>Entwickelt aus der Praxis, für den Arbeitsalltag: schnell, zuverlässig und laufend erweitert.</p>
+    <label for="email">Ihre E-Mail-Adresse <span>*</span></label>
+    <input type="email" id="email" name="email" required>
 
-  <h2>Erhalten Sie innert wenigen Sekunden die Antwort</h2>
-  <p>PolymApp liefert Antworten in Sekunden - klar, übersichtlich und ohne Informationsflut. Fehlende Toleranzen? Foto machen, und alle ISO-Toleranzen samt Beschichtungsdicke erscheinen sofort.</p>
+    <label for="message">Nachricht <span>*</span></label>
+    <textarea id="message" name="message" rows="6" required></textarea>
 
-  <h2>Laufend neue Funktionen</h2>
-  <p>PolymApp wird ständig weiterentwickelt: Aus einer einfachen Werkstoffdatenbank wurde ein leistungsstarkes Tool, mit Materialvergleichen, Vorschlägen ähnlicher Werkstoffe, Schnittwerten und vielem mehr.</p>
-
-  <h2>Funktionen</h2>
-
-  <ul>
-    <li><strong>Toleranz- &amp; Vortoleranzrechner</strong> - Toleranzen schnell berechnen, inkl. Berücksichtigung von Beschichtungen.</li>
-    <li><strong>Kamera</strong> - Zeichnungen fotografieren, Toleranzen werden automatisch erkannt.</li>
-    <li><strong>Gewinderechner</strong> - Alle Dimensionen für diverse Gewinde sofort abrufen.</li>
-    <li><strong>Passungs- / Umkehrrechner</strong> - geeignete Passungen wählen oder finden.</li>
-    <li><strong>Oberflächenangaben</strong> - Alle wichtigen Rauheitswerte im Überblick.</li>
-    <li><strong>Werkstoffdatenbank</strong> - 400+ Materialien mit Eigenschaften, Schnittdaten, Zerspanbarkeit und vielem mehr.</li>
-    <li><strong>Maschinendatenbank</strong> - Maschinen &amp; Werkzeuge verwalten</li>
-    <li><strong>Freistiche</strong> - mit Skizzen und Massen alles auf einen Blick.</li>
-    <li><strong>Schnittdatenrechner</strong> - Drehzahl, Vorschub &amp; Bearbeitungszeit berechnen.</li>
-    <li><strong>Formen berechnen</strong> - Dreiecke, Kreise &amp; Vielecke einfach berechnen.</li>
-	<li><strong>G / M Codes</strong> - G- und M-Befehle von unterschiedlichen Steuerungen wie Fanuc, Heidenhain oder Siemens</li>
-  </ul>
-  
-
-<h2>Download</h2>
-<div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
-  
-  <div style="text-align: center;">
-    <a href="https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp" target="_blank">
-      <img src="Pictures/qr_polymapp_android.png" alt="QR Code Android" style="width:150px; height:auto;">
-    </a>
-    <div>Android</div>
-  </div>
-
-  <div style="text-align: center;">
-    <a href="https://apps.apple.com/ch/app/polymapp/id6743395389?l=de-DE" target="_blank">
-      <img src="Pictures/qr_polymapp_ios.png" alt="QR Code iOS" style="width:150px; height:auto;">
-    </a>
-    <div>iOS</div>
-  </div>
-
-</div>
-
-
-
+    <button type="submit">Nachricht senden</button>
+  </form>
 </div>
 
 <footer>
