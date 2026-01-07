@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <!-- Favicons -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" href="favicon.ico">
+
+<!-- Android / PWA -->
+<link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
+<link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
+
+  <meta charset="UTF-8">
+  <title>Accountverwaltung - PolymApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      line-height: 1.5; 
+    }
+    header {
+      background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .header-logo {
+      max-width: 400px;   /* Breite des Logos */
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+    nav {
+      background: #222;
+      padding: 10px;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    h2 {
+      color: #B00000;
+    }
+
+    header h2 {
+      color: white;
+    }    
+    button {
+      background-color: #F60100;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #B80000;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #f2f2f2;
+      margin-top: 40px;
+    }
+
+    .language-switch {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 0.9em;
+    }
+
+    .language-switch a {
+      color: white;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    .language-switch a:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
+  <h2>Gestion du compte</h2>
+  <div class="language-switch">
+    <a href="accountverwaltung.html">DE</a> |
+    <a href="accountverwaltung-en.html">EN</a> |
+    <a href="accountverwaltung-fr.html">FR</a>
+  </div>
+</header>
+
+<nav>
+  <a href="index-fr.html">THE Mechanic App</a>
+  <a href="accountverwaltung-fr.html">Gestion du compte</a>
+  <a href="datenschutz-fr.html">Politique de confidentialité</a>
+  <a href="kontakt-fr.html">Contact</a>
+</nav>
+
+<div class="container">
+  <h2>Supprimer le compte</h2>
+  <p>Votre compte PolymApp peut être supprimé directement depuis l'application.</p>
+  
+  <button onclick="openApp()">Ouvrir l'application et supprimer le compte</button>
+  
+  <div id="fallback" style="display: none; margin-top: 20px;">
+    <p>L'application n'est pas installée ?</p>
+    <a href="https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp">
+      👉 Vers l'application sur Google Play Store
+    </a>
+    <br><br>
+    <a href="https://apps.apple.com/ch/app/polymapp/id6743395389">
+      👉 Vers l'application sur l'Apple App Store
+    </a>
+  </div>
+</div>
+
+<script>
+function openApp() {
+  // Tentative d'ouverture de l'app via deep link
+  window.location.href = "polymapp://delete-account";
+
+  // Si l'application ne répond pas, afficher le lien de secours
+  setTimeout(function() {
+    document.getElementById("fallback").style.display = "block";
+  }, 2000);
+}
+</script>
+
+<footer>
+  <p><strong>PolymApp</strong> - Gestion du compte</p>
+  <p>
+    <a href="index-fr.html">Accueil</a> ·
+    <a href="datenschutz-fr.html">Politique de confidentialité</a> ·
+    <a href="kontakt-fr.html">Contact</a>
+  </p>
+  <p>© 2024 PolymApp</p>
+</footer>
+
+
+
+</body>
+</html>

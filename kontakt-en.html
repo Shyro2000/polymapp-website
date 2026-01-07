@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Favicons -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" href="favicon.ico">
+
+<!-- Android / PWA -->
+<link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
+<link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
+
+  <meta charset="UTF-8">
+  <title>Kontakt - PolymApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      line-height: 1.5; 
+    }
+
+    header {
+      background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    nav {
+      background: #222;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #B00000;
+    }
+
+    header h2 {
+      color: white;
+    }    
+    .header-logo {
+      max-width: 400px;   /* Breite des Logos */
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin: 10px 0 5px;
+    }
+
+    input, textarea {
+      padding: 8px;
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #F60100;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    button:hover {
+      background-color: #B80000;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #f2f2f2;
+      margin-top: 40px;
+    }
+
+    .language-switch {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 0.9em;
+    }
+
+    .language-switch a {
+      color: white;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    .language-switch a:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+
+<body>
+<header>
+  <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
+  <h2>Contact</h2>
+  <div class="language-switch">
+    <a href="kontakt.html">DE</a> |
+    <a href="kontakt-en.html">EN</a> |
+    <a href="kontakt-fr.html">FR</a>
+  </div>
+</header>
+
+<nav>
+  <a href="index-en.html">THE Mechanic App</a>
+  <a href="accountverwaltung-en.html">Account Management</a>
+  <a href="datenschutz-en.html">Privacy Policy</a>
+  <a href="kontakt-en.html">Contact</a>
+</nav>
+
+<div class="container">
+  <h2>Write to Us</h2>
+  <p>Please fill out the form below and I will get back to you as soon as possible.</p>
+
+  <form action="https://formsubmit.co/info@polymapp.ch" method="POST">
+
+    <!-- Security & configuration -->
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_subject" value="New Contact Request - PolymApp">
+    <input type="hidden" name="_template" value="table">
+
+    <label for="email">Your Email Address <span>*</span></label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="message">Message <span>*</span></label>
+    <textarea id="message" name="message" rows="6" required></textarea>
+
+    <button type="submit">Send Message</button>
+  </form>
+</div>
+
+<footer>
+  <p><strong>PolymApp</strong> - Contact</p>
+  <p>
+    <a href="index-en.html">Home</a> ·
+    <a href="datenschutz-en.html">Privacy Policy</a> ·
+    <a href="accountverwaltung-en.html">Account Management</a>
+  </p>
+  <p>© 2024 PolymApp</p>
+</footer>
+
+
+</body>
+</html>
