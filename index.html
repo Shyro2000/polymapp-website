@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-	<!-- Favicons -->
+  <!-- Favicons -->
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -45,23 +45,102 @@
       color: #B00000;
     }
 
+    .center-title {
+      text-align: center;
+    }
+
     header h2 {
       color: white;
     }    
+
     footer {
       text-align: center;
       padding: 20px;
       background: #f2f2f2;
       margin-top: 40px;
     }
+    .header-logo {
+      max-width: 400px;   /* Breite des Logos */
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+    .image-section {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+
+    .image-section img {
+      max-height: 400px;
+      width: auto;
+      height: 100%;
+      border-radius: 8px;
+    }
+
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+
+    .hero-text {
+      max-width: 400px;
+    }
+
+    .hero-text h1 {
+      color: #B00000;
+      margin-bottom: 10px;
+    }
+
+    .hero-text p {
+      font-size: 1.1em;
+    }
+
+    .hero-image img {
+      max-height: 400px;
+      width: auto;
+      height: 100%;
+      border-radius: 8px;
+    }
+
+    .language-switch {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 0.9em;
+    }
+
+    .language-switch a {
+      color: white;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    .language-switch a:hover {
+      text-decoration: underline;
+    }
+
   </style>
 </head>
 <body>
 
 <header>
-  <h1>PolymApp</h1>
+  <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
   <h2>THE Mechanic App</h2>
+  <div class="language-switch">
+    <a href="index.html">DE</a> |
+    <a href="index-en.html">EN</a> |
+    <a href="index-fr.html">FR</a>
+  </div>
 </header>
+
 
 <nav>
   <a href="index.html">THE Mechanic App</a>
@@ -72,42 +151,88 @@
 
 <div class="container">
 
+<div class="hero">
+  <div class="hero-text">
+    <h1>Die App für CNC-Fachkräfte</h1>
+    <p>
+      ISO-Toleranzen, Gewinde, Werkstoffe und Berechnungen -  
+      alles in einer App. Schnell. Offline. Praxisnah.
+    </p>
+  </div>
+
+  <div class="hero-image">
+    <img src="images/smartphone.png" alt="PolymApp on smartphone">
+  </div>
+</div>
+
+
+
   <h2>Was ist PolymApp?</h2>
-  <p><strong>PolymApp ist die ultimative App für CNC-Fachkräfte - entwickelt von einem erfahrenen Polymechaniker.</strong><br>
-  Sie vereint alle wichtigen Nachschlagefunktionen in einer App: ISO-Toleranzen, Gewinde, Freistiche, Werkstoffe, Oberflächenangaben und vieles mehr - jederzeit verfügbar, auch offline.</p>
+  <p>
+    <strong>PolymApp ist die All-in-One-App für CNC-Fachkräfte - entwickelt aus der Praxis von einem Polymechaniker.</strong><br>
+    Sie vereint alle wichtigen technischen Nachschlagewerke und Rechner in einer einzigen App:
+    ISO-Toleranzen, Gewinde, Freistiche, Werkstoffe, Oberflächenangaben und vieles mehr -
+    jederzeit griffbereit, auch offline.
+  </p>
+
+  <h2>Ihre Vorteile mit PolymApp</h2>
+  <ul>
+    <li><strong>Zeitersparnis</strong> - Antworten und Berechnungen in Sekunden statt langem Suchen.</li>
+    <li><strong>Alles an einem Ort</strong> - keine Tabellenbücher, keine mehreren Apps.</li>
+    <li><strong>Praxisnah</strong> - entwickelt für den realen Werkstatt- und Büroalltag.</li>
+    <li><strong>Offline nutzbar</strong> - auch ohne Internet jederzeit einsatzbereit.</li>
+    <li><strong>Intelligent</strong> - Kamera erkennt Toleranzen direkt aus Zeichnungen.</li>
+    <li><strong>Laufend erweitert</strong> - neue Funktionen und Inhalte kommen kontinuierlich dazu.</li>
+  </ul>
 
   <h2>Warum PolymApp?</h2>
-  <p><strong>Weil Effizienz zählt.</strong><br>
-  PolymApp liefert präzise Antworten in Sekunden - klar, übersichtlich und ohne Informationsflut.<br>
-  Statt mühsam Tabellen zu durchsuchen, genügt oft ein Foto, und die passenden ISO-Toleranzen inklusive Beschichtung erscheinen sofort.</p>
+  <p>
+    <strong>Weil Effizienz im Arbeitsalltag entscheidend ist.</strong><br>
+    PolymApp liefert präzise Informationen klar strukturiert und ohne unnötige Informationsflut.
+    Ein Blick oder ein Foto genügt - und die passenden ISO-Toleranzen inklusive Beschichtungsdicken
+    stehen sofort zur Verfügung.
+  </p>
 
-  <p>Entwickelt aus der Praxis, für den Arbeitsalltag: schnell, zuverlässig und laufend erweitert.</p>
+  <p>
+    Entwickelt von einem Anwender für Anwender: zuverlässig, schnell und genau auf die Bedürfnisse
+    von CNC-Fachkräften abgestimmt.
+  </p>
 
-  <h2>Erhalten Sie innert wenigen Sekunden die Antwort</h2>
-  <p>PolymApp liefert Antworten in Sekunden - klar, übersichtlich und ohne Informationsflut. Fehlende Toleranzen? Foto machen, und alle ISO-Toleranzen samt Beschichtungsdicke erscheinen sofort.</p>
+  <h2>Antworten in Sekunden</h2>
+  <p>
+    Ob fehlende Toleranzen, Passungen oder Oberflächenangaben:
+    PolymApp führt Sie in wenigen Sekunden zum Ziel - übersichtlich, verständlich und praxisgerecht.
+  </p>
 
   <h2>Laufend neue Funktionen</h2>
-  <p>PolymApp wird ständig weiterentwickelt: Aus einer einfachen Werkstoffdatenbank wurde ein leistungsstarkes Tool, mit Materialvergleichen, Vorschlägen ähnlicher Werkstoffe, Schnittwerten und vielem mehr.</p>
+  <p>
+    PolymApp wächst kontinuierlich weiter. Aus einer einfachen Werkstoffdatenbank entstand ein
+    leistungsstarkes Werkzeug mit Materialvergleichen, Vorschlägen ähnlicher Werkstoffe,
+    Schnittwerten, Zerspanbarkeitsangaben und vielem mehr.
+  </p>
 
   <h2>Funktionen</h2>
-
   <ul>
-    <li><strong>Toleranz- &amp; Vortoleranzrechner</strong> - Toleranzen schnell berechnen, inkl. Berücksichtigung von Beschichtungen.</li>
-    <li><strong>Kamera</strong> - Zeichnungen fotografieren, Toleranzen werden automatisch erkannt.</li>
-    <li><strong>Gewinderechner</strong> - Alle Dimensionen für diverse Gewinde sofort abrufen.</li>
-    <li><strong>Passungs- / Umkehrrechner</strong> - geeignete Passungen wählen oder finden.</li>
-    <li><strong>Oberflächenangaben</strong> - Alle wichtigen Rauheitswerte im Überblick.</li>
-    <li><strong>Werkstoffdatenbank</strong> - 400+ Materialien mit Eigenschaften, Schnittdaten, Zerspanbarkeit und vielem mehr.</li>
-    <li><strong>Maschinendatenbank</strong> - Maschinen &amp; Werkzeuge verwalten</li>
-    <li><strong>Freistiche</strong> - mit Skizzen und Massen alles auf einen Blick.</li>
-    <li><strong>Schnittdatenrechner</strong> - Drehzahl, Vorschub &amp; Bearbeitungszeit berechnen.</li>
-    <li><strong>Formen berechnen</strong> - Dreiecke, Kreise &amp; Vielecke einfach berechnen.</li>
-	<li><strong>G / M Codes</strong> - G- und M-Befehle von unterschiedlichen Steuerungen wie Fanuc, Heidenhain oder Siemens</li>
+    <li><strong>Toleranz- &amp; Vortoleranzrechner</strong> - inkl. Berücksichtigung von Beschichtungen.</li>
+    <li><strong>Kamera</strong> - Zeichnungen fotografieren, Toleranzen automatisch erkennen.</li>
+    <li><strong>Gewinderechner</strong> - alle Dimensionen für gängige Gewindearten inkl. Toleranzen.</li>
+    <li><strong>Passungs- / Umkehrrechner</strong> - geeignete Passungen schnell finden.</li>
+    <li><strong>Oberflächenangaben</strong> - alle wichtigen Rauheitswerte im Überblick.</li>
+    <li><strong>Werkstoffdatenbank</strong> - über 400 Materialien mit Eigenschaften, Schnittdaten, Zerspanbarkeit und mehr.</li>
+    <li><strong>Maschinendatenbank</strong> - Maschinen und Werkzeuge verwalten.</li>
+    <li><strong>Freistiche</strong> - mit Skizzen und Massen auf einen Blick.</li>
+    <li><strong>Schnittdatenrechner</strong> - Drehzahl, Vorschub und Bearbeitungszeit berechnen.</li>
+    <li><strong>Formen berechnen</strong> - Dreiecke, Kreise und Vielecke einfach berechnen.</li>
+    <li><strong>G / M Codes</strong> - Gängige Befehle für Fanuc, Heidenhain oder Siemens.</li>
   </ul>
-  
 
-<h2>Download</h2>
-<div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
+  <div class="image-section">
+  <img src="images/smartphone_with_hands.png" alt="PolymApp in use">
+</div>
+
+
+<h2 class="center-title">Download</h2>
+  <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
   
   <div style="text-align: center;">
     <a href="https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp" target="_blank">
@@ -125,13 +250,18 @@
 
 </div>
 
-
-
 </div>
 
 <footer>
-  <p>PolymApp</p>
+  <p><strong>PolymApp</strong> - THE Mechanic App</p>
+  <p>
+    <a href="datenschutz.html">Datenschutz</a> ·
+    <a href="accountverwaltung.html">Accountverwaltung</a> ·
+    <a href="kontakt.html">Kontakt</a>
+  </p>
+  <p>© 2024 PolymApp</p>
 </footer>
+
 
 </body>
 </html>
