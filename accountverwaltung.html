@@ -26,6 +26,12 @@
       padding: 40px 20px;
       text-align: center;
     }
+    .header-logo {
+      max-width: 400px;   /* Breite des Logos */
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
     nav {
       background: #222;
       padding: 10px;
@@ -66,13 +72,36 @@
       background: #f2f2f2;
       margin-top: 40px;
     }
+
+    .language-switch {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 0.9em;
+    }
+
+    .language-switch a {
+      color: white;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    .language-switch a:hover {
+      text-decoration: underline;
+    }
+
   </style>
 </head>
 <body>
 
 <header>
-  <h1>PolymApp</h1>
+  <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
   <h2>Accountverwaltung</h2>
+    <div class="language-switch">
+    <a href="accountverwaltung.html">DE</a> |
+    <a href="accountverwaltung-en.html">EN</a> |
+    <a href="accountverwaltung-fr.html">FR</a>
+  </div>
 </header>
 
 <nav>
@@ -89,11 +118,29 @@
   <button onclick="openApp()">App öffnen und Account löschen</button>
   
   <div id="fallback" style="display: none; margin-top: 20px;">
+    <p>App nicht installiert?</p>
     <a href="https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp">
-      Zur App im Play Store
+      👉 Zur App im Google Play Store
+    </a>
+    <br><br>
+    <a href="https://apps.apple.com/ch/app/polymapp/id6743395389">
+      👉 Zur App im Apple App Store
     </a>
   </div>
 </div>
+
+<script>
+function openApp() {
+  // Beispiel: Custom App Scheme (falls vorhanden)
+  window.location.href = "polymapp://open";
+
+  // Fallback nach 1.5 Sekunden anzeigen
+  setTimeout(function () {
+    document.getElementById("fallback").style.display = "block";
+  }, 1500);
+}
+</script>
+
 
 <script>
   function openApp() {
@@ -108,8 +155,15 @@
 </script>
 
 <footer>
-  <p>PolymApp</p>
+  <p><strong>PolymApp</strong> - Accountverwaltung</p>
+  <p>
+    <a href="index.html">Home</a> ·
+    <a href="datenschutz.html">Datenschutz</a> ·
+    <a href="kontakt.html">Kontakt</a>
+  </p>
+  <p>© 2024 PolymApp</p>
 </footer>
+
 
 </body>
 </html>
