@@ -147,7 +147,7 @@
   <form action="https://formsubmit.co/info@polymapp.ch" method="POST">
 
     <!-- Sicherheit & Konfiguration -->
-    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_captcha" value="true">
     <input type="hidden" name="_subject" value="Neue Kontaktanfrage - PolymApp">
     <input type="hidden" name="_template" value="table">
 
@@ -155,7 +155,8 @@
     <input type="email" id="email" name="email" required>
 
     <label for="message">Nachricht <span>*</span></label>
-    <textarea id="message" name="message" rows="6" required></textarea>
+    <textarea id="message" name="message" rows="6" required minlength="10"></textarea>
+    <div class="g-recaptcha" data-sitekey="6LeVj0MsAAAAAL_jEDrNOX2p8RwSNtzI6lu84_8S"></div>
 
     <button type="submit">Nachricht senden</button>
   </form>
@@ -170,6 +171,7 @@
     </p>
   <p>© 2024 PolymApp</p>
 </footer>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 </body>
 </html>
