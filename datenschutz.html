@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-	<!-- Favicons -->
+  <!-- Favicons -->
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -25,6 +25,12 @@
       color: white;
       padding: 40px 20px;
       text-align: center;
+    }
+    .header-logo {
+      max-width: 400px;   /* Breite des Logos */
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
     }
     nav {
       background: #222;
@@ -54,13 +60,36 @@
       background: #f2f2f2;
       margin-top: 40px;
     }
+
+    .language-switch {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 0.9em;
+    }
+
+    .language-switch a {
+      color: white;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    .language-switch a:hover {
+      text-decoration: underline;
+    }
+
   </style>
 </head>
 <body>
 
 <header>
-  <h1>PolymApp</h1>
+  <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
   <h2>Datenschutzerklärung</h2>
+    <div class="language-switch">
+    <a href="datenschutz.html">DE</a> |
+    <a href="datenschutz-en.html">EN</a> |
+    <a href="datenschutz-fr.html">FR</a>
+  </div>
 </header>
 
 <nav>
@@ -168,7 +197,13 @@ Stand: 07.08.2025
 </div>
 
 <footer>
-  <p>PolymApp</p>
+  <p><strong>PolymApp</strong> - Datenschutzerklärung</p>
+  <p>
+    <a href="index.html">Home</a> ·
+    <a href="accountverwaltung.html">Accountverwaltung</a> ·
+    <a href="kontakt.html">Kontakt</a>
+  </p>
+  <p>© 2024 PolymApp</p>
 </footer>
 
 </body>
