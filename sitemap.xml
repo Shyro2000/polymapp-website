@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Deutsch -->
+  <url>
+    <loc>https://polymapp.ch/</loc>
+  </url>
+  <url>
+    <loc>https://polymapp.ch/datenschutz.html</loc>
+  </url>
+  <url>
+    <loc>https://polymapp.ch/accountverwaltung.html</loc>
+  </url>
+  <url>
+    <loc>https://polymapp.ch/kontakt.html</loc>
+  </url>
+
+  <!-- Englisch -->
+  <url>
+    <loc>https://polymapp.ch/index.en.html</loc>
+  </url>
+  <url>
+    <loc>https://polymapp.ch/datenschutz.en.html</loc>
+  </url>
+  <url>
+    <loc>https://polymapp.ch/accountverwaltung.en.html</loc>
+  </url>
+  <url>
+    <loc>https://polymapp.ch/kontakt.en.html</loc>
+  </url>
+
+  <!-- Französisch -->
+  <url>
+    <loc>https://polymapp.ch/index.fr.html</loc>
+  </url>
+  <url>
+    <loc>https://polymapp.ch/datenschutz.fr.html</loc>
+  </url>
+  <url>
+    <loc>https://polymapp.ch/accountverwaltung.fr.html</loc>
+  </url>
+  <url>
+    <loc>https://polymapp.ch/kontakt.fr.html</loc>
+  </url>
+
+</urlset>
