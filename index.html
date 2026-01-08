@@ -132,35 +132,6 @@
       text-decoration: underline;
     }
 
-  .features-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Zwei Spalten für Desktop */
-    gap: 20px;
-  }
-
-  /* Fix für mobile Geräte */
-  @media (max-width: 600px) {
-    .features-grid {
-      grid-template-columns: 1fr; /* Nur eine Spalte auf dem Handy */
-    }
-    
-    .language-switch {
-      position: static; /* Verhindert Überlagerung im Header auf kleinen Bildschirmen */
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    .header-logo {
-      max-width: 280px; /* Etwas kleiner auf dem Handy */
-    }
-  }
-
-  /* Verhindert, dass Bilder den Rahmen sprengen */
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-
   </style>
 </head>
 <body>
@@ -232,28 +203,28 @@
   </section>
 
   <section>
-  <h2>Detaillierte Funktionen für Ihre Fertigung</h2>
-  <div class="features-grid">
-    <div>
-      <h4>Mechanik & Toleranzen</h4>
-      <ul>
-        <li><strong>Toleranzrechner:</strong> ISO-Grenzmasse für Wellen und Bohrungen.</li>
-        <li><strong>Gewinderechner:</strong> Kernloch, Flankenmass und Toleranzen für alle gängigen Typen.</li>
-        <li><strong>Freistiche:</strong> Schneller Zugriff auf Normmasse nach DIN 509 und DIN 76.</li>
-        <li><strong>Oberflächen:</strong> Rauheitswerte (Ra, Rz) und Symbole sofort verstehen.</li>
-      </ul>
+    <h2>Detaillierte Funktionen für Ihre Fertigung</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div>
+        <h4>Mechanik & Toleranzen</h4>
+        <ul>
+          <li><strong>Toleranzrechner:</strong> ISO-Grenzmasse für Wellen und Bohrungen.</li>
+          <li><strong>Gewinderechner:</strong> Kernloch, Flankenmass und Toleranzen für alle gängigen Typen.</li>
+          <li><strong>Freistiche:</strong> Schneller Zugriff auf Normmasse nach DIN 509 und DIN 76.</li>
+          <li><strong>Oberflächen:</strong> Rauheitswerte (Ra, Rz) und Symbole sofort verstehen.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Berechnung & Material</h4>
+        <ul>
+          <li><strong>Schnittdaten:</strong> Ermitteln Sie Drehzahl, Vorschub und Bearbeitungszeit effizient.</li>
+          <li><strong>Werkstoffdatenbank:</strong> Chemische Zusammensetzung und Härtewerte von über 400 Stoffen.</li>
+          <li><strong>Geometrie:</strong> Berechnungen für Dreiecke, Kreise und Vielecke direkt integriert.</li>
+          <li><strong>G/M-Codes:</strong> Befehlslisten für Fanuc, Heidenhain und Siemens.</li>
+        </ul>
+      </div>
     </div>
-    <div>
-      <h4>Berechnung & Material</h4>
-      <ul>
-        <li><strong>Schnittdaten:</strong> Ermitteln Sie Drehzahl, Vorschub und Bearbeitungszeit effizient.</li>
-        <li><strong>Werkstoffdatenbank:</strong> Chemische Zusammensetzung und Härtewerte von über 400 Stoffen.</li>
-        <li><strong>Geometrie:</strong> Berechnungen für Dreiecke, Kreise und Vielecke direkt integriert.</li>
-        <li><strong>G/M-Codes:</strong> Befehlslisten für Fanuc, Heidenhain und Siemens.</li>
-      </ul>
-    </div>
-  </div>
-</section>
+  </section>
 
   <div class="image-section">
     <img src="images/smartphone_with_hands.png" alt="PolymApp im praktischen Einsatz an der CNC-Maschine">
