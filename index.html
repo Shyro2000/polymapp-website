@@ -131,6 +131,34 @@
     .language-switch a:hover {
       text-decoration: underline;
     }
+    .features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Mobile Fix */
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.container {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+li {
+  word-break: break-word;
+}
+.image-section img {
+  max-width: 100%;
+  height: auto;
+}
+
 
   </style>
 </head>
@@ -204,7 +232,7 @@
 
   <section>
     <h2>Detaillierte Funktionen für Ihre Fertigung</h2>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+<div class="features-grid">
       <div>
         <h4>Mechanik & Toleranzen</h4>
         <ul>

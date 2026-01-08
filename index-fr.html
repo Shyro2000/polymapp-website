@@ -132,6 +132,33 @@
     .language-switch a:hover {
       text-decoration: underline;
     }
+    .features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Mobile Fix */
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.container {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+li {
+  word-break: break-word;
+}
+.image-section img {
+  max-width: 100%;
+  height: auto;
+}
 
   </style>
 </head>
@@ -160,7 +187,7 @@
     <div class="hero-text">
       <h1>PolymApp : L'application ultime pour les professionnels CNC</h1>
       <p>
-        Tolérances ISO, filetages, matériaux et calculs – 
+        Tolérances ISO, filetages, matériaux et calculs - 
         tout dans une seule application. Rapide. Hors ligne. Pratique. Développée par un polymécanicien pour des experts comme vous.
       </p>
     </div>
@@ -173,8 +200,8 @@
   <section>
     <h2>Qu'est-ce que PolymApp ?</h2>
     <p>
-      <strong>PolymApp est l'application tout-en-un pour les spécialistes CNC – développée à partir de l'expérience terrain d'un polymécanicien qualifié.</strong><br>
-      Dans la production moderne, le temps est le facteur décisif. PolymApp a été créée pour combler le fossé numérique entre le manuel technique classique et la machine CNC à haute efficacité. Elle regroupe toutes les références techniques et calculateurs essentiels en une seule application : tolérances ISO, dimensions de filetage, gorges de dégagement, données sur les matériaux, états de surface et bien plus encore – toujours à portée de main, même sans connexion Internet, directement dans l'atelier.
+      <strong>PolymApp est l'application tout-en-un pour les spécialistes CNC - développée à partir de l'expérience terrain d'un polymécanicien qualifié.</strong><br>
+      Dans la production moderne, le temps est le facteur décisif. PolymApp a été créée pour combler le fossé numérique entre le manuel technique classique et la machine CNC à haute efficacité. Elle regroupe toutes les références techniques et calculateurs essentiels en une seule application : tolérances ISO, dimensions de filetage, gorges de dégagement, données sur les matériaux, états de surface et bien plus encore - toujours à portée de main, même sans connexion Internet, directement dans l'atelier.
     </p>
   </section>
 
@@ -187,25 +214,25 @@
       
       <p><strong>3. Encyclopédie complète des matériaux :</strong> Avec un accès à plus de 400 matériaux, vous trouverez non seulement les propriétés mécaniques, mais aussi des conseils précieux sur l'usinabilité et des recommandations de données de coupe. Comparez les normes internationales de matériaux en quelques secondes.</p>
       
-      <p><strong>4. Priorité au mode hors ligne pour l'atelier :</strong> Nous savons que la réception est souvent limitée dans les halls de production. C'est pourquoi toutes les fonctions de base de PolymApp sont disponibles hors ligne. Vos données sont exactement là où vous en avez besoin – directement à la broche de la machine.</p>
+      <p><strong>4. Priorité au mode hors ligne pour l'atelier :</strong> Nous savons que la réception est souvent limitée dans les halls de production. C'est pourquoi toutes les fonctions de base de PolymApp sont disponibles hors ligne. Vos données sont exactement là où vous en avez besoin - directement à la broche de la machine.</p>
       
-      <p><strong>5. Par des pros, pour des pros :</strong> PolymApp n'est pas un projet informatique théorique ; c'est un outil optimisé précisément pour les exigences quotidiennes d'un polymécanicien – sans superflu, intuitif et extrêmement rapide.</p>
+      <p><strong>5. Par des pros, pour des pros :</strong> PolymApp n'est pas un projet informatique théorique ; c'est un outil optimisé précisément pour les exigences quotidiennes d'un polymécanicien - sans superflu, intuitif et extrêmement rapide.</p>
     </div>
   </section>
 
   <section>
     <h2>Vos avantages en un coup d'œil</h2>
     <ul>
-      <li><strong>Gain de temps maximal</strong> – Obtenez des réponses et des calculs en quelques secondes au lieu de chercher dans des manuels.</li>
-      <li><strong>Tout au même endroit</strong> – Remplacez plusieurs applications spécialisées et de gros livres techniques par un outil unique et fiable.</li>
-      <li><strong>Précision au quotidien</strong> – Minimisez les rebuts grâce au calcul exact des ajustements et des valeurs inverses.</li>
-      <li><strong>Mises à jour continues</strong> – PolymApp évolue avec vos besoins. De nouvelles normes et fonctions sont régulièrement ajoutées pour vous.</li>
+      <li><strong>Gain de temps maximal</strong> - Obtenez des réponses et des calculs en quelques secondes au lieu de chercher dans des manuels.</li>
+      <li><strong>Tout au même endroit</strong> - Remplacez plusieurs applications spécialisées et de gros livres techniques par un outil unique et fiable.</li>
+      <li><strong>Précision au quotidien</strong> - Minimisez les rebuts grâce au calcul exact des ajustements et des valeurs inverses.</li>
+      <li><strong>Mises à jour continues</strong> - PolymApp évolue avec vos besoins. De nouvelles normes et fonctions sont régulièrement ajoutées pour vous.</li>
     </ul>
   </section>
 
   <section>
     <h2>Fonctions détaillées pour votre production</h2>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+<div class="features-grid">
       <div>
         <h4>Mécanique & Tolérances</h4>
         <ul>
