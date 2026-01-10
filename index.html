@@ -160,6 +160,68 @@ li {
 }
 
 
+/* === HERO SLIDESHOW === */
+
+.slideshow {
+  position: relative;
+  max-height: 400px;
+}
+
+.slides {
+  position: relative;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+  max-height: 400px;
+  width: auto;
+}
+
+.slide.active {
+  opacity: 1;
+  position: relative;
+}
+
+/* Pfeile */
+.slideshow .nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(184, 0, 0, 0.85); /* PolymApp-Rot */
+  color: white;
+  border: none;
+  font-size: 28px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-radius: 50%;
+  z-index: 10;
+  transition: background 0.2s ease;
+}
+
+.slideshow .nav:hover {
+  background: rgba(246, 1, 0, 1);
+}
+
+.slideshow .prev {
+  left: 10px;
+}
+
+.slideshow .next {
+  right: 10px;
+}
+
+/* Mobile: Pfeile etwas kleiner */
+@media (max-width: 768px) {
+  .slideshow .nav {
+    font-size: 22px;
+    padding: 8px 12px;
+  }
+}
+
+
 /* === SLIDESHOW ZÄHLER === */
 .counter {
   position: absolute;
