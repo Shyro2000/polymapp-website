@@ -160,6 +160,130 @@ li {
   height: auto;
 }
 
+
+
+/* === HERO SLIDESHOW === */
+
+.slideshow {
+  position: relative;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slides {
+  position: relative;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+  max-height: 400px;
+  width: auto;
+}
+
+.slide.active {
+  opacity: 1;
+  position: relative;
+}
+
+/* === PFEILE LINKS/RECHTS MITTEL ZUM BILD === */
+
+.slideshow {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 400px;
+}
+
+/* Slides */
+.slides {
+  position: relative;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slide {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+  max-height: 400px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.slide.active {
+  opacity: 1;
+  position: relative;
+}
+
+/* Pfeile */
+.slideshow .nav {
+  position: absolute;
+  top: 50%;                  /* Vertikal mittig */
+  transform: translateY(-50%); /* Genau zentrieren */
+  background: #B80000;
+  color: white;
+  border: none;
+  font-size: 26px;
+  padding: 10px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 10;
+}
+
+.slideshow .nav:hover {
+  background: #F60100;
+}
+
+.slideshow .prev {
+  left: -60px; /* Abstand links vom Bild */
+}
+
+.slideshow .next {
+  right: -60px; /* Abstand rechts vom Bild */
+}
+
+/* Mobile Anpassung */
+@media (max-width: 768px) {
+  .slideshow .prev {
+    left: -50px;
+  }
+  .slideshow .next {
+    right: -50px;
+  }
+  .slideshow .nav {
+    font-size: 22px;
+    padding: 8px 14px;
+  }
+}
+
+/* === SLIDESHOW ZÄHLER === */
+
+.counter {
+  position: absolute;
+  bottom: 12px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 0.9em;
+  padding: 4px 10px;
+  border-radius: 12px;
+  z-index: 10;
+  user-select: none;
+}
+
   </style>
 </head>
 <body>
@@ -311,6 +435,49 @@ Anciennement disponible sur polymapp.weebly.com
 </p>
 <br>
 </footer>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const prevBtn = document.querySelector('.prev');
+  const nextBtn = document.querySelector('.next');
+  const counter = document.querySelector('.counter');
+
+  let currentIndex = 0;
+  const totalSlides = slides.length;
+
+  function showSlide(index) {
+    slides.forEach(slide => slide.classList.remove('active'));
+    slides[index].classList.add('active');
+    counter.textContent = `${index + 1} / ${totalSlides}`;
+  }
+
+  prevBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    showSlide(currentIndex);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    showSlide(currentIndex);
+  });
+
+  /* === Wischsteuerung === */
+  let startX = 0;
+  const slideshow = document.querySelector('.slideshow');
+
+  slideshow.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+  });
+
+  slideshow.addEventListener('touchend', e => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = startX - endX;
+
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? nextBtn.click() : prevBtn.click();
+    }
+  });
+</script>
 
 </body>
 </html>
