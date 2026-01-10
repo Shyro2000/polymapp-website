@@ -165,10 +165,17 @@ li {
 .slideshow {
   position: relative;
   max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .slides {
   position: relative;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .slide {
@@ -185,44 +192,42 @@ li {
   position: relative;
 }
 
-/* Pfeile */
+/* === PFEILE AUSSERHALB === */
+
+.slideshow-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 280px;
+  width: 100%;
+  margin: 15px auto 0;
+}
+
 .slideshow .nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(184, 0, 0, 0.85); /* PolymApp-Rot */
+  background: #B80000; /* PolymApp-Rot */
   color: white;
   border: none;
-  font-size: 28px;
-  padding: 10px 14px;
+  font-size: 26px;
+  padding: 10px 18px;
+  border-radius: 30px;
   cursor: pointer;
-  border-radius: 50%;
-  z-index: 10;
   transition: background 0.2s ease;
 }
 
 .slideshow .nav:hover {
-  background: rgba(246, 1, 0, 1);
+  background: #F60100;
 }
 
-.slideshow .prev {
-  left: 10px;
-}
-
-.slideshow .next {
-  right: 10px;
-}
-
-/* Mobile: Pfeile etwas kleiner */
+/* Mobile Feinjustierung */
 @media (max-width: 768px) {
   .slideshow .nav {
     font-size: 22px;
-    padding: 8px 12px;
+    padding: 8px 14px;
   }
 }
 
-
 /* === SLIDESHOW ZÄHLER === */
+
 .counter {
   position: absolute;
   bottom: 12px;
@@ -290,9 +295,10 @@ li {
 
   <div class="counter">1 / 16</div>
 
-  <button class="nav prev" aria-label="Vorheriges Bild">&#10094;</button>
-  <button class="nav next" aria-label="Nächstes Bild">&#10095;</button>
-
+  <div class="slideshow-controls">
+  <button class="nav prev">&#10094;</button>
+  <button class="nav next">&#10095;</button>
+</div>
 </div>
 
   <section>
