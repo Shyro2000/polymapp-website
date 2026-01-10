@@ -192,19 +192,45 @@ li {
   position: relative;
 }
 
-/* === PFEILE AUSSERHALB === */
+/* === PFEILE LINKS/RECHTS MITTEL ZUM BILD === */
 
-.slideshow-controls {
+.slideshow {
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  max-width: 280px;
-  width: 100%;
-  margin: 15px auto 0;
+  max-height: 400px;
 }
 
+/* Slides */
+.slides {
+  position: relative;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slide {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+  max-height: 400px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.slide.active {
+  opacity: 1;
+  position: relative;
+}
+
+/* Pfeile */
 .slideshow .nav {
-  background: #B80000; /* PolymApp-Rot */
+  position: absolute;
+  top: 50%;                  /* Vertikal mittig */
+  transform: translateY(-50%); /* Genau zentrieren */
+  background: #B80000;
   color: white;
   border: none;
   font-size: 26px;
@@ -212,14 +238,29 @@ li {
   border-radius: 30px;
   cursor: pointer;
   transition: background 0.2s ease;
+  z-index: 10;
 }
 
 .slideshow .nav:hover {
   background: #F60100;
 }
 
-/* Mobile Feinjustierung */
+.slideshow .prev {
+  left: -60px; /* Abstand links vom Bild */
+}
+
+.slideshow .next {
+  right: -60px; /* Abstand rechts vom Bild */
+}
+
+/* Mobile Anpassung */
 @media (max-width: 768px) {
+  .slideshow .prev {
+    left: -40px;
+  }
+  .slideshow .next {
+    right: -40px;
+  }
   .slideshow .nav {
     font-size: 22px;
     padding: 8px 14px;
