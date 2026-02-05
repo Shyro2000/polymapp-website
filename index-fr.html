@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta name="description" content="PolymApp - Tout pour l'usinage CNC. Plus de 400 matériaux, codes G/M pour Fanuc, Siemens & Heidenhain, tolérances ISO & filetages et bien plus dans une seule application.">
-
-    <link rel="canonical" href="https://polymapp.ch/index-fr.html">
+  <meta name="description" content="PolymApp est l'application ultime pour les professionnels CNC. Elle regroupe toutes les fonctions de référence essentielles : tolérances ISO, filetages, dégagements, matériaux, spécifications de surface et bien plus - disponible à tout moment, même hors ligne.">
 
   <link rel="alternate" hreflang="de" href="https://polymapp.ch/">
   <link rel="alternate" hreflang="en" href="https://polymapp.ch/index-en.html">
@@ -162,130 +160,6 @@ li {
   height: auto;
 }
 
-
-
-/* === HERO SLIDESHOW === */
-
-.slideshow {
-  position: relative;
-  max-height: 400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.slides {
-  position: relative;
-  height: 400px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.6s ease-in-out;
-  max-height: 400px;
-  width: auto;
-}
-
-.slide.active {
-  opacity: 1;
-  position: relative;
-}
-
-/* === PFEILE LINKS/RECHTS MITTEL ZUM BILD === */
-
-.slideshow {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-height: 400px;
-}
-
-/* Slides */
-.slides {
-  position: relative;
-  height: 400px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.slide {
-  position: absolute;
-  opacity: 0;
-  transition: opacity 0.6s ease-in-out;
-  max-height: 400px;
-  max-width: 100%;
-  object-fit: contain;
-}
-
-.slide.active {
-  opacity: 1;
-  position: relative;
-}
-
-/* Pfeile */
-.slideshow .nav {
-  position: absolute;
-  top: 50%;                  /* Vertikal mittig */
-  transform: translateY(-50%); /* Genau zentrieren */
-  background: #B80000;
-  color: white;
-  border: none;
-  font-size: 26px;
-  padding: 10px 18px;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  z-index: 10;
-}
-
-.slideshow .nav:hover {
-  background: #F60100;
-}
-
-.slideshow .prev {
-  left: -60px; /* Abstand links vom Bild */
-}
-
-.slideshow .next {
-  right: -60px; /* Abstand rechts vom Bild */
-}
-
-/* Mobile Anpassung */
-@media (max-width: 768px) {
-  .slideshow .prev {
-    left: -50px;
-  }
-  .slideshow .next {
-    right: -50px;
-  }
-  .slideshow .nav {
-    font-size: 22px;
-    padding: 8px 14px;
-  }
-}
-
-/* === SLIDESHOW ZÄHLER === */
-
-.counter {
-  position: absolute;
-  bottom: 12px;
-  right: 15px;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  font-size: 0.9em;
-  padding: 4px 10px;
-  border-radius: 12px;
-  z-index: 10;
-  user-select: none;
-}
-
   </style>
 </head>
 <body>
@@ -304,6 +178,7 @@ li {
   <a href="index-fr.html">THE Mechanic App</a>
   <a href="accountverwaltung-fr.html">Gestion du compte</a>
   <a href="datenschutz-fr.html">Politique de confidentialité</a>
+  <a href="about-fr.html">À propos</a>
   <a href="kontakt-fr.html">Contact</a>
 </nav>
 
@@ -318,34 +193,10 @@ li {
       </p>
     </div>
 
-        <div class="hero-image slideshow">
-
-  <div class="slides">
-    <img src="images/Screenshot_1-fr_PolymApp.jpg" class="slide active" alt="PolymApp Screenshot 1">
-    <img src="images/Screenshot_2-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 2">
-    <img src="images/Screenshot_3-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 3">
-    <img src="images/Screenshot_4-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 4">
-    <img src="images/Screenshot_5-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 5">
-    <img src="images/Screenshot_6-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 6">
-    <img src="images/Screenshot_7-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 7">
-    <img src="images/Screenshot_8-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 8">
-    <img src="images/Screenshot_9-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 9">
-    <img src="images/Screenshot_10-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 10">
-    <img src="images/Screenshot_11-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 11">
-    <img src="images/Screenshot_12-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 12">
-    <img src="images/Screenshot_13-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 13">
-    <img src="images/Screenshot_14-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 14">
-    <img src="images/Screenshot_15-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 15">
-    <img src="images/Screenshot_16-fr_PolymApp.jpg" class="slide" alt="PolymApp Screenshot 16">
+    <div class="hero-image">
+      <img src="images/smartphone.png" alt="PolymApp sur smartphone">
+    </div>
   </div>
-
-  <div class="counter">1 / 16</div>
-
-  <div class="slideshow-controls">
-  <button class="nav prev">&#10094;</button>
-  <button class="nav next">&#10095;</button>
-</div>
-</div>
 
   <section>
     <h2>Qu'est-ce que PolymApp ?</h2>
@@ -358,7 +209,7 @@ li {
   <section>
     <h2>Top 5 des raisons de choisir PolymApp</h2>
     <div class="reasons">
-      <p><strong>1. Reconnaissance intelligente de texte sur dessins techniques :</strong> Fini la saisie manuelle fastidieuse des tolérances. Photographiez simplement la cote sur votre dessin technique (ex. 30 H7), et PolymApp vous fournit instantanément les dimensions limites. Cela vous fait gagner un temps précieux et élimine les erreurs de transcription.</p>
+      <p><strong>1. Reconnaissance révolutionnaire par caméra IA :</strong> Fini la saisie manuelle fastidieuse des tolérances. Photographiez simplement la cote sur votre dessin technique (ex. 30 H7), et PolymApp vous fournit instantanément les dimensions limites. Cela vous fait gagner un temps précieux et élimine les erreurs de transcription.</p>
       
       <p><strong>2. Calculateur de pré-tolérance intelligent :</strong> Vos pièces sont-elles traitées après l'usinage ? PolymApp calcule automatiquement les pré-tolérances nécessaires en tenant compte des épaisseurs de revêtement (ex. zingage ou anodisation), afin que la dimension finale vous convienne parfaitement.</p>
       
@@ -375,7 +226,7 @@ li {
     <ul>
       <li><strong>Gain de temps maximal</strong> - Obtenez des réponses et des calculs en quelques secondes au lieu de chercher dans des manuels.</li>
       <li><strong>Tout au même endroit</strong> - Remplacez plusieurs applications spécialisées et de gros livres techniques par un outil unique et fiable.</li>
-      <li><strong>Précision au quotidien</strong> - Réduisez les erreurs et les pertes grâce à des calculs rapides et fiables directement dans l’atelier.</li>
+      <li><strong>Précision au quotidien</strong> - Minimisez les rebuts grâce au calcul exact des ajustements et des valeurs inverses.</li>
       <li><strong>Mises à jour continues</strong> - PolymApp évolue avec vos besoins. De nouvelles normes et fonctions sont régulièrement ajoutées pour vous.</li>
     </ul>
   </section>
@@ -396,7 +247,7 @@ li {
         <h4>Calculs & Matériaux</h4>
         <ul>
           <li><strong>Données de coupe :</strong> Déterminez efficacement le régime (tr/min), l'avance et le temps d'usinage.</li>
-          <li><strong>Base de données des matériaux :</strong> Propriétés physiques, désignations normatives, données de coupe adaptées et bien plus encore pour plus de 400 matériaux.</li>
+          <li><strong>Base de données matériaux :</strong> Composition chimique et dureté de plus de 400 matériaux.</li>
           <li><strong>Géométrie :</strong> Calculs intégrés pour triangles, cercles et polygones.</li>
           <li><strong>Codes G / M :</strong> Listes de commandes pour Fanuc, Heidenhain et Siemens.</li>
         </ul>
@@ -453,59 +304,11 @@ li {
   <p>
     <a href="confidentialite.html">Confidentialité</a> ·
     <a href="compte.html">Gestion du compte</a> ·
+    <a href="about-fr.html">À propos</a> ·
     <a href="contact.html">Contact</a>
   </p>
   <p>© 2024 PolymApp | Développée pour les polymécaniciens & spécialistes CNC</p>
-<p>
-Anciennement disponible sur polymapp.weebly.com
-</p>
-<br>
 </footer>
-
-<script>
-  const slides = document.querySelectorAll('.slide');
-  const prevBtn = document.querySelector('.prev');
-  const nextBtn = document.querySelector('.next');
-  const counter = document.querySelector('.counter');
-
-  let currentIndex = 0;
-  const totalSlides = slides.length;
-
-  function showSlide(index) {
-    slides.forEach(slide => slide.classList.remove('active'));
-    slides[index].classList.add('active');
-    counter.textContent = `${index + 1} / ${totalSlides}`;
-  }
-
-  prevBtn.addEventListener('click', () => {
-    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-    showSlide(currentIndex);
-  });
-
-  nextBtn.addEventListener('click', () => {
-    currentIndex = (currentIndex + 1) % totalSlides;
-    showSlide(currentIndex);
-  });
-
-  /* === Wischsteuerung === */
-  let startX = 0;
-  const slideshow = document.querySelector('.slideshow');
-
-  slideshow.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-  });
-
-  slideshow.addEventListener('touchend', e => {
-    const endX = e.changedTouches[0].clientX;
-    const diff = startX - endX;
-
-    if (Math.abs(diff) > 50) {
-      diff > 0 ? nextBtn.click() : prevBtn.click();
-    }
-  });
-</script>
 
 </body>
 </html>
-
-
