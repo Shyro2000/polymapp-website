@@ -84,6 +84,23 @@
       text-decoration: underline;
     }
 
+        nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    /* Trenner automatisch nach jedem Link – außer dem letzten */
+    nav a:not(:last-child)::after {
+      content: " |";
+      color: white;       /* gleiche Farbe wie Links */
+      margin-left: 10px;
+    }
+
+    nav a.active {
+      font-weight: bold;
+    }
+
   </style>
 </head>
 <body>
@@ -101,7 +118,7 @@
 <nav>
   <a href="index-fr.html">THE Mechanic App</a>
   <a href="accountverwaltung-fr.html">Gestion du compte</a>
-  <a href="datenschutz-fr.html">Politique de confidentialité</a>
+  <a href="datenschutz-fr.html" class="active">Politique de confidentialité</a>
   <a href="about-fr.html">À propos</a>
   <a href="kontakt-fr.html">Contact</a>
 </nav>

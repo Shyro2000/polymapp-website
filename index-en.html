@@ -284,6 +284,23 @@ li {
   user-select: none;
 }
 
+        nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    /* Trenner automatisch nach jedem Link – außer dem letzten */
+    nav a:not(:last-child)::after {
+      content: " |";
+      color: white;       /* gleiche Farbe wie Links */
+      margin-left: 10px;
+    }
+
+    nav a.active {
+      font-weight: bold;
+    }
+
   </style>
 </head>
 <body>
@@ -299,7 +316,7 @@ li {
 </header>
 
 <nav>
-  <a href="index-en.html">THE Mechanic App</a>
+  <a href="index-en.html" class="active">THE Mechanic App</a>
   <a href="accountverwaltung-en.html">Account Management</a>
   <a href="datenschutz-en.html">Privacy Policy</a>
   <a href="about-en.html">About Me</a>

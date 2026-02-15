@@ -98,6 +98,23 @@
     .about-text {
       flex: 1;
     }
+
+        nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    /* Trenner automatisch nach jedem Link – außer dem letzten */
+    nav a:not(:last-child)::after {
+      content: " |";
+      color: white;       /* gleiche Farbe wie Links */
+      margin-left: 10px;
+    }
+
+    nav a.active {
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -118,7 +135,7 @@
   <a href="index.html">THE Mechanic App</a>
   <a href="accountverwaltung.html">Accountverwaltung</a>
   <a href="datenschutz.html">Datenschutzerklärung</a>
-  <a href="about.html">Über mich</a>
+  <a href="about.html" class="active">Über mich</a>
   <a href="kontakt.html">Kontakt</a>
 </nav>
 
