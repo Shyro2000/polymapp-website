@@ -228,8 +228,11 @@ Stand: 07.08.2025
     <a href="about.html">Über mich</a> ·
     <a href="kontakt.html">Kontakt</a>
   </p>
-  <p>© 2024 PolymApp</p>
+  <p>© 2024-<span id="year"></span> PolymApp</p>
 </footer>
 
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 </body>
 </html>
