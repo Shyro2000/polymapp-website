@@ -472,12 +472,18 @@ li {
     <a href="about-en.html">About me</a> ·
     <a href="contact.html">Contact</a>
   </p>
-  <p>© 2024 PolymApp | Developed for Polymechanics & CNC Specialists</p>
+  <p>© 2024-<span id="year"></span> PolymApp | Developed for Polymechanics & CNC Specialists</p>
 <p>
 Previously available at polymapp.weebly.com
 </p>
 <br>
 </footer>
+
+  
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+  
 <script>
   const slides = document.querySelectorAll('.slide');
   const prevBtn = document.querySelector('.prev');
