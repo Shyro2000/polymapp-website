@@ -173,8 +173,12 @@ function openApp() {
     <a href="about-en.html">About me</a> ·
     <a href="kontakt-en.html">Contact</a>
   </p>
-  <p>© 2024 PolymApp</p>
+  <p>© 2024-<span id="year"></span> PolymApp</p>
 </footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 
 </body>
