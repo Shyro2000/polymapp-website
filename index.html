@@ -464,9 +464,10 @@ li {
       <div><strong>iOS</strong></div>
     </div>
   </div>
-
 </div>
 
+
+ 
 <footer>
   <p><strong>PolymApp</strong> - Die Referenz-App für moderne Fertigungstechnik</p>
   <p>
@@ -475,11 +476,14 @@ li {
     <a href="about.html">Über mich</a> ·
     <a href="kontakt.html">Kontakt</a>
   </p>
-  <p>© 2024 PolymApp | Entwickelt für Polymechaniker & CNC-Spezialisten</p>
-<p>Früher erreichbar unter polymapp.weebly.com</p>
+<p>© 2024-<span id="year"></span> PolymApp | Entwickelt für Polymechaniker & CNC-Spezialisten</p>
+ <p>Früher erreichbar unter polymapp.weebly.com</p>
 <br>
 </footer>
 
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 <script>
   const slides = document.querySelectorAll('.slide');
