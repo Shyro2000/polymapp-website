@@ -194,8 +194,14 @@
     <a href="accountverwaltung-en.html">Account Management</a> ·
     <a href="about-en.html">About me</a>
   </p>
-  <p>© 2024 PolymApp</p>
+  <p>© 2024-<span id="year"></span> PolymApp</p>
 </footer>
+
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>      
+      
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 </body>
