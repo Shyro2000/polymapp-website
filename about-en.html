@@ -187,8 +187,12 @@
     <a href="datenschutz-en.html">Privacy Policy</a> ·
     <a href="kontakt-en.html">Contact</a>
   </p>
-  <p>© 2024 PolymApp | Developed for Polymechanics & CNC Specialists</p>
+ <p>© 2024-<span id="year"></span> PolymApp</p>
 </footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
