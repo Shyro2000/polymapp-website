@@ -1,1 +1,165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PolymApp - Download</title>
+    <meta name="description" content="Du wirst zum passenden App Store für PolymApp weitergeleitet.">
 
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+    <link rel="icon" href="../favicon.ico">
+
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            line-height: 1.5; 
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header-logo {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        nav {
+            background: #222;
+            padding: 10px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        nav a:not(:last-child)::after {
+            content: " |";
+            color: white;
+            margin-left: 10px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 40px 20px;
+            text-align: center;
+            flex-grow: 1;
+        }
+        h2 {
+            color: #B00000;
+        }
+        .countdown-box {
+            font-size: 3em;
+            font-weight: bold;
+            color: #F60100;
+            margin: 20px 0;
+        }
+        button {
+            background-color: #F60100;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #B80000;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f2f2f2;
+        }
+        footer a {
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+  <img src="../images/logo_white.png" alt="PolymApp Logo" class="header-logo">
+  <h2>App Download</h2>
+</header>
+
+<nav>
+  <a href="../index.html">Startseite</a>
+  <a href="../accountverwaltung.html">Accountverwaltung</a>
+  <a href="../datenschutz.html">Datenschutzerklärung</a>
+  <a href="../kontakt.html">Kontakt</a>
+</nav>
+
+<div class="container">
+  <h2 id="status-text">Einen Moment bitte...</h2>
+  <p id="device-info">Wir erkennen dein Betriebssystem und leiten dich zum passenden Store weiter.</p>
+  
+  <div class="countdown-box" id="countdown">5</div>
+  
+  <p>Falls die Weiterleitung nicht automatisch erfolgt:</p>
+  <button onclick="redirectToStore()">Jetzt zum Store</button>
+</div>
+
+<footer>
+  <p><strong>PolymApp</strong> - Das digitale Tabellenbuch</p>
+  <p>© 2024-<span id="year"></span> PolymApp</p>
+</footer>
+
+<script>
+    // Konfiguration der Links
+    const androidUrl = "https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp";
+    const iosUrl = "https://apps.apple.com/ch/app/polymapp/id6743395389?l=de-DE";
+    const fallbackUrl = "https://www.polymapp.ch";
+
+    let targetUrl = fallbackUrl;
+    let seconds = 3;
+
+    // 1. Betriebssystem erkennen
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const statusText = document.getElementById("status-text");
+
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        targetUrl = iosUrl;
+        statusText.innerText = "Weiterleitung zum Apple App Store";
+    } else if (/android/i.test(userAgent)) {
+        targetUrl = androidUrl;
+        statusText.innerText = "Weiterleitung zum Google Play Store";
+    } else {
+        targetUrl = fallbackUrl;
+        statusText.innerText = "Weiterleitung zur Webseite";
+    }
+
+    // 2. Countdown-Funktion
+    const countdownElement = document.getElementById("countdown");
+    const interval = setInterval(() => {
+        seconds--;
+        countdownElement.innerText = seconds;
+        
+        if (seconds <= 0) {
+            clearInterval(interval);
+            redirectToStore();
+        }
+    }, 1000);
+
+    // 3. Weiterleitungs-Funktion
+    function redirectToStore() {
+        window.location.replace(targetUrl);
+    }
+
+    // Jahreszahl im Footer setzen
+    document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
