@@ -32,6 +32,11 @@
             height: auto;
             margin-bottom: 10px;
         }
+        /* H2 im Header (auf Rot) */
+        header h2 {
+            color: white;
+            margin: 0;
+        }
         nav {
             background: #222;
             padding: 10px;
@@ -54,11 +59,12 @@
             text-align: center;
             flex-grow: 1;
         }
-        h2 {
-            color: white;
+        /* H2 im Container (auf Weiß) */
+        .container h2 {
+            color: #B00000;
         }
         .countdown-box {
-            font-size: 3em;
+            font-size: 4em;
             font-weight: bold;
             color: #F60100;
             margin: 20px 0;
@@ -90,30 +96,30 @@
 <body>
 
 <header>
-  <img src="../images/logo_white.png" alt="PolymApp Logo" class="header-logo">
-  <h2>App Download</h2>
+    <img src="../images/logo_white.png" alt="PolymApp Logo" class="header-logo">
+    <h2>App Download</h2>
 </header>
 
 <nav>
-  <a href="../index.html">Startseite</a>
-  <a href="../accountverwaltung.html">Accountverwaltung</a>
-  <a href="../datenschutz.html">Datenschutzerklärung</a>
-  <a href="../kontakt.html">Kontakt</a>
+    <a href="../index.html">Startseite</a>
+    <a href="../accountverwaltung.html">Accountverwaltung</a>
+    <a href="../datenschutz.html">Datenschutzerklärung</a>
+    <a href="../kontakt.html">Kontakt</a>
 </nav>
 
 <div class="container">
-  <h2 id="status-text">Einen Moment bitte...</h2>
-  <p id="device-info">Wir erkennen dein Betriebssystem und leiten dich zum passenden Store weiter.</p>
-  
-  <div class="countdown-box" id="countdown">30</div>
-  
-  <p>Falls die Weiterleitung nicht automatisch erfolgt:</p>
-  <button onclick="redirectToStore()">Jetzt zum Store</button>
+    <h2 id="status-text">Einen Moment bitte...</h2>
+    <p id="device-info">Wir erkennen dein Betriebssystem und leiten dich zum passenden Store weiter.</p>
+    
+    <div class="countdown-box" id="countdown">30</div>
+    
+    <p>Falls die Weiterleitung nicht automatisch erfolgt:</p>
+    <button onclick="redirectToStore()">Jetzt zum Store</button>
 </div>
 
 <footer>
-  <p><strong>PolymApp</strong> - Das digitale Tabellenbuch</p>
-  <p>© 2024-<span id="year"></span> PolymApp</p>
+    <p><strong>PolymApp</strong> - Das digitale Tabellenbuch</p>
+    <p>© 2024-<span id="year"></span> PolymApp</p>
 </footer>
 
 <script>
@@ -122,8 +128,9 @@
     const iosUrl = "https://apps.apple.com/ch/app/polymapp/id6743395389?l=de-DE";
     const fallbackUrl = "https://www.polymapp.ch";
 
+    // HIER kannst du später die Zeit wieder auf 5 oder 10 ändern
+    let seconds = 30; 
     let targetUrl = fallbackUrl;
-    let seconds = 30;
 
     // 1. Betriebssystem erkennen
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
