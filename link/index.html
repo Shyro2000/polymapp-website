@@ -107,12 +107,12 @@
 
 <div class="container">
     <h2 id="status-text">Einen Moment bitte...</h2>
-    <p id="device-info">Wir erkennen dein Betriebssystem und leiten dich zum passenden Store weiter.</p>
+    <p id="device-info">Betriebssystem wird erkannt, weiterleitung erfolgt in...</p>
     
-    <div class="countdown-box" id="countdown">30</div>
+    <div class="countdown-box" id="countdown">3</div>
     
     <p>Falls die Weiterleitung nicht automatisch erfolgt:</p>
-    <button onclick="redirectToStore()">Jetzt zum Store</button>
+    <button onclick="redirectToStore()">Hier klicken</button>
 </div>
 
 <footer>
@@ -125,7 +125,7 @@
     const iosUrl = "https://apps.apple.com/ch/app/polymapp/id6743395389?l=de-DE";
     const fallbackUrl = "https://www.polymapp.ch";
 
-    const totalSeconds = 30; // Testzeit
+    const totalSeconds = 3;
     const startTime = Date.now();
     let targetUrl = fallbackUrl;
 
@@ -160,7 +160,7 @@
             clearInterval(timer);
             redirectToStore();
         }
-    }, 100); // Checkt alle 100ms, ob eine Sekunde vergangen ist -> viel flüssiger!
+    }, 100);
 
     function redirectToStore() {
         window.location.replace(targetUrl);
