@@ -32,7 +32,6 @@
             height: auto;
             margin-bottom: 10px;
         }
-        /* H2 im Header (auf Rot) */
         header h2 {
             color: white;
             margin: 0;
@@ -59,7 +58,6 @@
             text-align: center;
             flex-grow: 1;
         }
-        /* H2 im Container (auf Weiß) */
         .container h2 {
             color: #B00000;
         }
@@ -123,13 +121,12 @@
 </footer>
 
 <script>
-    // Konfiguration der Links
     const androidUrl = "https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp";
     const iosUrl = "https://apps.apple.com/ch/app/polymapp/id6743395389?l=de-DE";
     const fallbackUrl = "https://www.polymapp.ch";
 
-    // HIER kannst du später die Zeit wieder auf 5 oder 10 ändern
-    let seconds = 30; 
+    const totalSeconds = 30; // Testzeit
+    const startTime = Date.now();
     let targetUrl = fallbackUrl;
 
     // 1. Betriebssystem erkennen
@@ -147,24 +144,28 @@
         statusText.innerText = "Weiterleitung zur Webseite";
     }
 
-    // 2. Countdown-Funktion
+    // 2. Präzisions-Countdown (Zeit-Differenz-Methode)
     const countdownElement = document.getElementById("countdown");
-    const interval = setInterval(() => {
-        seconds--;
-        countdownElement.innerText = seconds;
-        
-        if (seconds <= 0) {
-            clearInterval(interval);
+    
+    const timer = setInterval(() => {
+        const currentTime = Date.now();
+        const elapsed = Math.floor((currentTime - startTime) / 1000);
+        const remaining = totalSeconds - elapsed;
+
+        if (remaining >= 0) {
+            countdownElement.innerText = remaining;
+        }
+
+        if (remaining <= 0) {
+            clearInterval(timer);
             redirectToStore();
         }
-    }, 1000);
+    }, 100); // Checkt alle 100ms, ob eine Sekunde vergangen ist -> viel flüssiger!
 
-    // 3. Weiterleitungs-Funktion
     function redirectToStore() {
         window.location.replace(targetUrl);
     }
 
-    // Jahreszahl im Footer setzen
     document.getElementById("year").textContent = new Date().getFullYear();
 </script>
 
