@@ -50,12 +50,11 @@
       max-width: 900px;
       margin: auto;
       padding: 20px;
-      text-align: center; /* Zentriert Button und QR-Code */
+      text-align: center;
     }
     h2 {
       color: #B00000;
     }
-
     header h2 {
       color: white;
     }    
@@ -73,7 +72,6 @@
       background-color: #B80000;
     }
 
-    /* Styling für den QR-Code Bereich */
     #qrcode-container {
       margin-top: 20px;
       display: flex;
@@ -84,7 +82,6 @@
     #qrcode img {
       border: 10px solid white;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      margin-bottom: 10px;
     }
 
     footer {
@@ -93,30 +90,25 @@
       background: #f2f2f2;
       margin-top: 40px;
     }
-
     .language-switch {
       position: absolute;
       top: 15px;
       right: 20px;
       font-size: 0.9em;
     }
-
     .language-switch a {
       color: white;
       text-decoration: none;
       margin: 0 5px;
     }
-
     .language-switch a:hover {
       text-decoration: underline;
     }
-
     nav a:not(:last-child)::after {
       content: " |";
       color: white;
       margin-left: 10px;
     }
-
     nav a.active {
       font-weight: bold;
     }
@@ -127,7 +119,7 @@
 <header>
   <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
   <h2>Accountverwaltung</h2>
-    <div class="language-switch">
+  <div class="language-switch">
     <a href="accountverwaltung.html">DE</a> |
     <a href="accountverwaltung-en.html">EN</a> |
     <a href="accountverwaltung-fr.html">FR</a>
@@ -149,7 +141,6 @@
   <button onclick="openApp()">App öffnen und Account löschen</button>
 
   <div id="qrcode-container">
-    <p>Oder scanne diesen Code, um zu <strong>polymapp.ch</strong> zu gelangen:</p>
     <div id="qrcode"></div>
   </div>
   
@@ -168,14 +159,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
-// 2. Initialisierung des QR-Codes für polymapp.ch
+// QR-Code Initialisierung: Optimiert für Level L und kurze https URL
 var qrcode = new QRCode(document.getElementById("qrcode"), {
-    text: "https://www.polymapp.ch",
-    width: 180,
-    height: 180,
+    text: "https://polymapp.ch",
+    width: 1000,
+    height: 1000,
     colorDark : "#000000",
     colorLight : "#ffffff",
-    correctLevel : QRCode.CorrectLevel.H
+    correctLevel : QRCode.CorrectLevel.L
 });
 
 function openApp() {
