@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta name="description" content="PolymApp - Accountverwaltung für Benutzeraccounts in der App.">
+    <meta name="description" content="PolymApp - Accountverwaltung für Benutzeraccounts in der App.">
 
-  <link rel="alternate" hreflang="de" href="https://polymapp.ch/accountverwaltung.html">
-  <link rel="alternate" hreflang="en" href="https://polymapp.ch/accountverwaltung-en.html">
-  <link rel="alternate" hreflang="fr" href="https://polymapp.ch/accountverwaltung-fr.html">
+    <link rel="alternate" hreflang="de" href="https://polymapp.ch/accountverwaltung.html">
+<link rel="alternate" hreflang="en" href="https://polymapp.ch/accountverwaltung-en.html">
+<link rel="alternate" hreflang="fr" href="https://polymapp.ch/accountverwaltung-fr.html">
 
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="icon" href="favicon.ico">
+  <!-- Favicons -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" href="favicon.ico">
 
-  <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
-  <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
+<!-- Android / PWA -->
+<link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
+<link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
 
   <meta charset="UTF-8">
   <title>Accountverwaltung - PolymApp</title>
@@ -31,7 +33,7 @@
       text-align: center;
     }
     .header-logo {
-      max-width: 400px;
+      max-width: 400px;   /* Breite des Logos */
       width: 100%;
       height: auto;
       margin-bottom: 10px;
@@ -50,11 +52,11 @@
       max-width: 900px;
       margin: auto;
       padding: 20px;
-      text-align: center;
     }
     h2 {
       color: #B00000;
     }
+
     header h2 {
       color: white;
     }    
@@ -66,52 +68,51 @@
       cursor: pointer;
       font-size: 16px;
       border-radius: 4px;
-      margin-bottom: 30px;
     }
     button:hover {
       background-color: #B80000;
     }
-
-    #qrcode-container {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    #qrcode img {
-      border: 10px solid white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
     footer {
       text-align: center;
       padding: 20px;
       background: #f2f2f2;
       margin-top: 40px;
     }
+
     .language-switch {
       position: absolute;
       top: 15px;
       right: 20px;
       font-size: 0.9em;
     }
+
     .language-switch a {
       color: white;
       text-decoration: none;
       margin: 0 5px;
     }
+
     .language-switch a:hover {
       text-decoration: underline;
     }
+
+        nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    /* Trenner automatisch nach jedem Link – außer dem letzten */
     nav a:not(:last-child)::after {
       content: " |";
-      color: white;
+      color: white;       /* gleiche Farbe wie Links */
       margin-left: 10px;
     }
+
     nav a.active {
       font-weight: bold;
     }
+
   </style>
 </head>
 <body>
@@ -119,7 +120,7 @@
 <header>
   <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
   <h2>Accountverwaltung</h2>
-  <div class="language-switch">
+    <div class="language-switch">
     <a href="accountverwaltung.html">DE</a> |
     <a href="accountverwaltung-en.html">EN</a> |
     <a href="accountverwaltung-fr.html">FR</a>
@@ -139,12 +140,8 @@
   <p>Dein PolymApp Account kann direkt über die App gelöscht werden.</p>
   
   <button onclick="openApp()">App öffnen und Account löschen</button>
-
-  <div id="qrcode-container">
-    <div id="qrcode"></div>
-  </div>
   
-  <div id="fallback" style="display: none; margin-top: 20px; text-align: left;">
+  <div id="fallback" style="display: none; margin-top: 20px;">
     <p>App nicht installiert?</p>
     <a href="https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp">
       👉 Zur App im Google Play Store
@@ -156,26 +153,29 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+function openApp() {
+  // Beispiel: Custom App Scheme (falls vorhanden)
+  window.location.href = "polymapp://open";
+
+  // Fallback nach 1.5 Sekunden anzeigen
+  setTimeout(function () {
+    document.getElementById("fallback").style.display = "block";
+  }, 1500);
+}
+</script>
+
 
 <script>
-// QR-Code Initialisierung: Optimiert für Level L und kurze https URL
-var qrcode = new QRCode(document.getElementById("qrcode"), {
-    text: "https://polymapp.ch/link/",
-    width: 1000,
-    height: 1000,
-    colorDark : "#000000",
-    colorLight : "#ffffff",
-    correctLevel : QRCode.CorrectLevel.L
-});
+  function openApp() {
+    // Versuch die App per Deep Link zu öffnen
+    window.location.href = "polymapp://delete-account";
 
-function openApp() {
-  window.location.href = "polymapp://delete-account";
-
-  setTimeout(function() {
-    document.getElementById("fallback").style.display = "block";
-  }, 2000);
-}
+    // Falls die App nicht reagiert, zeige Fallback-Link
+    setTimeout(function() {
+      document.getElementById("fallback").style.display = "block";
+    }, 2000);
+  }
 </script>
 
 <footer>
@@ -192,6 +192,7 @@ function openApp() {
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
 </script>
+
 
 </body>
 </html>
