@@ -142,10 +142,11 @@
 <div class="container">
   <div class="about-wrapper">
 
-    <div class="about-photo">
-      <!-- Foto hier ablegen, z. B. images/fabian.jpg -->
-      <img src="images/portrait_fs.jpg" alt="Fabian Schatzmann - Entwickler von PolymApp">
-    </div>
+   <div class="about-photo">
+  <img id="slideshow-image"
+       src="images/portrait_fs.jpg"
+       alt="Fabian Schatzmann - Entwickler von PolymApp">
+  </div>  
 
     <div class="about-text">
       <p>
@@ -195,6 +196,19 @@
 
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  const images = [
+    "images/portrait_fs.jpg",
+    "images/polymapp_presentation.jpg"
+  ];
+
+  let currentImage = 0;
+
+  setInterval(() => {
+    currentImage = (currentImage + 1) % images.length;
+
+    document.getElementById("slideshow-image").src = images[currentImage];
+  }, 5000);
 </script>
 
 </body>
