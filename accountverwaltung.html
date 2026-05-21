@@ -340,6 +340,10 @@
     signOut,
     sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+  initializeAppCheck,
+  ReCaptchaV3Provider
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
   import {
   getFirestore,
   doc,
@@ -361,8 +365,14 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("DEIN_RECAPTCHA_SITE_KEY"),
+  isTokenAutoRefreshEnabled: true
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
 
   await setPersistence(auth, browserLocalPersistence).catch((error) => {
     console.warn("Firebase Persistence konnte nicht gesetzt werden:", error);
