@@ -289,9 +289,15 @@
     <h2>My account</h2>
 
     <div class="account-info">
-      <p><strong>Signed in as:</strong> <span id="userEmail"></span></p>
-      <p><strong>UID:</strong> <span id="userUid"></span></p>
-    </div>
+  <p><strong>Signed in as::</strong> <span id="userEmail"></span></p>
+
+  <p
+    id="premiumBadge"
+    style="display:none; margin-top:10px; color:#B00000; font-weight:bold;"
+  >
+    ⭐ Premium active for free.
+  </p>
+</div>
 
     <form id="deleteForm">
       <div class="input-group">
@@ -335,13 +341,14 @@
     sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-    getFirestore,
-    doc,
-    setDoc,
-    deleteDoc,
-    collection,
-    getDocs
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  getFirestore,
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
@@ -381,7 +388,7 @@
 
   const deletePassword = document.getElementById("deletePassword");
   const userEmail = document.getElementById("userEmail");
-  const userUid = document.getElementById("userUid");
+  // const userUid = document.getElementById("userUid");
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -455,27 +462,62 @@
     await deleteDoc(doc(db, "users", uid));
   }
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      registerBox.classList.add("hidden");
-      loginBox.classList.add("hidden");
-      accountBox.classList.remove("hidden");
+  async function checkFreePremium(email) {
+  try {
+    const premiumBadge = document.getElementById("premiumBadge");
 
-      userEmail.textContent = user.email || "";
-      userUid.textContent = user.uid;
-      deletePassword.value = "";
-
-      setStatus(`Signed in as ${user.email || "unknown"}.`, "success", 3000);
-    } else {
-      registerBox.classList.remove("hidden");
-      loginBox.classList.remove("hidden");
-      accountBox.classList.add("hidden");
-
-      userEmail.textContent = "";
-      userUid.textContent = "";
-      deletePassword.value = "";
+    if (!email) {
+      premiumBadge.style.display = "none";
+      return;
     }
-  });
+
+    const testerRef = doc(db, "beta_testers", email.toLowerCase());
+    const testerSnap = await getDoc(testerRef);
+
+    if (
+      testerSnap.exists() &&
+      testerSnap.data().free_premium === true
+    ) {
+      premiumBadge.style.display = "block";
+    } else {
+      premiumBadge.style.display = "none";
+    }
+  } catch (error) {
+    console.warn("Premium-Check fehlgeschlagen:", error);
+  }
+}
+
+  onAuthStateChanged(auth, async (user) => {
+  const premiumBadge = document.getElementById("premiumBadge");
+
+  if (user) {
+    registerBox.classList.add("hidden");
+    loginBox.classList.add("hidden");
+    accountBox.classList.remove("hidden");
+
+    userEmail.textContent = user.email || "";
+    deletePassword.value = "";
+
+    await checkFreePremium(user.email);
+
+    setStatus(
+      `Angemeldet als ${user.email || "unbekannt"}.`,
+      "success",
+      3000
+    );
+  } else {
+    registerBox.classList.remove("hidden");
+    loginBox.classList.remove("hidden");
+    accountBox.classList.add("hidden");
+
+    userEmail.textContent = "";
+    deletePassword.value = "";
+
+    if (premiumBadge) {
+      premiumBadge.style.display = "none";
+    }
+  }
+});
 
   registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
