@@ -157,20 +157,40 @@
       }
 
       .status {
-        margin-top: 20px;
-        padding: 12px 14px;
-        border-radius: 4px;
-        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 9999;
+        margin: 0;
+        padding: 0 20px;
+        text-align: center;
+        font-weight: bold;
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease;
+        box-sizing: border-box;
+      }
+
+      .status.visible {
+        padding: 14px 20px;
+        max-height: 100px;
+        opacity: 1;
+        pointer-events: auto;
       }
 
       .status.success {
         background: #e9f7ee;
         color: #1f6b2b;
+        border-bottom: 2px solid #b9e3c2;
       }
 
       .status.error {
         background: #fdecec;
         color: #a00000;
+        border-bottom: 2px solid #f1b5b5;
       }
 
       .account-info {
@@ -213,6 +233,8 @@
   <a href="about.html">Über mich</a>
   <a href="kontakt.html">Kontakt</a>
 </nav>
+
+<div id="status" class="status" aria-live="polite"></div>
 
 <div class="container">
   <h2>Accountverwaltung</h2>
@@ -258,6 +280,8 @@
       </div>
 
       <button type="submit">Einloggen</button>
+      <br><br>
+      <button type="button" id="resetPasswordBtn">Passwort vergessen</button>
     </form>
   </div>
 
@@ -282,8 +306,6 @@
       <button type="button" id="logoutBtn">Abmelden</button>
     </div>
   </div>
-
-  <div id="status" class="status"></div>
 </div>
 
 <footer>
@@ -309,7 +331,8 @@
     EmailAuthProvider,
     reauthenticateWithCredential,
     deleteUser,
-    signOut
+    signOut,
+    sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
     getFirestore,
@@ -347,6 +370,7 @@
   const loginForm = document.getElementById("loginForm");
   const deleteForm = document.getElementById("deleteForm");
   const logoutBtn = document.getElementById("logoutBtn");
+  const resetPasswordBtn = document.getElementById("resetPasswordBtn");
 
   const registerEmail = document.getElementById("registerEmail");
   const registerPassword = document.getElementById("registerPassword");
@@ -359,21 +383,37 @@
   const userEmail = document.getElementById("userEmail");
   const userUid = document.getElementById("userUid");
 
-  let keepStatusOnLogout = false;
-
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  function setStatus(message, type = "success") {
+  let hideTimer = null;
+  let clearTimer = null;
+
+  function setStatus(message, type = "success", duration = 3000) {
+    clearTimeout(hideTimer);
+    clearTimeout(clearTimer);
+
     if (!message) {
-      statusBox.textContent = "";
-      statusBox.className = "status";
-      statusBox.style.display = "none";
+      statusBox.classList.remove("visible");
+      clearTimer = setTimeout(() => {
+        statusBox.textContent = "";
+        statusBox.className = "status";
+      }, 500);
       return;
     }
 
     statusBox.textContent = message;
     statusBox.className = `status ${type}`;
-    statusBox.style.display = "block";
+    requestAnimationFrame(() => {
+      statusBox.classList.add("visible");
+    });
+
+    hideTimer = setTimeout(() => {
+      statusBox.classList.remove("visible");
+      clearTimer = setTimeout(() => {
+        statusBox.textContent = "";
+        statusBox.className = "status";
+      }, 500);
+    }, duration);
   }
 
   function mapAuthError(error) {
@@ -425,8 +465,7 @@
       userUid.textContent = user.uid;
       deletePassword.value = "";
 
-      setStatus(`Angemeldet als ${user.email || "unbekannt"}.`, "success");
-      keepStatusOnLogout = false;
+      setStatus(`Angemeldet als ${user.email || "unbekannt"}.`, "success", 3000);
     } else {
       registerBox.classList.remove("hidden");
       loginBox.classList.remove("hidden");
@@ -435,12 +474,6 @@
       userEmail.textContent = "";
       userUid.textContent = "";
       deletePassword.value = "";
-
-      if (!keepStatusOnLogout) {
-        setStatus("");
-      }
-
-      keepStatusOnLogout = false;
     }
   });
 
@@ -452,12 +485,17 @@
     const password2 = registerPassword2.value;
 
     if (password !== password2) {
-      setStatus("Die beiden Passwörter stimmen nicht überein.", "error");
+      setStatus("Die beiden Passwörter stimmen nicht überein.", "error", 3000);
+      return;
+    }
+
+    if (password.length < 6) {
+      setStatus("Das Passwort muss mindestens 6 Zeichen haben.", "error", 3000);
       return;
     }
 
     try {
-      setStatus("Konto wird erstellt ...", "success");
+      setStatus("Konto wird erstellt ...", "success", 3000);
 
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -477,9 +515,9 @@
 
       registerForm.reset();
       loginForm.reset();
-      setStatus("Konto erfolgreich erstellt.", "success");
+      setStatus("Konto erfolgreich erstellt.", "success", 3000);
     } catch (error) {
-      setStatus(mapAuthError(error), "error");
+      setStatus(mapAuthError(error), "error", 4000);
     }
   });
 
@@ -490,12 +528,38 @@
     const password = loginPassword.value;
 
     try {
-      setStatus("Anmeldung läuft ...", "success");
+      setStatus("Anmeldung läuft ...", "success", 2500);
       await signInWithEmailAndPassword(auth, email, password);
       loginForm.reset();
-      setStatus("Anmeldung erfolgreich.", "success");
+      setStatus("Anmeldung erfolgreich.", "success", 3000);
     } catch (error) {
-      setStatus(mapAuthError(error), "error");
+      setStatus(mapAuthError(error), "error", 4000);
+    }
+  });
+
+  resetPasswordBtn.addEventListener("click", async () => {
+    const email = loginEmail.value.trim();
+
+    if (!email) {
+      setStatus("Bitte zuerst deine E-Mail-Adresse eingeben.", "error", 3000);
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setStatus("Passwort-Reset E-Mail wurde gesendet.", "success", 4000);
+    } catch (error) {
+      switch (error.code) {
+        case "auth/user-not-found":
+        case "auth/invalid-email":
+          setStatus("Keine gültige E-Mail-Adresse gefunden.", "error", 3500);
+          break;
+        case "auth/network-request-failed":
+          setStatus("Keine Internetverbindung.", "error", 3500);
+          break;
+        default:
+          setStatus("Passwort-Reset konnte nicht durchgeführt werden.", "error", 3500);
+      }
     }
   });
 
@@ -506,12 +570,12 @@
     const password = deletePassword.value;
 
     if (!user || !user.email) {
-      setStatus("Es ist kein eingeloggter Benutzer gefunden worden.", "error");
+      setStatus("Es ist kein eingeloggter Benutzer gefunden worden.", "error", 3000);
       return;
     }
 
     if (!password) {
-      setStatus("Bitte dein Passwort bestätigen.", "error");
+      setStatus("Bitte dein Passwort bestätigen.", "error", 3000);
       return;
     }
 
@@ -520,36 +584,28 @@
     }
 
     try {
-      setStatus("Account wird geprüft und gelöscht ...", "success");
+      setStatus("Account wird geprüft und gelöscht ...", "success", 3000);
 
       const credential = EmailAuthProvider.credential(user.email, password);
       await reauthenticateWithCredential(user, credential);
 
       await deleteUserData(user.uid);
-
-      keepStatusOnLogout = true;
-      await deleteUser(user).catch((error) => {
-        throw error;
-      });
-
+      await deleteUser(user);
       await signOut(auth).catch(() => {});
-      deleteForm.reset();
 
-      setStatus("Dein Account wurde erfolgreich gelöscht.", "success");
+      deleteForm.reset();
+      setStatus("Dein Account wurde erfolgreich gelöscht.", "success", 4000);
     } catch (error) {
-      keepStatusOnLogout = false;
-      setStatus(mapAuthError(error), "error");
+      setStatus(mapAuthError(error), "error", 4000);
     }
   });
 
   logoutBtn.addEventListener("click", async () => {
     try {
-      keepStatusOnLogout = true;
-      setStatus("Du wurdest abgemeldet.", "success");
       await signOut(auth);
+      setStatus("Du wurdest abgemeldet.", "success", 3000);
     } catch (error) {
-      keepStatusOnLogout = false;
-      setStatus(mapAuthError(error), "error");
+      setStatus(mapAuthError(error), "error", 3500);
     }
   });
 </script>
