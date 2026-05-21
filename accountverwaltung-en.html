@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-      <meta name="description" content="PolymApp - Account management for user accounts in the app.">
+  <meta name="description" content="PolymApp - Account management for user accounts in the app.">
 
-      <link rel="alternate" hreflang="de" href="https://polymapp.ch/accountverwaltung.html">
-<link rel="alternate" hreflang="en" href="https://polymapp.ch/accountverwaltung-en.html">
-<link rel="alternate" hreflang="fr" href="https://polymapp.ch/accountverwaltung-fr.html">
+  <link rel="alternate" hreflang="de" href="https://polymapp.ch/accountverwaltung.html">
+  <link rel="alternate" hreflang="en" href="https://polymapp.ch/accountverwaltung-en.html">
+  <link rel="alternate" hreflang="fr" href="https://polymapp.ch/accountverwaltung-fr.html">
 
   <!-- Favicons -->
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" href="favicon.ico">
 
-<!-- Android / PWA -->
-<link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
-<link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
+  <!-- Android / PWA -->
+  <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
+  <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
 
   <meta charset="UTF-8">
   <title>Account Management - PolymApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
     body { 
       font-family: Arial, sans-serif; 
@@ -33,7 +34,7 @@
       text-align: center;
     }
     .header-logo {
-      max-width: 400px;   /* Breite des Logos */
+      max-width: 400px;
       width: 100%;
       height: auto;
       margin-bottom: 10px;
@@ -96,16 +97,15 @@
       text-decoration: underline;
     }
 
-        nav a {
+    nav a {
       color: white;
       margin: 0 10px;
       text-decoration: none;
     }
 
-    /* Trenner automatisch nach jedem Link – außer dem letzten */
     nav a:not(:last-child)::after {
       content: " |";
-      color: white;       /* gleiche Farbe wie Links */
+      color: white;
       margin-left: 10px;
     }
 
@@ -113,6 +113,105 @@
       font-weight: bold;
     }
 
+    form {
+      margin: 0;
+    }
+
+    .auth-box {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 18px;
+      margin-top: 20px;
+      background: #fafafa;
+    }
+
+    .auth-box h2 {
+      margin-top: 0;
+    }
+
+    .input-group {
+      margin-bottom: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .input-group input[type="email"],
+    .input-group input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .small-text {
+      font-size: 0.95em;
+      color: #555;
+      margin-top: -6px;
+    }
+
+    .status {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      margin: 0;
+      padding: 0 20px;
+      text-align: center;
+      font-weight: bold;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transition: opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease;
+      box-sizing: border-box;
+    }
+
+    .status.visible {
+      padding: 14px 20px;
+      max-height: 100px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .status.success {
+      background: #e9f7ee;
+      color: #1f6b2b;
+      border-bottom: 2px solid #b9e3c2;
+    }
+
+    .status.error {
+      background: #fdecec;
+      color: #a00000;
+      border-bottom: 2px solid #f1b5b5;
+    }
+
+    .account-info {
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      padding: 12px;
+      border-radius: 4px;
+      margin: 12px 0 16px 0;
+    }
+
+    .actions {
+      margin-top: 12px;
+    }
+
+    .actions button {
+      margin-top: 8px;
+    }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -130,40 +229,84 @@
 <nav>
   <a href="index-en.html">Home</a>
   <a href="accountverwaltung-en.html" class="active">Account Management</a>
-  <a href="datenschutz-en.html">Privacy Policy me</a>
-  <a href="about-en.html">About Me</a>
+  <a href="datenschutz-en.html">Privacy Policy</a>
+  <a href="about-en.html">About me</a>
   <a href="kontakt-en.html">Contact</a>
 </nav>
 
+<div id="status" class="status" aria-live="polite"></div>
+
 <div class="container">
-  <h2>Delete Account</h2>
-  <p>Your PolymApp account can be deleted directly through the app.</p>
-  
-  <button onclick="openApp()">Open App and Delete Account</button>
-  
-  <div id="fallback" style="display: none; margin-top: 20px;">
-    <p>App not installed?</p>
-    <a href="https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp">
-      👉 Go to Google Play Store
-    </a>
-    <br><br>
-    <a href="https://apps.apple.com/ch/app/polymapp/id6743395389">
-      👉 Go to Apple App Store
-    </a>
+  <h2>Account Management</h2>
+  <p>You can create your PolymApp account, sign in, or delete it directly on the website.</p>
+
+  <div class="auth-box" id="registerBox">
+    <h2>Create account</h2>
+    <p class="small-text">Registration only requires an email address and a password.</p>
+
+    <form id="registerForm">
+      <div class="input-group">
+        <label for="registerEmail">Email</label>
+        <input type="email" id="registerEmail" autocomplete="email" spellcheck="false" required>
+      </div>
+
+      <div class="input-group">
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
+      </div>
+
+      <div class="input-group">
+        <label for="registerPassword2">Confirm password</label>
+        <input type="password" id="registerPassword2" autocomplete="new-password" minlength="6" required>
+      </div>
+
+      <button type="submit">Create account</button>
+    </form>
+  </div>
+
+  <div class="auth-box" id="loginBox">
+    <h2>Sign in</h2>
+    <p class="small-text">Sign in with your existing PolymApp account.</p>
+
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" autocomplete="email" spellcheck="false" required>
+      </div>
+
+      <div class="input-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" minlength="6" required>
+      </div>
+
+      <button type="submit">Sign in</button>
+      <br><br>
+      <button type="button" id="resetPasswordBtn">Forgot password</button>
+    </form>
+  </div>
+
+  <div class="auth-box hidden" id="accountBox">
+    <h2>My account</h2>
+
+    <div class="account-info">
+      <p><strong>Signed in as:</strong> <span id="userEmail"></span></p>
+      <p><strong>UID:</strong> <span id="userUid"></span></p>
+    </div>
+
+    <form id="deleteForm">
+      <div class="input-group">
+        <label for="deletePassword">Confirm password</label>
+        <input type="password" id="deletePassword" autocomplete="current-password" required>
+      </div>
+
+      <button type="submit">Delete account permanently</button>
+    </form>
+
+    <div class="actions">
+      <button type="button" id="logoutBtn">Sign out</button>
+    </div>
   </div>
 </div>
-
-<script>
-function openApp() {
-  // Attempt to open the app via deep link
-  window.location.href = "polymapp://delete-account";
-
-  // If the app does not respond, show the fallback links
-  setTimeout(function() {
-    document.getElementById("fallback").style.display = "block";
-  }, 2000);
-}
-</script>
 
 <footer>
   <p><strong>PolymApp</strong> - Account Management</p>
@@ -176,10 +319,296 @@ function openApp() {
   <p>© 2024-<span id="year"></span> PolymApp</p>
 </footer>
 
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth,
+    setPersistence,
+    browserLocalPersistence,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    deleteUser,
+    signOut,
+    sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    deleteDoc,
+    collection,
+    getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
+    authDomain: "twyt-80c82.firebaseapp.com",
+    projectId: "twyt-80c82",
+    storageBucket: "twyt-80c82.firebasestorage.app",
+    messagingSenderId: "64966382407",
+    appId: "1:64966382407:web:6739c6a7afa83eb7877262",
+    measurementId: "G-0QQYN8BKQD"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  await setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.warn("Firebase Persistence could not be set:", error);
+  });
+
+  const registerBox = document.getElementById("registerBox");
+  const loginBox = document.getElementById("loginBox");
+  const accountBox = document.getElementById("accountBox");
+  const statusBox = document.getElementById("status");
+
+  const registerForm = document.getElementById("registerForm");
+  const loginForm = document.getElementById("loginForm");
+  const deleteForm = document.getElementById("deleteForm");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+
+  const registerEmail = document.getElementById("registerEmail");
+  const registerPassword = document.getElementById("registerPassword");
+  const registerPassword2 = document.getElementById("registerPassword2");
+
+  const loginEmail = document.getElementById("loginEmail");
+  const loginPassword = document.getElementById("loginPassword");
+
+  const deletePassword = document.getElementById("deletePassword");
+  const userEmail = document.getElementById("userEmail");
+  const userUid = document.getElementById("userUid");
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  let hideTimer = null;
+  let clearTimer = null;
+
+  function setStatus(message, type = "success", duration = 3000) {
+    clearTimeout(hideTimer);
+    clearTimeout(clearTimer);
+
+    if (!message) {
+      statusBox.classList.remove("visible");
+      clearTimer = setTimeout(() => {
+        statusBox.textContent = "";
+        statusBox.className = "status";
+      }, 500);
+      return;
+    }
+
+    statusBox.textContent = message;
+    statusBox.className = `status ${type}`;
+    requestAnimationFrame(() => {
+      statusBox.classList.add("visible");
+    });
+
+    hideTimer = setTimeout(() => {
+      statusBox.classList.remove("visible");
+      clearTimer = setTimeout(() => {
+        statusBox.textContent = "";
+        statusBox.className = "status";
+      }, 500);
+    }, duration);
+  }
+
+  function mapAuthError(error) {
+    switch (error.code) {
+      case "auth/email-already-in-use":
+        return "This email address is already in use.";
+      case "auth/invalid-email":
+        return "Please enter a valid email address.";
+      case "auth/weak-password":
+        return "The password is too weak. It must be at least 6 characters long.";
+      case "auth/invalid-credential":
+      case "auth/wrong-password":
+      case "auth/user-not-found":
+        return "The email or password is incorrect.";
+      case "auth/requires-recent-login":
+        return "Please sign in again and try once more.";
+      case "auth/network-request-failed":
+        return "Network error. Please try again later.";
+      default:
+        return error.message || "An unexpected error occurred.";
+    }
+  }
+
+  async function deleteUserData(uid) {
+    const prefsSnap = await getDocs(collection(db, "users", uid, "preferences"));
+    await Promise.all(prefsSnap.docs.map((prefDoc) => deleteDoc(prefDoc.ref)));
+
+    const machinesSnap = await getDocs(collection(db, "users", uid, "machines"));
+    await Promise.all(
+      machinesSnap.docs.map(async (machineDoc) => {
+        const toolsSnap = await getDocs(
+          collection(db, "users", uid, "machines", machineDoc.id, "werkzeuge")
+        );
+        await Promise.all(toolsSnap.docs.map((toolDoc) => deleteDoc(toolDoc.ref)));
+        await deleteDoc(machineDoc.ref);
+      })
+    );
+
+    await deleteDoc(doc(db, "users", uid));
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      registerBox.classList.add("hidden");
+      loginBox.classList.add("hidden");
+      accountBox.classList.remove("hidden");
+
+      userEmail.textContent = user.email || "";
+      userUid.textContent = user.uid;
+      deletePassword.value = "";
+
+      setStatus(`Signed in as ${user.email || "unknown"}.`, "success", 3000);
+    } else {
+      registerBox.classList.remove("hidden");
+      loginBox.classList.remove("hidden");
+      accountBox.classList.add("hidden");
+
+      userEmail.textContent = "";
+      userUid.textContent = "";
+      deletePassword.value = "";
+    }
+  });
+
+  registerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const email = registerEmail.value.trim();
+    const password = registerPassword.value;
+    const password2 = registerPassword2.value;
+
+    if (password !== password2) {
+      setStatus("The two passwords do not match.", "error", 3000);
+      return;
+    }
+
+    if (password.length < 6) {
+      setStatus("The password must be at least 6 characters long.", "error", 3000);
+      return;
+    }
+
+    try {
+      setStatus("Creating account ...", "success", 3000);
+
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      try {
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          email: userCredential.user.email || email,
+          platform: "web"
+        }, { merge: true });
+      } catch (firestoreError) {
+        try {
+          await deleteUser(userCredential.user);
+        } catch (cleanupError) {
+          console.warn("Could not delete Auth user after Firestore error:", cleanupError);
+        }
+        throw firestoreError;
+      }
+
+      registerForm.reset();
+      loginForm.reset();
+      setStatus("Account created successfully.", "success", 3000);
+    } catch (error) {
+      setStatus(mapAuthError(error), "error", 4000);
+    }
+  });
+
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value;
+
+    try {
+      setStatus("Signing in ...", "success", 2500);
+      await signInWithEmailAndPassword(auth, email, password);
+      loginForm.reset();
+      setStatus("Signed in successfully.", "success", 3000);
+    } catch (error) {
+      setStatus(mapAuthError(error), "error", 4000);
+    }
+  });
+
+  resetPasswordBtn.addEventListener("click", async () => {
+    const email = loginEmail.value.trim();
+
+    if (!email) {
+      setStatus("Please enter your email address first.", "error", 3000);
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setStatus("A password reset email has been sent.", "success", 4000);
+    } catch (error) {
+      switch (error.code) {
+        case "auth/user-not-found":
+        case "auth/invalid-email":
+          setStatus("No valid email address found.", "error", 3500);
+          break;
+        case "auth/network-request-failed":
+          setStatus("No internet connection.", "error", 3500);
+          break;
+        default:
+          setStatus("Password reset failed.", "error", 3500);
+      }
+    }
+  });
+
+  deleteForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const user = auth.currentUser;
+    const password = deletePassword.value;
+
+    if (!user || !user.email) {
+      setStatus("No signed-in user was found.", "error", 3000);
+      return;
+    }
+
+    if (!password) {
+      setStatus("Please confirm your password.", "error", 3000);
+      return;
+    }
+
+    if (!confirm("Do you really want to permanently delete your PolymApp account?")) {
+      return;
+    }
+
+    try {
+      setStatus("Verifying and deleting account ...", "success", 3000);
+
+      const credential = EmailAuthProvider.credential(user.email, password);
+      await reauthenticateWithCredential(user, credential);
+
+      await deleteUserData(user.uid);
+      await deleteUser(user);
+      await signOut(auth).catch(() => {});
+
+      deleteForm.reset();
+      setStatus("Your account has been deleted successfully.", "success", 4000);
+    } catch (error) {
+      setStatus(mapAuthError(error), "error", 4000);
+    }
+  });
+
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      setStatus("You have been signed out.", "success", 3000);
+    } catch (error) {
+      setStatus(mapAuthError(error), "error", 3500);
+    }
+  });
+</script>
 
 </body>
 </html>
