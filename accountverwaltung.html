@@ -338,8 +338,7 @@
     reauthenticateWithCredential,
     deleteUser,
     signOut,
-    sendPasswordResetEmail,
-    updatePassword
+    sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
   getFirestore,
@@ -390,11 +389,6 @@
   const deletePassword = document.getElementById("deletePassword");
   const userEmail = document.getElementById("userEmail");
   // const userUid = document.getElementById("userUid");
-
-  const changePasswordForm = document.getElementById("changePasswordForm");
-  const oldPassword = document.getElementById("oldPassword");
-  const newPassword = document.getElementById("newPassword");
-  const newPassword2 = document.getElementById("newPassword2");
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -611,51 +605,6 @@
     }
   });
 
-    changePasswordForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const user = auth.currentUser;
-
-  if (!user || !user.email) {
-    setStatus("Du bist nicht eingeloggt.", "error", 3000);
-    return;
-  }
-
-  const oldPw = oldPassword.value;
-  const newPw = newPassword.value;
-  const newPw2 = newPassword2.value;
-
-  if (!oldPw) {
-    setStatus("Bitte altes Passwort eingeben.", "error", 3000);
-    return;
-  }
-
-  if (newPw !== newPw2) {
-    setStatus("Die neuen Passwörter stimmen nicht überein.", "error", 3000);
-    return;
-  }
-
-  if (newPw.length < 6) {
-    setStatus("Das neue Passwort ist zu kurz.", "error", 3000);
-    return;
-  }
-
-  try {
-    setStatus("Passwort wird geändert ...", "success", 2500);
-
-    const credential = EmailAuthProvider.credential(user.email, oldPw);
-    await reauthenticateWithCredential(user, credential);
-
-    await updatePassword(user, newPw);
-
-    changePasswordForm.reset();
-    setStatus("Passwort erfolgreich geändert.", "success", 3500);
-
-  } catch (error) {
-    setStatus(mapAuthError(error), "error", 4000);
-  }
-});
-
   deleteForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -692,29 +641,6 @@
       setStatus(mapAuthError(error), "error", 4000);
     }
   });
-
-    <hr style="margin:20px 0;">
-
-<h3>Passwort ändern</h3>
-
-<form id="changePasswordForm">
-  <div class="input-group">
-    <label for="oldPassword">Altes Passwort</label>
-    <input type="password" id="oldPassword" autocomplete="current-password" required>
-  </div>
-
-  <div class="input-group">
-    <label for="newPassword">Neues Passwort</label>
-    <input type="password" id="newPassword" autocomplete="new-password" minlength="6" required>
-  </div>
-
-  <div class="input-group">
-    <label for="newPassword2">Neues Passwort bestätigen</label>
-    <input type="password" id="newPassword2" autocomplete="new-password" minlength="6" required>
-  </div>
-
-  <button type="submit">Passwort ändern</button>
-</form>
 
   logoutBtn.addEventListener("click", async () => {
     try {
