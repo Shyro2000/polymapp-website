@@ -297,7 +297,7 @@
   <div class="password-wrap">
     <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
 <button type="button" class="password-toggle" data-target="registerPassword" aria-label="Passwort anzeigen">
-  <img src="images/ic_eye_open.png" alt="" aria-hidden="true">
+  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
 </button>  
 </div>
 </div>
@@ -308,7 +308,7 @@
   <div class="password-wrap">
     <input type="password" id="registerPassword2" autocomplete="new-password" minlength="6" required>
 <button type="button" class="password-toggle" data-target="registerPassword2" aria-label="Passwort anzeigen">
-  <img src="images/ic_eye_open.png" alt="" aria-hidden="true">
+  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
 </button>
   </div>
 </div>
@@ -333,7 +333,7 @@
   <div class="password-wrap">
     <input type="password" id="loginPassword" autocomplete="current-password" minlength="6" required>
 <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Passwort anzeigen">
-  <img src="images/ic_eye_open.png" alt="" aria-hidden="true">
+  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
 </button>  
 </div>
 </div>
@@ -364,7 +364,7 @@
   <div class="password-wrap">
     <input type="password" id="deletePassword" autocomplete="current-password" required>
 <button type="button" class="password-toggle" data-target="deletePassword" aria-label="Passwort anzeigen">
-  <img src="images/ic_eye_open.png" alt="" aria-hidden="true">
+  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
 </button>
   </div>
 </div>
@@ -477,7 +477,7 @@ document.querySelectorAll(".password-toggle").forEach((button) => {
     const isHidden = input.type === "password";
 
     input.type = isHidden ? "text" : "password";
-    img.src = isHidden ? "images/ic_eye_hide.png" : "images/ic_eye_open.png";
+    img.src = isHidden ? "images/ic_eye_hide.PNG" : "images/ic_eye_open.PNG";
     button.setAttribute(
       "aria-label",
       isHidden ? "Passwort verbergen" : "Passwort anzeigen"
