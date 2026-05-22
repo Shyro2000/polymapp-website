@@ -141,14 +141,56 @@
     }
 
     .input-group input[type="email"],
-    .input-group input[type="password"] {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+.input-group input[type="password"],
+.password-wrap input[type="text"] {
+  width: 100%;
+  padding: 12px 48px 12px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.password-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrap input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  z-index: 2;
+}
+
+.password-toggle:hover {
+  background: transparent;
+}
+
+.password-toggle img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  pointer-events: none;
+}
 
     .small-text {
       font-size: 0.95em;
@@ -251,14 +293,22 @@
       </div>
 
       <div class="input-group">
-        <label for="registerPassword">Mot de passe</label>
-        <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
-      </div>
+  <label for="registerPassword">Mot de passe</label>
+  <div class="password-wrap">
+    <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
+<button type="button" class="password-toggle" data-target="registerPassword" aria-label="Afficher le mot de passe">
+  <img src="images/ic_eye_open.png" alt="" aria-hidden="true">
+</button>  </div>
+</div>
 
       <div class="input-group">
-        <label for="registerPassword2">Confirmer le mot de passe</label>
-        <input type="password" id="registerPassword2" autocomplete="new-password" minlength="6" required>
-      </div>
+  <label for="registerPassword2">Confirmer le mot de passe</label>
+  <div class="password-wrap">
+    <input type="password" id="registerPassword2" autocomplete="new-password" minlength="6" required>
+<button type="button" class="password-toggle" data-target="registerPassword2" aria-label="Afficher le mot de passe">
+  <img src="images/ic_eye_open.png" alt="" aria-hidden="true">
+</button>  </div>
+</div>
 
       <button type="submit">Créer le compte</button>
     </form>
@@ -275,9 +325,14 @@
       </div>
 
       <div class="input-group">
-        <label for="loginPassword">Mot de passe</label>
-        <input type="password" id="loginPassword" autocomplete="current-password" minlength="6" required>
-      </div>
+  <label for="loginPassword">Mot de passe</label>
+  <div class="password-wrap">
+    <input type="password" id="loginPassword" autocomplete="current-password" minlength="6" required>
+    <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Afficher le mot de passe">
+      <img src="images/ic_eye_open.png" alt="" aria-hidden="true">
+    </button>
+  </div>
+</div>
 
       <button type="submit">Se connecter</button>
       <br><br>
@@ -301,9 +356,14 @@
 
     <form id="deleteForm">
       <div class="input-group">
-        <label for="deletePassword">Confirmer le mot de passe</label>
-        <input type="password" id="deletePassword" autocomplete="current-password" required>
-      </div>
+  <label for="deletePassword">Confirmer le mot de passe</label>
+  <div class="password-wrap">
+    <input type="password" id="deletePassword" autocomplete="current-password" required>
+    <button type="button" class="password-toggle" data-target="deletePassword" aria-label="Afficher le mot de passe">
+      <img src="images/ic_eye_open.png" alt="" aria-hidden="true">
+    </button>
+  </div>
+</div>
 
       <button type="submit">Supprimer définitivement le compte</button>
     </form>
@@ -391,6 +451,25 @@
   // const userUid = document.getElementById("userUid");
 
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  document.querySelectorAll(".password-toggle").forEach((button) => {
+  button.addEventListener("click", () => {
+    const targetId = button.dataset.target;
+    const input = document.getElementById(targetId);
+    const img = button.querySelector("img");
+
+    if (!input || !img) return;
+
+    const isHidden = input.type === "password";
+
+    input.type = isHidden ? "text" : "password";
+    img.src = isHidden ? "images/ic_eye_hide.png" : "images/ic_eye_open.png";
+    button.setAttribute(
+      "aria-label",
+      isHidden ? "Cacher le mot de passe" : "Afficher le mot de passe"
+    );
+  });
+});
 
   let hideTimer = null;
   let clearTimer = null;
@@ -501,7 +580,7 @@
     await checkFreePremium(user.email);
 
     setStatus(
-      `Angemeldet als ${user.email || "unbekannt"}.`,
+      `Connecté en tant que ${user.email || "inconnu"}.`,
       "success",
       3000
     );
