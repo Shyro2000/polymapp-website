@@ -369,7 +369,11 @@
       </div>
     </div>
 
-    <form id="deleteForm">
+    <div id="deleteInitialBox" style="margin-top: 20px;">
+      <button type="button" id="startDeleteBtn" style="background-color: #555;">Account löschen</button>
+    </div>
+
+    <form id="deleteForm" class="hidden">
       <div class="input-group">
         <label for="deletePassword">Passwort bestätigen</label>
         <div class="password-wrap">
@@ -381,6 +385,7 @@
       </div>
 
       <button type="submit">Account endgültig löschen</button>
+      <button type="button" id="cancelDeleteBtn" style="background-color: #aaa; margin-left: 10px;">Abbrechen</button>
     </form>
 
     <div class="actions">
@@ -463,6 +468,9 @@
   const registerForm = document.getElementById("registerForm");
   const loginForm = document.getElementById("loginForm");
   const deleteForm = document.getElementById("deleteForm");
+  const deleteInitialBox = document.getElementById("deleteInitialBox");
+  const startDeleteBtn = document.getElementById("startDeleteBtn");
+  const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
   const logoutBtn = document.getElementById("logoutBtn");
   const resetPasswordBtn = document.getElementById("resetPasswordBtn");
 
@@ -659,17 +667,21 @@
         3000
       );
     } else {
-      registerBox.classList.remove("hidden");
-      loginBox.classList.remove("hidden");
-      accountBox.classList.add("hidden");
+    registerBox.classList.remove("hidden");
+    loginBox.classList.remove("hidden");
+    accountBox.classList.add("hidden");
 
-      userEmail.textContent = "";
-      deletePassword.value = "";
+    userEmail.textContent = "";
+    deletePassword.value = "";
 
-      if (premiumBadge) {
-        premiumBadge.style.display = "none";
-      }
+    // HIER HINZUGEFÜGT: Lösch-Ansicht für den nächsten Login zurücksetzen
+    deleteForm.classList.add("hidden");
+    deleteInitialBox.classList.remove("hidden");
+
+    if (premiumBadge) {
+      premiumBadge.style.display = "none";
     }
+  }
   });
 
   registerForm.addEventListener("submit", async (event) => {
@@ -815,6 +827,18 @@
     } catch (error) {
       setStatus(mapAuthError(error), "error", 3500);
     }
+  });
+
+  startDeleteBtn.addEventListener("click", () => {
+    deleteInitialBox.classList.add("hidden");
+    deleteForm.classList.remove("hidden");
+    deletePassword.focus(); // Setzt den Cursor direkt in das Passwortfeld
+  });
+
+  cancelDeleteBtn.addEventListener("click", () => {
+    deleteForm.classList.add("hidden");
+    deleteInitialBox.classList.remove("hidden");
+    deleteForm.reset();
   });
 </script>
 
