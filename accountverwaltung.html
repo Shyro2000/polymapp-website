@@ -446,10 +446,11 @@
     measurementId: "G-0QQYN8BKQD"
   };
 
-  const app = initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
 
+  // Hier wurde Ihr reCAPTCHA-Websiteschlüssel erfolgreich eingefügt
   initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider("DEIN_RECAPTCHA_SITE_KEY"),
+    provider: new ReCaptchaV3Provider("6LcZLfYsAAAAACkYf08UWZp0KLBcfm9Lt820StlF"),
     isTokenAutoRefreshEnabled: true
   });
 
