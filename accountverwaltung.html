@@ -7,13 +7,11 @@
     <link rel="alternate" hreflang="en" href="https://polymapp.ch/accountverwaltung-en.html">
     <link rel="alternate" hreflang="fr" href="https://polymapp.ch/accountverwaltung-fr.html">
 
-  <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="icon" href="favicon.ico">
 
-    <!-- Android / PWA -->
     <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
     <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
 
@@ -96,12 +94,6 @@
         text-decoration: underline;
       }
 
-      nav a {
-        color: white;
-        margin: 0 10px;
-        text-decoration: none;
-      }
-
       /* Trenner automatisch nach jedem Link – außer dem letzten */
       nav a:not(:last-child)::after {
         content: " |";
@@ -141,56 +133,56 @@
       }
 
       .input-group input[type="email"],
-.input-group input[type="password"],
-.password-wrap input[type="text"] {
-  width: 100%;
-  padding: 12px 48px 12px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  box-sizing: border-box;
-}
+      .input-group input[type="password"],
+      .password-wrap input[type="text"] {
+        width: 100%;
+        padding: 12px 48px 12px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
 
-.password-wrap {
-  position: relative;
-  width: 100%;
-}
+      .password-wrap {
+        position: relative;
+        width: 100%;
+      }
 
-.password-wrap input {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-}
+      .password-wrap input {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+      }
 
-.password-toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  margin: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
-  z-index: 2;
-}
+      .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        margin: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 0;
+        z-index: 2;
+      }
 
-.password-toggle:hover {
-  background: transparent;
-}
+      .password-toggle:hover {
+        background: transparent;
+      }
 
-.password-toggle img {
-  width: 20px;
-  height: 20px;
-  display: block;
-  pointer-events: none;
-}
+      .password-toggle img {
+        width: 20px;
+        height: 20px;
+        display: block;
+        pointer-events: none;
+      }
 
       .small-text {
         font-size: 0.95em;
@@ -293,26 +285,24 @@
       </div>
 
       <div class="input-group">
-  <label for="registerPassword">Passwort</label>
-  <div class="password-wrap">
-    <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
-<button type="button" class="password-toggle" data-target="registerPassword" aria-label="Passwort anzeigen">
-  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-</button>  
-</div>
-</div>
-
+        <label for="registerPassword">Passwort</label>
+        <div class="password-wrap">
+          <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
+          <button type="button" class="password-toggle" data-target="registerPassword" aria-label="Passwort anzeigen">
+            <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
+          </button>  
+        </div>
+      </div>
       
-<div class="input-group">
-  <label for="registerPassword2">Passwort bestätigen</label>
-  <div class="password-wrap">
-    <input type="password" id="registerPassword2" autocomplete="new-password" minlength="6" required>
-<button type="button" class="password-toggle" data-target="registerPassword2" aria-label="Passwort anzeigen">
-  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-</button>
-  </div>
-</div>
-
+      <div class="input-group">
+        <label for="registerPassword2">Passwort bestätigen</label>
+        <div class="password-wrap">
+          <input type="password" id="registerPassword2" autocomplete="new-password" minlength="6" required>
+          <button type="button" class="password-toggle" data-target="registerPassword2" aria-label="Passwort anzeigen">
+            <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
+          </button>
+        </div>
+      </div>
 
       <button type="submit">Konto erstellen</button>
     </form>
@@ -329,14 +319,14 @@
       </div>
 
       <div class="input-group">
-  <label for="loginPassword">Passwort</label>
-  <div class="password-wrap">
-    <input type="password" id="loginPassword" autocomplete="current-password" minlength="6" required>
-<button type="button" class="password-toggle" data-target="loginPassword" aria-label="Passwort anzeigen">
-  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-</button>  
-</div>
-</div>
+        <label for="loginPassword">Passwort</label>
+        <div class="password-wrap">
+          <input type="password" id="loginPassword" autocomplete="current-password" minlength="6" required>
+          <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Passwort anzeigen">
+            <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
+          </button>  
+        </div>
+      </div>
 
       <button type="submit">Einloggen</button>
       <br><br>
@@ -348,26 +338,47 @@
     <h2>Mein Account</h2>
 
     <div class="account-info">
-  <p><strong>Angemeldet als:</strong> <span id="userEmail"></span></p>
+      <p><strong>Angemeldet als:</strong> <span id="userEmail"></span></p>
 
-  <p
-    id="premiumBadge"
-    style="display:none; margin-top:10px; color:#B00000; font-weight:bold;"
-  >
-    ⭐ Kostenlos Premium aktiv.
-  </p>
-</div>
+      <p
+        id="premiumBadge"
+        style="display:none; margin-top:10px; color:#B00000; font-weight:bold;"
+      >
+        ⭐ Kostenlos Premium aktiv.
+      </p>
+    </div>
+
+    <div class="account-info" style="border-top: 2px solid #B00000; margin-top: 20px;">
+      <h3 style="margin-top: 0; color: #B00000;">Kollegen einladen & gratis Premium sichern</h3>
+      <p class="small-text">Teile deinen persönlichen Link. Wenn sich 5 Kollegen registrieren, die ein aktives Premium-Abo haben, erhältst du PolymApp Premium komplett kostenlos!</p>
+      
+      <div class="input-group" style="margin-top: 15px;">
+        <label for="referralLinkInput">Mein Empfehlungslink:</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="referralLinkInput" readonly style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;" onclick="this.select();">
+          <button type="button" id="copyLinkBtn" style="white-space: nowrap; padding: 0 15px; font-size: 14px;">Link kopieren</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; background: #f9f9f9; padding: 12px; border-radius: 4px; border: 1px solid #eee;">
+        <p style="margin: 0 0 8px 0;"><strong>Deine Statistik:</strong></p>
+        <ul style="margin: 0; padding-left: 20px; font-size: 0.95em;">
+          <li>Durch mich registrierte Nutzer: <strong id="statsTotal">0</strong></li>
+          <li>Davon mit aktivem Premium: <strong id="statsPremium" style="color: #B00000;">0</strong> / 5</li>
+        </ul>
+      </div>
+    </div>
 
     <form id="deleteForm">
       <div class="input-group">
-  <label for="deletePassword">Passwort bestätigen</label>
-  <div class="password-wrap">
-    <input type="password" id="deletePassword" autocomplete="current-password" required>
-<button type="button" class="password-toggle" data-target="deletePassword" aria-label="Passwort anzeigen">
-  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-</button>
-  </div>
-</div>
+        <label for="deletePassword">Passwort bestätigen</label>
+        <div class="password-wrap">
+          <input type="password" id="deletePassword" autocomplete="current-password" required>
+          <button type="button" class="password-toggle" data-target="deletePassword" aria-label="Passwort anzeigen">
+            <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
+          </button>
+        </div>
+      </div>
 
       <button type="submit">Account endgültig löschen</button>
     </form>
@@ -404,19 +415,21 @@
     signOut,
     sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import {
-  initializeAppCheck,
-  ReCaptchaV3Provider
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
   import {
-  getFirestore,
-  doc,
-  setDoc,
-  deleteDoc,
-  collection,
-  getDocs,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    initializeAppCheck,
+    ReCaptchaV3Provider
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    deleteDoc,
+    collection,
+    getDocs,
+    getDoc,
+    query,     // HIER HINZUGEFÜGT
+    where      // HIER HINZUGEFÜGT
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
@@ -430,13 +443,13 @@
 
   const app = initializeApp(firebaseConfig);
 
-initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider("DEIN_RECAPTCHA_SITE_KEY"),
-  isTokenAutoRefreshEnabled: true
-});
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider("DEIN_RECAPTCHA_SITE_KEY"),
+    isTokenAutoRefreshEnabled: true
+  });
 
-const auth = getAuth(app);
-const db = getFirestore(app);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
   await setPersistence(auth, browserLocalPersistence).catch((error) => {
     console.warn("Firebase Persistence konnte nicht gesetzt werden:", error);
@@ -462,29 +475,47 @@ const db = getFirestore(app);
 
   const deletePassword = document.getElementById("deletePassword");
   const userEmail = document.getElementById("userEmail");
-  // const userUid = document.getElementById("userUid");
+
+  // HIER HINZUGEFÜGT: Neue UI-Elemente referenzieren
+  const referralLinkInput = document.getElementById("referralLinkInput");
+  const copyLinkBtn = document.getElementById("copyLinkBtn");
+  const statsTotal = document.getElementById("statsTotal");
+  const statsPremium = document.getElementById("statsPremium");
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
-document.querySelectorAll(".password-toggle").forEach((button) => {
-  button.addEventListener("click", () => {
-    const targetId = button.dataset.target;
-    const input = document.getElementById(targetId);
-    const img = button.querySelector("img");
-
-    if (!input || !img) return;
-
-    const isHidden = input.type === "password";
-
-    input.type = isHidden ? "text" : "password";
-    img.src = isHidden ? "images/ic_eye_hide.PNG" : "images/ic_eye_open.PNG";
-    button.setAttribute(
-      "aria-label",
-      isHidden ? "Passwort verbergen" : "Passwort anzeigen"
-    );
+  // HIER HINZUGEFÜGT: Event-Listener für den Link-Kopieren Button
+  copyLinkBtn.addEventListener("click", () => {
+    referralLinkInput.select();
+    navigator.clipboard.writeText(referralLinkInput.value);
+    setStatus("Empfehlungslink in die Zwischenablage kopiert!", "success", 2500);
   });
-});
 
+  // HIER HINZUGEFÜGT: Empfehlungscode aus URL auslesen und im Session-Speicher behalten
+  const urlParams = new URLSearchParams(window.location.search);
+  const refCode = urlParams.get('ref');
+  if (refCode) {
+    sessionStorage.setItem('pending_referral', refCode);
+  }
+
+  document.querySelectorAll(".password-toggle").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetId = button.dataset.target;
+      const input = document.getElementById(targetId);
+      const img = button.querySelector("img");
+
+      if (!input || !img) return;
+
+      const isHidden = input.type === "password";
+
+      input.type = isHidden ? "text" : "password";
+      img.src = isHidden ? "images/ic_eye_hide.PNG" : "images/ic_eye_open.PNG";
+      button.setAttribute(
+        "aria-label",
+        isHidden ? "Passwort verbergen" : "Passwort anzeigen"
+      );
+    });
+  });
 
   let hideTimer = null;
   let clearTimer = null;
@@ -556,62 +587,90 @@ document.querySelectorAll(".password-toggle").forEach((button) => {
     await deleteDoc(doc(db, "users", uid));
   }
 
- async function checkFreePremium(email) {
-  try {
-    const premiumBadge = document.getElementById("premiumBadge");
+  async function checkFreePremium(email) {
+    try {
+      const premiumBadge = document.getElementById("premiumBadge");
 
-    if (!email) {
-      premiumBadge.style.display = "none";
-      return;
+      if (!email) {
+        premiumBadge.style.display = "none";
+        return;
+      }
+
+      const testerRef = doc(db, "beta_testers", email.toLowerCase());
+      const testerSnap = await getDoc(testerRef);
+
+      if (
+        testerSnap.exists() &&
+        testerSnap.data().free_premium === true
+      ) {
+        premiumBadge.style.display = "block";
+      } else {
+        premiumBadge.style.display = "none";
+      }
+    } catch (error) {
+      console.warn("Premium-Check fehlgeschlagen:", error);
     }
+  }   
 
-    const testerRef = doc(db, "beta_testers", email.toLowerCase());
-    const testerSnap = await getDoc(testerRef);
-
-    if (
-      testerSnap.exists() &&
-      testerSnap.data().free_premium === true
-    ) {
-      premiumBadge.style.display = "block";
-    } else {
-      premiumBadge.style.display = "none";
+  // HIER HINZUGEFÜGT: Funktion um die geworbenen Nutzer live zu zählen
+  async function loadReferralStats(uid) {
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("referredBy", "==", uid));
+      const querySnapshot = await getDocs(q);
+      
+      let total = 0;
+      let premium = 0;
+      
+      querySnapshot.forEach((doc) => {
+        total++;
+        if (doc.data().isPremium === true) {
+          premium++;
+        }
+      });
+      
+      statsTotal.textContent = total;
+      statsPremium.textContent = premium;
+    } catch (error) {
+      console.warn("Fehler beim Laden der Empfehlungsstatistik:", error);
     }
-  } catch (error) {
-    console.warn("Premium-Check fehlgeschlagen:", error);
   }
-}   
 
   onAuthStateChanged(auth, async (user) => {
-  const premiumBadge = document.getElementById("premiumBadge");
+    const premiumBadge = document.getElementById("premiumBadge");
 
-  if (user) {
-    registerBox.classList.add("hidden");
-    loginBox.classList.add("hidden");
-    accountBox.classList.remove("hidden");
+    if (user) {
+      registerBox.classList.add("hidden");
+      loginBox.classList.add("hidden");
+      accountBox.classList.remove("hidden");
 
-    userEmail.textContent = user.email || "";
-    deletePassword.value = "";
+      userEmail.textContent = user.email || "";
+      deletePassword.value = "";
 
-    await checkFreePremium(user.email);
+      await checkFreePremium(user.email);
 
-    setStatus(
-      `Angemeldet als ${user.email || "unbekannt"}.`,
-      "success",
-      3000
-    );
-  } else {
-    registerBox.classList.remove("hidden");
-    loginBox.classList.remove("hidden");
-    accountBox.classList.add("hidden");
+      // HIER HINZUGEFÜGT: Link generieren und Statistik laden
+      referralLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${user.uid}`;
+      await loadReferralStats(user.uid);
 
-    userEmail.textContent = "";
-    deletePassword.value = "";
+      setStatus(
+        `Angemeldet als ${user.email || "unbekannt"}.`,
+        "success",
+        3000
+      );
+    } else {
+      registerBox.classList.remove("hidden");
+      loginBox.classList.remove("hidden");
+      accountBox.classList.add("hidden");
 
-    if (premiumBadge) {
-      premiumBadge.style.display = "none";
+      userEmail.textContent = "";
+      deletePassword.value = "";
+
+      if (premiumBadge) {
+        premiumBadge.style.display = "none";
+      }
     }
-  }
-});
+  });
 
   registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -636,10 +695,23 @@ document.querySelectorAll(".password-toggle").forEach((button) => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
       try {
-        await setDoc(doc(db, "users", userCredential.user.uid), {
+        // HIER GEÄNDERT: Zuordnung beim Registrieren mitspeichern
+        const pendingRef = sessionStorage.getItem('pending_referral');
+        
+        const userData = {
           email: userCredential.user.email || email,
           platform: "web"
-        }, { merge: true });
+        };
+
+        if (pendingRef) {
+          userData.referredBy = pendingRef;
+        }
+
+        await setDoc(doc(db, "users", userCredential.user.uid), userData, { merge: true });
+        
+        if (pendingRef) {
+          sessionStorage.removeItem('pending_referral');
+        }
       } catch (firestoreError) {
         try {
           await deleteUser(userCredential.user);
