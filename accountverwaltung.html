@@ -425,16 +425,17 @@
     ReCaptchaV3Provider
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
   import {
-    getFirestore,
-    doc,
-    setDoc,
-    deleteDoc,
-    collection,
-    getDocs,
-    getDoc,
-    query,     // HIER HINZUGEFÜGT
-    where      // HIER HINZUGEFÜGT
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  getFirestore,
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+  getDoc,
+  query,
+  where,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
@@ -735,9 +736,14 @@
         // HIER GEÄNDERT: Zuordnung beim Registrieren mitspeichern
         const pendingRef = sessionStorage.getItem('pending_referral');
         
+        const locale = navigator.language || "en-US";
+        const country = locale.split("-")[1] || "unknown";
+        
         const userData = {
           email: userCredential.user.email || email,
-          platform: "web"
+          platform: "web",
+          country: country.toUpperCase(),
+          createdAt: serverTimestamp()
         };
 
         if (pendingRef) {
