@@ -596,30 +596,53 @@
     await deleteDoc(doc(db, "users", uid));
   }
 
-  async function checkFreePremium(email) {
+  async function checkFreePremium(user) {
     try {
       const premiumBadge = document.getElementById("premiumBadge");
 
-      if (!email) {
+      if (!user || !user.email) {
         premiumBadge.style.display = "none";
         return;
       }
 
-      const testerRef = doc(db, "beta_testers", email.toLowerCase());
+      // Schritt 1: Prüfen, ob der User in der Beta-Tester-Liste steht
+      const testerRef = doc(db, "beta_testers", user.email.toLowerCase());
       const testerSnap = await getDoc(testerRef);
 
-      if (
-        testerSnap.exists() &&
-        testerSnap.data().free_premium === true
-      ) {
+      if (testerSnap.exists() && testerSnap.data().free_premium === true) {
+        premiumBadge.textContent = "⭐ Kostenlos Premium aktiv.";
+        premiumBadge.style.color = "#B00000";
         premiumBadge.style.display = "block";
+        return; // Gefunden -> Abbrechen
+      }
+
+      // Schritt 2: Wenn kein Beta-Tester, prüfe sein eigenes User-Profil (wichtig für das 5-Freunde-Abo)
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        
+        if (userData.is_premium === true) {
+          // Er hat die 5 Freunde geschafft!
+          premiumBadge.textContent = "⭐ Kostenlos Premium aktiv.";
+          premiumBadge.style.color = "#B00000";
+          premiumBadge.style.display = "block";
+        } else if (userData.has_regular_premium === true) { 
+          // Vorbereitung für regulär bezahltes Premium (ohne Stern und nicht rot)
+          premiumBadge.textContent = "Premium aktiv.";
+          premiumBadge.style.color = "#333333";
+          premiumBadge.style.display = "block";
+        } else {
+          premiumBadge.style.display = "none";
+        }
       } else {
         premiumBadge.style.display = "none";
       }
     } catch (error) {
-      console.warn("Premium-Check fehlgeschlagen:", error);
+      console.warn("Premium-Check auf der Webseite fehlgeschlagen:", error);
     }
-  }   
+  }
 
   // HIER HINZUGEFÜGT: Funktion um die geworbenen Nutzer live zu zählen
   async function loadReferralStats(uid) {
@@ -656,9 +679,10 @@
       userEmail.textContent = user.email || "";
       deletePassword.value = "";
 
-      await checkFreePremium(user.email);
+      // 👉 GEÄNDERT: Übergibt jetzt das ganze 'user'-Objekt statt nur user.email
+      await checkFreePremium(user); 
 
-      // HIER HINZUGEFÜGT: Link generieren und Statistik laden
+      // Link generieren und Statistik laden
       referralLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${user.uid}`;
       await loadReferralStats(user.uid);
 
