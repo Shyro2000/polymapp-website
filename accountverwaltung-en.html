@@ -592,25 +592,51 @@
     await deleteDoc(doc(db, "users", uid));
   }
 
-  async function checkFreePremium(email) {
+  async function checkFreePremium(user) {
     try {
       const premiumBadge = document.getElementById("premiumBadge");
 
-      if (!email) {
+      if (!user || !user.email) {
         premiumBadge.style.display = "none";
         return;
       }
 
-      const testerRef = doc(db, "beta_testers", email.toLowerCase());
+      // Step 1: Check if the user is listed in the beta_testers collection
+      const testerRef = doc(db, "beta_testers", user.email.toLowerCase());
       const testerSnap = await getDoc(testerRef);
 
       if (testerSnap.exists() && testerSnap.data().free_premium === true) {
+        premiumBadge.textContent = "⭐ Free Premium active.";
+        premiumBadge.style.color = "#B00000";
         premiumBadge.style.display = "block";
+        return; // Match found -> exit function
+      }
+
+      // Step 2: If not a beta tester, check their own user profile document (important for the 5-friends reward)
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        
+        if (userData.is_premium === true) {
+          // User successfully referred 5 friends!
+          premiumBadge.textContent = "⭐ Free Premium active.";
+          premiumBadge.style.color = "#B00000";
+          premiumBadge.style.display = "block";
+        } else if (userData.has_regular_premium === true) { 
+          // Preparation for a regular paid subscription (no star, standard text color)
+          premiumBadge.textContent = "Premium active.";
+          premiumBadge.style.color = "#333333";
+          premiumBadge.style.display = "block";
+        } else {
+          premiumBadge.style.display = "none";
+        }
       } else {
         premiumBadge.style.display = "none";
       }
     } catch (error) {
-      console.warn("Premium check failed:", error);
+      console.warn("Premium check failed on the website:", error);
     }
   }
 
@@ -648,13 +674,15 @@
       userEmail.textContent = user.email || "";
       deletePassword.value = "";
 
-      await checkFreePremium(user.email);
+      // 👉 CHANGED: Passes the full 'user' object to allow access to user.uid
+      await checkFreePremium(user); 
 
+      // Generate referral link and load statistics
       referralLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${user.uid}`;
       await loadReferralStats(user.uid);
 
       setStatus(
-        `Signed in as ${user.email || "unknown"}.`,
+        `Logged in as ${user.email || "unknown"}.`,
         "success",
         3000
       );
