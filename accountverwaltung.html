@@ -350,8 +350,8 @@
 
     <div class="account-info" style="border-top: 2px solid #B00000; margin-top: 20px;">
       <h3 style="margin-top: 0; color: #B00000;">Kollegen einladen & gratis Premium sichern</h3>
-      <p class="small-text">Teile deinen persönlichen Link. Wenn sich 5 Kollegen registrieren, die ein aktives Premium-Abo haben, erhältst du PolymApp Premium komplett kostenlos!</p>
-      
+      <p class="small-text">Teilen Sie Ihren persönlichen Link: Wenn sich 5 Ihrer Kollegen registrieren und ein Premium-Abo erwerben – oder selbst 5 Kollegen werben –, erhalten Sie PolymApp Premium komplett kostenlos!</p>
+        
       <div class="input-group" style="margin-top: 15px;">
         <label for="referralLinkInput">Mein Empfehlungslink:</label>
         <div style="display: flex; gap: 10px;">
@@ -361,7 +361,7 @@
       </div>
 
       <div style="margin-top: 20px; background: #f9f9f9; padding: 12px; border-radius: 4px; border: 1px solid #eee;">
-        <p style="margin: 0 0 8px 0;"><strong>Deine Statistik:</strong></p>
+        <p style="margin: 0 0 8px 0;"><strong>Ihre Statistik:</strong></p>
         <ul style="margin: 0; padding-left: 20px; font-size: 0.95em;">
           <li>Durch mich registrierte Nutzer: <strong id="statsTotal">0</strong></li>
           <li>Davon mit aktivem Premium: <strong id="statsPremium" style="color: #B00000;">0</strong> / 5</li>
@@ -786,7 +786,7 @@
     const email = loginEmail.value.trim();
 
     if (!email) {
-      setStatus("Bitte zuerst deine E-Mail-Adresse eingeben.", "error", 3000);
+      setStatus("Bitte zuerst E-Mail-Adresse eingeben.", "error", 3000);
       return;
     }
 
@@ -820,11 +820,11 @@
     }
 
     if (!password) {
-      setStatus("Bitte dein Passwort bestätigen.", "error", 3000);
+      setStatus("Bitte Passwort bestätigen.", "error", 3000);
       return;
     }
 
-    if (!confirm("Möchtest du deinen PolymApp Account wirklich endgültig löschen?")) {
+    if (!confirm("Möchten sie ihren PolymApp Account wirklich endgültig löschen?")) {
       return;
     }
 
@@ -839,7 +839,7 @@
       await signOut(auth).catch(() => {});
 
       deleteForm.reset();
-      setStatus("Dein Account wurde erfolgreich gelöscht.", "success", 4000);
+      setStatus("Ihr Account wurde erfolgreich gelöscht.", "success", 4000);
     } catch (error) {
       setStatus(mapAuthError(error), "error", 4000);
     }
@@ -848,7 +848,7 @@
   logoutBtn.addEventListener("click", async () => {
     try {
       await signOut(auth);
-      setStatus("Du wurdest abgemeldet.", "success", 3000);
+      setStatus("Sie wurden abgemeldet.", "success", 3000);
     } catch (error) {
       setStatus(mapAuthError(error), "error", 3500);
     }
