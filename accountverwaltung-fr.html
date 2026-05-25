@@ -7,13 +7,11 @@
   <link rel="alternate" hreflang="en" href="https://polymapp.ch/accountverwaltung-en.html">
   <link rel="alternate" hreflang="fr" href="https://polymapp.ch/accountverwaltung-fr.html">
 
-  <!-- Favicons -->
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="icon" href="favicon.ico">
 
-  <!-- Android / PWA -->
   <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
   <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
 
@@ -97,12 +95,6 @@
       text-decoration: underline;
     }
 
-    nav a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-
     nav a:not(:last-child)::after {
       content: " |";
       color: white;
@@ -141,56 +133,56 @@
     }
 
     .input-group input[type="email"],
-.input-group input[type="password"],
-.password-wrap input[type="text"] {
-  width: 100%;
-  padding: 12px 48px 12px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  box-sizing: border-box;
-}
+    .input-group input[type="password"],
+    .password-wrap input[type="text"] {
+      width: 100%;
+      padding: 12px 48px 12px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
 
-.password-wrap {
-  position: relative;
-  width: 100%;
-}
+    .password-wrap {
+      position: relative;
+      width: 100%;
+    }
 
-.password-wrap input {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-}
+    .password-wrap input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-.password-toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  margin: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
-  z-index: 2;
-}
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+      z-index: 2;
+    }
 
-.password-toggle:hover {
-  background: transparent;
-}
+    .password-toggle:hover {
+      background: transparent;
+    }
 
-.password-toggle img {
-  width: 20px;
-  height: 20px;
-  display: block;
-  pointer-events: none;
-}
+    .password-toggle img {
+      width: 20px;
+      height: 20px;
+      display: block;
+      pointer-events: none;
+    }
 
     .small-text {
       font-size: 0.95em;
@@ -293,22 +285,24 @@
       </div>
 
       <div class="input-group">
-  <label for="registerPassword">Mot de passe</label>
-  <div class="password-wrap">
-    <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
-<button type="button" class="password-toggle" data-target="registerPassword" aria-label="Afficher le mot de passe">
-  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-</button>  </div>
-</div>
+        <label for="registerPassword">Mot de passe</label>
+        <div class="password-wrap">
+          <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
+          <button type="button" class="password-toggle" data-target="registerPassword" aria-label="Afficher le mot de passe">
+            <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
+          </button>
+        </div>
+      </div>
 
       <div class="input-group">
-  <label for="registerPassword2">Confirmer le mot de passe</label>
-  <div class="password-wrap">
-    <input type="password" id="registerPassword2" autocomplete="new-password" minlength="6" required>
-<button type="button" class="password-toggle" data-target="registerPassword2" aria-label="Afficher le mot de passe">
-  <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-</button>  </div>
-</div>
+        <label for="registerPassword2">Confirmer le mot de passe</label>
+        <div class="password-wrap">
+          <input type="password" id="registerPassword2" autocomplete="new-password" minlength="6" required>
+          <button type="button" class="password-toggle" data-target="registerPassword2" aria-label="Afficher le mot de passe">
+            <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
+          </button>
+        </div>
+      </div>
 
       <button type="submit">Créer le compte</button>
     </form>
@@ -325,14 +319,14 @@
       </div>
 
       <div class="input-group">
-  <label for="loginPassword">Mot de passe</label>
-  <div class="password-wrap">
-    <input type="password" id="loginPassword" autocomplete="current-password" minlength="6" required>
-    <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Afficher le mot de passe">
-      <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-    </button>
-  </div>
-</div>
+        <label for="loginPassword">Mot de passe</label>
+        <div class="password-wrap">
+          <input type="password" id="loginPassword" autocomplete="current-password" minlength="6" required>
+          <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Afficher le mot de passe">
+            <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
+          </button>
+        </div>
+      </div>
 
       <button type="submit">Se connecter</button>
       <br><br>
@@ -344,28 +338,54 @@
     <h2>Mon compte</h2>
 
     <div class="account-info">
-  <p><strong>Enregistré comme:</strong> <span id="userEmail"></span></p>
+      <p><strong>Enregistré comme:</strong> <span id="userEmail"></span></p>
 
-  <p
-    id="premiumBadge"
-    style="display:none; margin-top:10px; color:#B00000; font-weight:bold;"
-  >
-    ⭐ Premium actif gratuitement.
-  </p>
-</div>
+      <p
+        id="premiumBadge"
+        style="display:none; margin-top:10px; color:#B00000; font-weight:bold;"
+      >
+        ⭐ Premium actif gratuitement.
+      </p>
+    </div>
 
-    <form id="deleteForm">
+    <div class="account-info" style="border-top: 2px solid #B00000; margin-top: 20px;">
+      <h3 style="margin-top: 0; color: #B00000;">Inviter des collègues et obtenir Premium gratuitement</h3>
+      <p class="small-text">Partage ton lien personnel. Si 5 collègues s’inscrivent avec un abonnement Premium actif, tu recevras PolymApp Premium complètement gratuit.</p>
+      
+      <div class="input-group" style="margin-top: 15px;">
+        <label for="referralLinkInput">Mon lien de parrainage:</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="referralLinkInput" readonly style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;" onclick="this.select();">
+          <button type="button" id="copyLinkBtn" style="white-space: nowrap; padding: 0 15px; font-size: 14px;">Copier le lien</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; background: #f9f9f9; padding: 12px; border-radius: 4px; border: 1px solid #eee;">
+        <p style="margin: 0 0 8px 0;"><strong>Tes statistiques:</strong></p>
+        <ul style="margin: 0; padding-left: 20px; font-size: 0.95em;">
+          <li>Utilisateurs inscrits grâce à moi: <strong id="statsTotal">0</strong></li>
+          <li>Dont avec Premium actif: <strong id="statsPremium" style="color: #B00000;">0</strong> / 5</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="deleteInitialBox" style="margin-top: 20px;">
+      <button type="button" id="startDeleteBtn" style="background-color: #555;">Supprimer le compte</button>
+    </div>
+
+    <form id="deleteForm" class="hidden">
       <div class="input-group">
-  <label for="deletePassword">Confirmer le mot de passe</label>
-  <div class="password-wrap">
-    <input type="password" id="deletePassword" autocomplete="current-password" required>
-    <button type="button" class="password-toggle" data-target="deletePassword" aria-label="Afficher le mot de passe">
-      <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-    </button>
-  </div>
-</div>
+        <label for="deletePassword">Confirmer le mot de passe</label>
+        <div class="password-wrap">
+          <input type="password" id="deletePassword" autocomplete="current-password" required>
+          <button type="button" class="password-toggle" data-target="deletePassword" aria-label="Afficher le mot de passe">
+            <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
+          </button>
+        </div>
+      </div>
 
       <button type="submit">Supprimer définitivement le compte</button>
+      <button type="button" id="cancelDeleteBtn" style="background-color: #aaa; margin-left: 10px;">Annuler</button>
     </form>
 
     <div class="actions">
@@ -401,14 +421,20 @@
     sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-  getFirestore,
-  doc,
-  setDoc,
-  deleteDoc,
-  collection,
-  getDocs,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    initializeAppCheck,
+    ReCaptchaV3Provider
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    deleteDoc,
+    collection,
+    getDocs,
+    getDoc,
+    query,
+    where
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
@@ -421,11 +447,17 @@
   };
 
   const app = initializeApp(firebaseConfig);
+
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider("6LcZLfYsAAAAACkYf08UWZp0KLBcfm9Lt820StlF"),
+    isTokenAutoRefreshEnabled: true
+  });
+
   const auth = getAuth(app);
   const db = getFirestore(app);
 
   await setPersistence(auth, browserLocalPersistence).catch((error) => {
-    console.warn("Firebase Persistence could not be set:", error);
+    console.warn("La persistance Firebase n’a pas pu être définie :", error);
   });
 
   const registerBox = document.getElementById("registerBox");
@@ -436,6 +468,9 @@
   const registerForm = document.getElementById("registerForm");
   const loginForm = document.getElementById("loginForm");
   const deleteForm = document.getElementById("deleteForm");
+  const deleteInitialBox = document.getElementById("deleteInitialBox");
+  const startDeleteBtn = document.getElementById("startDeleteBtn");
+  const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
   const logoutBtn = document.getElementById("logoutBtn");
   const resetPasswordBtn = document.getElementById("resetPasswordBtn");
 
@@ -448,28 +483,44 @@
 
   const deletePassword = document.getElementById("deletePassword");
   const userEmail = document.getElementById("userEmail");
-  // const userUid = document.getElementById("userUid");
+
+  const referralLinkInput = document.getElementById("referralLinkInput");
+  const copyLinkBtn = document.getElementById("copyLinkBtn");
+  const statsTotal = document.getElementById("statsTotal");
+  const statsPremium = document.getElementById("statsPremium");
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  document.querySelectorAll(".password-toggle").forEach((button) => {
-  button.addEventListener("click", () => {
-    const targetId = button.dataset.target;
-    const input = document.getElementById(targetId);
-    const img = button.querySelector("img");
-
-    if (!input || !img) return;
-
-    const isHidden = input.type === "password";
-
-    input.type = isHidden ? "text" : "password";
-    img.src = isHidden ? "images/ic_eye_hide.PNG" : "images/ic_eye_open.PNG";
-    button.setAttribute(
-      "aria-label",
-      isHidden ? "Cacher le mot de passe" : "Afficher le mot de passe"
-    );
+  copyLinkBtn.addEventListener("click", () => {
+    referralLinkInput.select();
+    navigator.clipboard.writeText(referralLinkInput.value);
+    setStatus("Lien de parrainage copié dans le presse-papiers !", "success", 2500);
   });
-});
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const refCode = urlParams.get("ref");
+  if (refCode) {
+    sessionStorage.setItem("pending_referral", refCode);
+  }
+
+  document.querySelectorAll(".password-toggle").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetId = button.dataset.target;
+      const input = document.getElementById(targetId);
+      const img = button.querySelector("img");
+
+      if (!input || !img) return;
+
+      const isHidden = input.type === "password";
+
+      input.type = isHidden ? "text" : "password";
+      img.src = isHidden ? "images/ic_eye_hide.PNG" : "images/ic_eye_open.PNG";
+      button.setAttribute(
+        "aria-label",
+        isHidden ? "Cacher le mot de passe" : "Afficher le mot de passe"
+      );
+    });
+  });
 
   let hideTimer = null;
   let clearTimer = null;
@@ -542,61 +593,87 @@
   }
 
   async function checkFreePremium(email) {
-  try {
-    const premiumBadge = document.getElementById("premiumBadge");
+    try {
+      const premiumBadge = document.getElementById("premiumBadge");
 
-    if (!email) {
-      premiumBadge.style.display = "none";
-      return;
+      if (!email) {
+        premiumBadge.style.display = "none";
+        return;
+      }
+
+      const testerRef = doc(db, "beta_testers", email.toLowerCase());
+      const testerSnap = await getDoc(testerRef);
+
+      if (testerSnap.exists() && testerSnap.data().free_premium === true) {
+        premiumBadge.style.display = "block";
+      } else {
+        premiumBadge.style.display = "none";
+      }
+    } catch (error) {
+      console.warn("La vérification du Premium a échoué :", error);
     }
-
-    const testerRef = doc(db, "beta_testers", email.toLowerCase());
-    const testerSnap = await getDoc(testerRef);
-
-    if (
-      testerSnap.exists() &&
-      testerSnap.data().free_premium === true
-    ) {
-      premiumBadge.style.display = "block";
-    } else {
-      premiumBadge.style.display = "none";
-    }
-  } catch (error) {
-    console.warn("Premium-Check fehlgeschlagen:", error);
   }
-}
+
+  async function loadReferralStats(uid) {
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("referredBy", "==", uid));
+      const querySnapshot = await getDocs(q);
+
+      let total = 0;
+      let premium = 0;
+
+      querySnapshot.forEach((doc) => {
+        total++;
+        if (doc.data().is_premium === true) {
+          premium++;
+        }
+      });
+
+      statsTotal.textContent = total;
+      statsPremium.textContent = premium;
+    } catch (error) {
+      console.warn("Erreur lors du chargement des statistiques de parrainage :", error);
+    }
+  }
 
   onAuthStateChanged(auth, async (user) => {
-  const premiumBadge = document.getElementById("premiumBadge");
+    const premiumBadge = document.getElementById("premiumBadge");
 
-  if (user) {
-    registerBox.classList.add("hidden");
-    loginBox.classList.add("hidden");
-    accountBox.classList.remove("hidden");
+    if (user) {
+      registerBox.classList.add("hidden");
+      loginBox.classList.add("hidden");
+      accountBox.classList.remove("hidden");
 
-    userEmail.textContent = user.email || "";
-    deletePassword.value = "";
+      userEmail.textContent = user.email || "";
+      deletePassword.value = "";
 
-    await checkFreePremium(user.email);
+      await checkFreePremium(user.email);
 
-    setStatus(
-      `Connecté en tant que ${user.email || "inconnu"}.`,
-      "success",
-      3000
-    );
-  } else {
-    registerBox.classList.remove("hidden");
-    loginBox.classList.remove("hidden");
-    accountBox.classList.add("hidden");
+      referralLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${user.uid}`;
+      await loadReferralStats(user.uid);
 
-    userEmail.textContent = "";
-    deletePassword.value = "";
+      setStatus(
+        `Connecté en tant que ${user.email || "inconnu"}.`,
+        "success",
+        3000
+      );
+    } else {
+      registerBox.classList.remove("hidden");
+      loginBox.classList.remove("hidden");
+      accountBox.classList.add("hidden");
 
-    if (premiumBadge) {
-      premiumBadge.style.display = "none";
+      userEmail.textContent = "";
+      deletePassword.value = "";
+
+      deleteForm.classList.add("hidden");
+      deleteInitialBox.classList.remove("hidden");
+
+      if (premiumBadge) {
+        premiumBadge.style.display = "none";
+      }
     }
-  }
-});
+  });
 
   registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -621,10 +698,22 @@
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
       try {
-        await setDoc(doc(db, "users", userCredential.user.uid), {
+        const pendingRef = sessionStorage.getItem("pending_referral");
+
+        const userData = {
           email: userCredential.user.email || email,
           platform: "web"
-        }, { merge: true });
+        };
+
+        if (pendingRef) {
+          userData.referredBy = pendingRef;
+        }
+
+        await setDoc(doc(db, "users", userCredential.user.uid), userData, { merge: true });
+
+        if (pendingRef) {
+          sessionStorage.removeItem("pending_referral");
+        }
       } catch (firestoreError) {
         try {
           await deleteUser(userCredential.user);
@@ -728,6 +817,18 @@
     } catch (error) {
       setStatus(mapAuthError(error), "error", 3500);
     }
+  });
+
+  startDeleteBtn.addEventListener("click", () => {
+    deleteInitialBox.classList.add("hidden");
+    deleteForm.classList.remove("hidden");
+    deletePassword.focus();
+  });
+
+  cancelDeleteBtn.addEventListener("click", () => {
+    deleteForm.classList.add("hidden");
+    deleteInitialBox.classList.remove("hidden");
+    deleteForm.reset();
   });
 </script>
 
