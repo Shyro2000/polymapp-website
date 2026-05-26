@@ -762,7 +762,10 @@
           email: userCredential.user.email || email,
           platform: "web",
           country: country.toUpperCase(),
-          createdAt: serverTimestamp()
+          createdAt: serverTimestamp(),
+          availableTrialDays: 30,
+          trialStartedAt: null,
+          referralCountRewarded: 0
         };
 
         if (pendingRef) {
