@@ -755,9 +755,9 @@
         // HIER GEÄNDERT: Zuordnung beim Registrieren mitspeichern
         const pendingRef = sessionStorage.getItem('pending_referral');
         
-        const locale = navigator.language || "en-US";
-        const country = locale.split("-")[1] || "unknown";
-        
+        const locale = navigator.language;
+        const country = (locale.includes("-") ? locale.split("-")[1] : null) ?? "unknown";  
+          
         const userData = {
           email: userCredential.user.email || email,
           platform: "web",
