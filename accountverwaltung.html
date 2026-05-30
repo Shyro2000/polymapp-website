@@ -755,8 +755,9 @@
         // HIER GEÄNDERT: Zuordnung beim Registrieren mitspeichern
         const pendingRef = sessionStorage.getItem('pending_referral');
         
-        const locale = navigator.language;
-        const country = (locale.includes("-") ? locale.split("-")[1] : null) ?? "unknown";  
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        const country = data.country_code || "unknown";
           
         const userData = {
           email: userCredential.user.email || email,
