@@ -300,6 +300,43 @@ li {
       font-weight: bold;
     }
 
+   .press-section {
+  margin: 50px 0;
+  padding: 25px;
+  background: #f8f8f8;
+  border-radius: 12px;
+  border-left: 5px solid #B80000;
+}
+
+.press-badge {
+  display: inline-block;
+  background: #B80000;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.press-content {
+  display: flex;
+  gap: 25px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.press-content img {
+  width: 260px;
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.press-text {
+  flex: 1;
+  min-width: 250px;
+}
+
   </style>
 </head>
 <body>
@@ -364,6 +401,46 @@ li {
   <button class="nav next">&#10095;</button>
 </div>
 </div>
+
+   <section class="press-section">
+
+  <div class="press-badge">
+    📰 Vorgestellt im Schweizer Maschinenmarkt (SMM)
+  </div>
+
+  <div class="press-content">
+
+    <a href="images/smm-polymapp-full.jpg" target="_blank">
+      <img src="images/smm-polymapp-preview.jpg"
+           alt="Artikel über PolymApp im Schweizer Maschinenmarkt">
+    </a>
+
+    <div class="press-text">
+
+      <h2>PolymApp im Schweizer Maschinenmarkt</h2>
+
+      <p>
+        Die Fachzeitschrift Schweizer Maschinenmarkt (SMM)
+        stellte PolymApp als digitalen Werkzeugkasten für die CNC-Fertigung vor.
+      </p>
+
+      <p>
+        Im Beitrag werden insbesondere die intelligente
+        Kameraerkennung für ISO-Toleranzen,
+        die Werkstoffdatenbank mit über 400 Werkstoffen
+        sowie die Offline-Nutzung direkt an der Maschine hervorgehoben.
+      </p>
+
+      <p>
+        Vielen Dank an das Team des Schweizer Maschinenmarkts
+        für die Berichterstattung.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
 
   <section>
     <h2>Was ist PolymApp?</h2>
