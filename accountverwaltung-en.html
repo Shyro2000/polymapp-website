@@ -369,7 +369,7 @@
 
     <div class="account-info" style="border-top: 2px solid #B00000; margin-top: 20px;">
       <h3 style="margin-top: 0; color: #B00000;">Invite colleagues & get free Premium</h3>
-<p class="small-text">Share your personal link: If 5 of your colleagues register and purchase a Premium subscription – or recruit 5 colleagues of their own –, you will receive PolymApp Premium completely free of charge!</p>      
+<p class="small-text">Share your personal link: If 3 of your colleagues register and purchase a Premium subscription – or recruit 3 colleagues of their own –, you will receive PolymApp Premium completely free of charge!</p>      
       <div class="input-group" style="margin-top: 15px;">
         <label for="referralLinkInput">My referral link:</label>
         <div style="display: flex; gap: 10px;">
@@ -382,7 +382,7 @@
         <p style="margin: 0 0 8px 0;"><strong>Your statistics:</strong></p>
         <ul style="margin: 0; padding-left: 20px; font-size: 0.95em;">
           <li>Users registered through me: <strong id="statsTotal">0</strong></li>
-          <li>Of those with active Premium: <strong id="statsPremium" style="color: #B00000;">0</strong> / 5</li>
+          <li>Of those with active Premium: <strong id="statsPremium" style="color: #B00000;">0</strong> / 3</li>
         </ul>
       </div>
     </div>
@@ -631,7 +631,7 @@
         return; // Match found -> exit function
       }
 
-      // Step 2: If not a beta tester, check their own user profile document (important for the 5-friends reward)
+      // Step 2: If not a beta tester, check their own user profile document (important for the 3-friends reward)
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -639,7 +639,7 @@
         const userData = userSnap.data();
         
         if (userData.is_premium === true) {
-          // User successfully referred 5 friends!
+          // User successfully referred 3 friends!
           premiumBadge.textContent = "⭐ Free Premium active.";
           premiumBadge.style.color = "#B00000";
           premiumBadge.style.display = "block";
