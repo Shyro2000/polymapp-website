@@ -369,7 +369,7 @@
 
     <div class="account-info" style="border-top: 2px solid #B00000; margin-top: 20px;">
       <h3 style="margin-top: 0; color: #B00000;">Kollegen einladen & gratis Premium sichern</h3>
-      <p class="small-text">Teilen Sie Ihren persönlichen Link: Wenn sich 5 Ihrer Kollegen registrieren und ein Premium-Abo erwerben – oder selbst 5 Kollegen werben –, erhalten Sie PolymApp Premium komplett kostenlos!</p>
+      <p class="small-text">Teilen Sie Ihren persönlichen Link: Wenn sich 5 Ihrer Kollegen registrieren und ein Premium-Abo erwerben – oder selbst 3 Kollegen werben –, erhalten Sie PolymApp Premium komplett kostenlos!</p>
         
       <div class="input-group" style="margin-top: 15px;">
         <label for="referralLinkInput">Mein Empfehlungslink:</label>
@@ -383,7 +383,7 @@
         <p style="margin: 0 0 8px 0;"><strong>Ihre Statistik:</strong></p>
         <ul style="margin: 0; padding-left: 20px; font-size: 0.95em;">
           <li>Durch mich registrierte Nutzer: <strong id="statsTotal">0</strong></li>
-          <li>Davon mit aktivem Premium: <strong id="statsPremium" style="color: #B00000;">0</strong> / 5</li>
+          <li>Davon mit aktivem Premium: <strong id="statsPremium" style="color: #B00000;">0</strong> / 3</li>
         </ul>
       </div>
     </div>
@@ -636,7 +636,7 @@
         return; // Gefunden -> Abbrechen
       }
 
-      // Schritt 2: Wenn kein Beta-Tester, prüfe sein eigenes User-Profil (wichtig für das 5-Freunde-Abo)
+      // Schritt 2: Wenn kein Beta-Tester, prüfe sein eigenes User-Profil (wichtig für das 3-Freunde-Abo)
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -644,7 +644,7 @@
         const userData = userSnap.data();
         
         if (userData.is_premium === true) {
-          // Er hat die 5 Freunde geschafft!
+          // Er hat die 3 Freunde geschafft!
           premiumBadge.textContent = "⭐ Kostenlos Premium aktiv.";
           premiumBadge.style.color = "#B00000";
           premiumBadge.style.display = "block";
