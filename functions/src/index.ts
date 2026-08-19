@@ -19,3 +19,7 @@ export {
 export {
   updateCompanyMemberRole,
 } from "./company/updateCompanyMemberRole";
+export {
+  removeCompanyMember,
+} from "./company/removeCompanyMember";
+export {leaveCompany} from "./company/leaveCompany";
