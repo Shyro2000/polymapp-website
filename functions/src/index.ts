@@ -26,3 +26,6 @@ export {leaveCompany} from "./company/leaveCompany";
 export {
   transferCompanyOwnership,
 } from "./company/transferCompanyOwnership";
+export {
+  importPrivateMachinesToCompany,
+} from "./company/importPrivateMachinesToCompany";
