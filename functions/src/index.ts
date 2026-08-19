@@ -29,3 +29,6 @@ export {
 export {
   importPrivateMachinesToCompany,
 } from "./company/importPrivateMachinesToCompany";
+export {
+  updateCompanyMemberAdminData,
+} from "./company/updateCompanyMemberAdminData";

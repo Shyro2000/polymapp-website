@@ -35,6 +35,14 @@ export const createCompany = onCall(async (request) => {
   const memberRef = companyRef
     .collection("members")
     .doc(uid);
+  const memberAdminDataRef = companyRef
+    .collection("memberAdminData")
+    .doc(uid);
+  const authenticatedEmail = request.auth.token.email;
+  const memberEmail =
+    typeof authenticatedEmail === "string" ?
+      authenticatedEmail.trim().toLowerCase() :
+      "";
 
   return db.runTransaction(async (transaction) => {
     const userSnapshot = await transaction.get(userRef);
@@ -76,6 +84,19 @@ export const createCompany = onCall(async (request) => {
       status: "active",
       addedByUid: uid,
       joinedAt: FieldValue.serverTimestamp(),
+    });
+
+    transaction.set(memberAdminDataRef, {
+      memberUid: uid,
+      email: memberEmail,
+      firstName: "",
+      lastName: "",
+      department: "",
+      employmentStatus: "",
+      notes: "",
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+      updatedByUid: uid,
     });
 
     transaction.update(userRef, {

@@ -166,6 +166,9 @@ export const acceptCompanyInvitation = onCall(
       const memberRef = companyRef
         .collection("members")
         .doc(uid);
+      const memberAdminDataRef = companyRef
+        .collection("memberAdminData")
+        .doc(uid);
 
       const companySnapshot =
         await transaction.get(companyRef);
@@ -274,6 +277,19 @@ export const acceptCompanyInvitation = onCall(
         addedByUid: invitedByUid,
         invitationId,
         joinedAt: FieldValue.serverTimestamp(),
+      });
+
+      transaction.set(memberAdminDataRef, {
+        memberUid: uid,
+        email,
+        firstName: "",
+        lastName: "",
+        department: "",
+        employmentStatus: "",
+        notes: "",
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+        updatedByUid: uid,
       });
 
       transaction.update(userRef, {
