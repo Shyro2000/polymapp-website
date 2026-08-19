@@ -1,4 +1,5 @@
 const {initializeApp} = require("firebase-admin/app");
+const {getAuth} = require("firebase-admin/auth");
 const {getFirestore} = require("firebase-admin/firestore");
 
 const projectId = "twyt-80c82";
@@ -8,10 +9,12 @@ const functionsUrl =
   "http://127.0.0.1:5001/twyt-80c82/europe-west1";
 
 process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
+process.env.FIREBASE_AUTH_EMULATOR_HOST = "127.0.0.1:9099";
 
 initializeApp({projectId});
 
 const db = getFirestore();
+const auth = getAuth();
 
 async function readResponse(response) {
   const text = await response.text();
@@ -45,14 +48,11 @@ async function callFunction(name, idToken, data) {
   return body.result ?? body.data;
 }
 
-async function main() {
-  const timestamp = Date.now();
-  const ownerEmail =
-    `owner-${timestamp}@polymapp.test`;
-  const invitedEmail =
-    `member-${timestamp}@polymapp.test`;
-  const password = "Test123456!";
-
+async function createTestUser(
+  email,
+  password,
+  emailVerified,
+) {
   const signUpResponse = await fetch(
     `${authUrl}/accounts:signUp?key=fake-api-key`,
     {
@@ -61,7 +61,7 @@ async function main() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: ownerEmail,
+        email,
         password,
         returnSecureToken: true,
       }),
@@ -70,181 +70,293 @@ async function main() {
 
   const signUpData = await readResponse(signUpResponse);
   const uid = signUpData.localId;
-  const idToken = signUpData.idToken;
 
-  if (!uid || !idToken) {
+  if (!uid || !signUpData.idToken) {
     throw new Error(
-      "Der Testnutzer konnte nicht erstellt werden.",
+      `Der Testnutzer ${email} konnte nicht erstellt werden.`,
     );
   }
 
   await db.collection("users").doc(uid).set({
-    email: ownerEmail,
+    email,
     is_premium: false,
   });
 
-  const companyResult = await callFunction(
-    "createCompany",
-    idToken,
+  if (!emailVerified) {
+    return {
+      uid,
+      idToken: signUpData.idToken,
+    };
+  }
+
+  await auth.updateUser(uid, {
+    emailVerified: true,
+  });
+
+  const signInResponse = await fetch(
+    `${authUrl}/accounts:signInWithPassword?key=fake-api-key`,
     {
-      name: "PolymApp Testfirma",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        returnSecureToken: true,
+      }),
     },
   );
 
-  const companyId = companyResult?.companyId;
+  const signInData = await readResponse(signInResponse);
 
-  if (!companyId) {
-    throw new Error("Keine companyId erhalten.");
+  if (!signInData.idToken) {
+    throw new Error(
+      `Für ${email} konnte kein neues Token erstellt werden.`,
+    );
   }
 
-  const invitationResult = await callFunction(
-    "inviteCompanyMember",
-    idToken,
+  return {
+    uid,
+    idToken: signInData.idToken,
+  };
+}
+
+async function main() {
+  const timestamp = Date.now();
+  const password = "Test123456!";
+
+  const ownerAEmail =
+    `owner-a-${timestamp}@polymapp.test`;
+  const ownerBEmail =
+    `owner-b-${timestamp}@polymapp.test`;
+  const memberEmail =
+    `member-${timestamp}@polymapp.test`;
+
+  const ownerA = await createTestUser(
+    ownerAEmail,
+    password,
+    false,
+  );
+
+  const companyAResult = await callFunction(
+    "createCompany",
+    ownerA.idToken,
     {
-      email: invitedEmail,
+      name: "PolymApp Testfirma A",
+    },
+  );
+
+  const companyAId = companyAResult.companyId;
+
+  const invitationAResult = await callFunction(
+    "inviteCompanyMember",
+    ownerA.idToken,
+    {
+      email: memberEmail,
       role: "editor",
     },
   );
 
-  const invitationId = invitationResult?.invitationId;
+  const ownerB = await createTestUser(
+    ownerBEmail,
+    password,
+    false,
+  );
 
-  if (!invitationId) {
-    throw new Error("Keine invitationId erhalten.");
-  }
+  const companyBResult = await callFunction(
+    "createCompany",
+    ownerB.idToken,
+    {
+      name: "PolymApp Testfirma B",
+    },
+  );
 
-  const userSnapshot = await db
+  const companyBId = companyBResult.companyId;
+
+  const invitationBResult = await callFunction(
+    "inviteCompanyMember",
+    ownerB.idToken,
+    {
+      email: memberEmail,
+      role: "viewer",
+    },
+  );
+
+  const member = await createTestUser(
+    memberEmail,
+    password,
+    true,
+  );
+
+  const acceptanceResult = await callFunction(
+    "acceptCompanyInvitation",
+    member.idToken,
+    {
+      invitationId: invitationAResult.invitationId,
+    },
+  );
+
+  const memberUserSnapshot = await db
     .collection("users")
-    .doc(uid)
+    .doc(member.uid)
     .get();
 
-  const companySnapshot = await db
+  const companyASnapshot = await db
     .collection("companies")
-    .doc(companyId)
+    .doc(companyAId)
+    .get();
+
+  const companyBSnapshot = await db
+    .collection("companies")
+    .doc(companyBId)
     .get();
 
   const memberSnapshot = await db
     .collection("companies")
-    .doc(companyId)
+    .doc(companyAId)
     .collection("members")
-    .doc(uid)
+    .doc(member.uid)
     .get();
 
-  const invitationSnapshot = await db
+  const invitationASnapshot = await db
     .collection("companyInvitations")
-    .doc(invitationId)
+    .doc(invitationAResult.invitationId)
     .get();
 
-  const user = userSnapshot.data();
-  const company = companySnapshot.data();
-  const member = memberSnapshot.data();
-  const invitation = invitationSnapshot.data();
+  const invitationBSnapshot = await db
+    .collection("companyInvitations")
+    .doc(invitationBResult.invitationId)
+    .get();
 
-  if (!companySnapshot.exists) {
-    throw new Error("Das Firmendokument fehlt.");
+  const memberUser = memberUserSnapshot.data();
+  const companyA = companyASnapshot.data();
+  const companyB = companyBSnapshot.data();
+  const companyMember = memberSnapshot.data();
+  const invitationA = invitationASnapshot.data();
+  const invitationB = invitationBSnapshot.data();
+
+  if (memberUser?.companyId !== companyAId) {
+    throw new Error(
+      "Die Firma wurde beim Mitglied nicht gespeichert.",
+    );
   }
 
   if (!memberSnapshot.exists) {
-    throw new Error("Das Owner-Mitglied fehlt.");
-  }
-
-  if (!invitationSnapshot.exists) {
-    throw new Error("Das Einladungsdokument fehlt.");
-  }
-
-  if (user?.companyId !== companyId) {
     throw new Error(
-      "companyId fehlt im Benutzerprofil.",
+      "Das Firmenmitglied wurde nicht erstellt.",
     );
   }
 
-  if (company?.ownerUid !== uid) {
-    throw new Error("ownerUid ist nicht korrekt.");
-  }
-
-  if (company?.activeMemberCount !== 1) {
+  if (companyMember?.role !== "editor") {
     throw new Error(
-      "activeMemberCount ist nicht 1.",
+      "Die Rolle des Mitglieds ist nicht editor.",
     );
   }
 
-  if (company?.pendingInvitationCount !== 1) {
+  if (companyMember?.status !== "active") {
     throw new Error(
-      "pendingInvitationCount ist nicht 1.",
+      "Das Firmenmitglied ist nicht aktiv.",
     );
   }
 
-  if (member?.role !== "owner") {
+  if (companyA?.activeMemberCount !== 2) {
     throw new Error(
-      "Die Mitgliederrolle ist nicht owner.",
+      "Firma A hat nicht zwei aktive Mitglieder.",
     );
   }
 
-  if (invitation?.companyId !== companyId) {
+  if (companyA?.pendingInvitationCount !== 0) {
     throw new Error(
-      "Die companyId der Einladung ist falsch.",
+      "Firma A hat noch eine offene Einladung.",
     );
   }
 
-  if (invitation?.invitedEmail !== invitedEmail) {
+  if (invitationA?.status !== "accepted") {
     throw new Error(
-      "Die E-Mail-Adresse der Einladung ist falsch.",
+      "Die angenommene Einladung ist nicht accepted.",
     );
   }
 
-  if (invitation?.role !== "editor") {
+  if (invitationA?.acceptedByUid !== member.uid) {
     throw new Error(
-      "Die Einladungsrolle ist nicht editor.",
+      "acceptedByUid ist nicht korrekt.",
     );
   }
 
-  if (invitation?.status !== "pending") {
+  if (companyB?.activeMemberCount !== 1) {
     throw new Error(
-      "Der Einladungsstatus ist nicht pending.",
+      "Firma B hat eine falsche Mitgliederzahl.",
     );
   }
 
-  if (invitation?.invitedByUid !== uid) {
+  if (companyB?.pendingInvitationCount !== 0) {
     throw new Error(
-      "invitedByUid ist nicht korrekt.",
+      "Firma B hat noch eine offene Einladung.",
     );
   }
 
-  const remainingValidity =
-    invitation.expiresAt.toMillis() - Date.now();
-
-  const minimumValidity =
-    72 * 60 * 60 * 1000 - 60 * 1000;
-
-  const maximumValidity =
-    72 * 60 * 60 * 1000 + 60 * 1000;
+  if (invitationB?.status !== "invalidated") {
+    throw new Error(
+      "Die zweite Einladung wurde nicht ungültig.",
+    );
+  }
 
   if (
-    remainingValidity < minimumValidity ||
-    remainingValidity > maximumValidity
+    invitationB?.invalidatedReason !==
+    "joined_another_company"
   ) {
     throw new Error(
-      "Die Einladung ist nicht ungefähr 72 Stunden gültig.",
+      "Der Ungültigkeitsgrund ist nicht korrekt.",
+    );
+  }
+
+  if (acceptanceResult.companyId !== companyAId) {
+    throw new Error(
+      "Die Annahme enthält die falsche Firma.",
+    );
+  }
+
+  if (acceptanceResult.role !== "editor") {
+    throw new Error(
+      "Die Annahme enthält die falsche Rolle.",
+    );
+  }
+
+  if (
+    acceptanceResult.invalidatedInvitationCount !== 1
+  ) {
+    throw new Error(
+      "Die zweite Einladung wurde nicht mitgezählt.",
     );
   }
 
   console.log("");
   console.log("Test erfolgreich");
-  console.log(`Owner: ${ownerEmail}`);
-  console.log(`UID: ${uid}`);
-  console.log(`Company ID: ${companyId}`);
-  console.log(`Firmenname: ${company.name}`);
-  console.log(`Owner-Rolle: ${member.role}`);
+  console.log(`Mitglied: ${memberEmail}`);
+  console.log(`Beigetretene Firma: ${companyA.name}`);
+  console.log(`Rolle: ${companyMember.role}`);
   console.log(
-    `Mitglieder: ${company.activeMemberCount}`,
+    `Mitglieder Firma A: ${companyA.activeMemberCount}`,
   );
   console.log(
-    `Offene Einladungen: ` +
-      `${company.pendingInvitationCount}`,
+    `Offene Einladungen Firma A: ` +
+      `${companyA.pendingInvitationCount}`,
   );
-  console.log(`Eingeladen: ${invitedEmail}`);
-  console.log(`Einladungsrolle: ${invitation.role}`);
-  console.log(`Einladungsstatus: ${invitation.status}`);
-  console.log(`Gültig bis: ${invitationResult.expiresAt}`);
+  console.log(
+    `Status Einladung A: ${invitationA.status}`,
+  );
+  console.log(
+    `Status Einladung B: ${invitationB.status}`,
+  );
+  console.log(
+    `Offene Einladungen Firma B: ` +
+      `${companyB.pendingInvitationCount}`,
+  );
+  console.log(
+    `Automatisch ungültig gemacht: ` +
+      `${acceptanceResult.invalidatedInvitationCount}`,
+  );
 }
 
 main().catch((error) => {
