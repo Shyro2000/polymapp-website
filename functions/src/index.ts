@@ -23,3 +23,6 @@ export {
   removeCompanyMember,
 } from "./company/removeCompanyMember";
 export {leaveCompany} from "./company/leaveCompany";
+export {
+  transferCompanyOwnership,
+} from "./company/transferCompanyOwnership";
