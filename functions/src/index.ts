@@ -16,3 +16,6 @@ export {
 export {
   withdrawCompanyInvitation,
 } from "./company/withdrawCompanyInvitation";
+export {
+  updateCompanyMemberRole,
+} from "./company/updateCompanyMemberRole";
