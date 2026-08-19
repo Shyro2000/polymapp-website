@@ -3,28 +3,74 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwnUser(userId) {
+      return isSignedIn()
+        && request.auth.uid == userId;
+    }
+
+    function isActiveCompanyMember(companyId) {
+      return isSignedIn()
+        && exists(
+          /databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)
+        ).data.status == "active";
+    }
+
+    function hasCompanyRole(companyId, allowedRoles) {
+      return isActiveCompanyMember(companyId)
+        && get(
+          /databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)
+        ).data.role in allowedRoles;
+    }
+
+    function changesProtectedCompanyUserFields() {
+      return request.resource.data
+        .diff(resource.data)
+        .affectedKeys()
+        .hasAny([
+          "companyId",
+          "companyJoinedAt",
+          "companyMembershipUpdatedAt"
+        ]);
+    }
+
+    function containsProtectedCompanyUserFields() {
+      return request.resource.data.keys().hasAny([
+        "companyId",
+        "companyJoinedAt",
+        "companyMembershipUpdatedAt"
+      ]);
+    }
+
     // Benutzerprofil
     match /users/{userId} {
 
       allow get:
-        if request.auth != null
-        && request.auth.uid == userId;
+        if isOwnUser(userId);
 
       allow create:
-        if request.auth != null
-        && request.auth.uid == userId;
+        if isOwnUser(userId)
+        && !containsProtectedCompanyUserFields();
 
       allow update:
-        if request.auth != null
-        && request.auth.uid == userId;
+        if isOwnUser(userId)
+        && !changesProtectedCompanyUserFields();
 
+      // Mitglieder müssen zuerst austreten oder entfernt werden.
       allow delete:
-        if request.auth != null
-        && request.auth.uid == userId;
+        if isOwnUser(userId)
+        && !resource.data.keys().hasAny(["companyId"]);
 
-      // Aktuell für die Referral-Statistik benötigt
+      // Referral-Abfragen dürfen nur eigene Empfehlungen liefern.
       allow list:
-        if request.auth != null;
+        if isSignedIn()
+        && resource.data.referredBy == request.auth.uid;
     }
 
     // Trial-Geräte
@@ -83,7 +129,7 @@ service cloud.firestore {
           )
           ||
           (
-            request.auth != null
+            isSignedIn()
             && request.resource.data.mode == "registered"
             && request.resource.data.uid == request.auth.uid
             && request.resource.data.availableTrialDays <= 45
@@ -91,7 +137,7 @@ service cloud.firestore {
         );
 
       allow update:
-        if request.auth != null
+        if isSignedIn()
         && resource.data.deviceId == deviceId
         && request.resource.data.deviceId == deviceId
         && (
@@ -116,46 +162,127 @@ service cloud.firestore {
     // Präferenzen
     match /users/{userId}/preferences/{preferenceName} {
       allow read, write:
-        if request.auth != null
-        && request.auth.uid == userId;
+        if isOwnUser(userId);
     }
 
     // G-/M-Code Änderungen
     match /users/{userId}/code_changes/{filename} {
 
       allow read, write:
-        if request.auth != null
-        && request.auth.uid == userId;
+        if isOwnUser(userId);
 
       match /changes/{changeId} {
 
         allow read, write:
-          if request.auth != null
-          && request.auth.uid == userId;
+          if isOwnUser(userId);
       }
     }
 
-    // Maschinen
+    // Private Maschinen und Werkzeuge
     match /users/{userId}/machines/{machineId} {
 
       allow read, write:
-        if request.auth != null
-        && request.auth.uid == userId;
+        if isOwnUser(userId);
 
-      // Werkzeuge
       match /werkzeuge/{toolId} {
 
         allow read, write:
-          if request.auth != null
-          && request.auth.uid == userId;
+          if isOwnUser(userId);
       }
+    }
+
+    // Firmen
+    match /companies/{companyId} {
+
+      allow read:
+        if isActiveCompanyMember(companyId);
+
+      // Firmenstammdaten werden über Cloud Functions verändert.
+      allow create, update, delete:
+        if false;
+
+      // Öffentliche Mitgliedschaft innerhalb der Firma
+      match /members/{memberId} {
+
+        allow read:
+          if isActiveCompanyMember(companyId);
+
+        // Rollen und Mitgliedschaften nur über Cloud Functions.
+        allow create, update, delete:
+          if false;
+      }
+
+      // Notizen und administrative Mitgliederdaten
+      match /memberAdminData/{memberId} {
+
+        allow read:
+          if hasCompanyRole(
+            companyId,
+            ["owner", "admin"]
+          );
+
+        allow create, update, delete:
+          if false;
+      }
+
+      // Firmenmaschinen
+      match /machines/{machineId} {
+
+        allow read:
+          if isActiveCompanyMember(companyId);
+
+        // Editor darf keine Maschinen erstellen oder verändern.
+        allow create, update, delete:
+          if hasCompanyRole(
+            companyId,
+            ["owner", "admin"]
+          );
+
+        // Werkzeuge einer Firmenmaschine
+        match /werkzeuge/{toolId} {
+
+          allow read:
+            if isActiveCompanyMember(companyId);
+
+          allow create, update, delete:
+            if hasCompanyRole(
+              companyId,
+              ["owner", "admin", "editor"]
+            );
+        }
+      }
+    }
+
+    // Firmeneinladungen
+    match /companyInvitations/{invitationId} {
+
+      allow read:
+        if (
+          isSignedIn()
+          && request.auth.token.email is string
+          && resource.data.invitedEmail is string
+          && resource.data.invitedEmail ==
+             request.auth.token.email
+        )
+        ||
+        (
+          resource.data.companyId is string
+          && hasCompanyRole(
+            resource.data.companyId,
+            ["owner", "admin"]
+          )
+        );
+
+      // Statusänderungen nur über Cloud Functions.
+      allow create, update, delete:
+        if false;
     }
 
     // Beta-Tester
     match /beta_testers/{email} {
 
       allow read:
-        if request.auth != null;
+        if isSignedIn();
 
       allow write:
         if false;
@@ -163,7 +290,6 @@ service cloud.firestore {
 
     // Alles andere verbieten
     match /{document=**} {
-
       allow read, write:
         if false;
     }
