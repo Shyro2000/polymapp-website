@@ -32,3 +32,6 @@ export {
 export {
   updateCompanyMemberAdminData,
 } from "./company/updateCompanyMemberAdminData";
+export {
+  updateCompanyName,
+} from "./company/updateCompanyName";
