@@ -35,3 +35,6 @@ export {
 export {
   updateCompanyName,
 } from "./company/updateCompanyName";
+export {
+  getAccountDeletionStatus,
+} from "./account/getAccountDeletionStatus";
