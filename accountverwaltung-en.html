@@ -392,6 +392,7 @@
     </div>
 
     <form id="deleteForm" class="hidden">
+      <div id="deleteWarning" style="margin-bottom: 15px; padding: 12px; border: 1px solid #b00000; border-radius: 4px; background: #fff3f3; color: #7a0000;"></div>
       <div class="input-group">
         <label for="deletePassword">Confirm password</label>
         <div class="password-wrap">
@@ -427,6 +428,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import {
     getAuth,
+    connectAuthEmulator,
     setPersistence,
     browserLocalPersistence,
     createUserWithEmailAndPassword,
@@ -444,9 +446,9 @@
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
   import {
   getFirestore,
+  connectFirestoreEmulator,
   doc,
   setDoc,
-  deleteDoc,
   collection,
   getDocs,
   getDoc,
@@ -454,6 +456,11 @@
   where,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import {
+    getFunctions,
+    connectFunctionsEmulator,
+    httpsCallable
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
@@ -466,14 +473,36 @@
   };
 
   const app = initializeApp(firebaseConfig);
+  const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(
+    window.location.hostname
+  );
 
-  initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider("6LcZLfYsAAAAACkYf08UWZp0KLBcfm9Lt820StlF"),
-    isTokenAutoRefreshEnabled: true
-  });
+  if (!isLocalDevelopment) {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider("6LcZLfYsAAAAACkYf08UWZp0KLBcfm9Lt820StlF"),
+      isTokenAutoRefreshEnabled: true
+    });
+  }
 
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const functions = getFunctions(app, "europe-west1");
+  const getAccountDeletionStatusCall = httpsCallable(
+    functions,
+    "getAccountDeletionStatus"
+  );
+  const deletePolymAppAccountCall = httpsCallable(
+    functions,
+    "deletePolymAppAccount"
+  );
+
+  if (isLocalDevelopment) {
+    connectAuthEmulator(auth, "http://127.0.0.1:9099", {
+      disableWarnings: true
+    });
+    connectFirestoreEmulator(db, "127.0.0.1", 8080);
+    connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+  }
 
   await setPersistence(auth, browserLocalPersistence).catch((error) => {
     console.warn("Firebase Persistence could not be set:", error);
@@ -501,7 +530,9 @@
   const loginPassword = document.getElementById("loginPassword");
 
   const deletePassword = document.getElementById("deletePassword");
+  const deleteWarning = document.getElementById("deleteWarning");
   const userEmail = document.getElementById("userEmail");
+  let approvedDeletionStatus = null;
 
   const referralLinkInput = document.getElementById("referralLinkInput");
   const copyLinkBtn = document.getElementById("copyLinkBtn");
@@ -593,22 +624,50 @@
     }
   }
 
-  async function deleteUserData(uid) {
-    const prefsSnap = await getDocs(collection(db, "users", uid, "preferences"));
-    await Promise.all(prefsSnap.docs.map((prefDoc) => deleteDoc(prefDoc.ref)));
+  function getDeletionBlockMessage(status) {
+    const companyName = status.companyName || "the company";
 
-    const machinesSnap = await getDocs(collection(db, "users", uid, "machines"));
-    await Promise.all(
-      machinesSnap.docs.map(async (machineDoc) => {
-        const toolsSnap = await getDocs(
-          collection(db, "users", uid, "machines", machineDoc.id, "werkzeuge")
-        );
-        await Promise.all(toolsSnap.docs.map((toolDoc) => deleteDoc(toolDoc.ref)));
-        await deleteDoc(machineDoc.ref);
-      })
-    );
+    switch (status.requiredAction) {
+      case "leave_company":
+        return `You must leave ${companyName} first.`;
+      case "transfer_ownership_or_remove_members":
+        return "Transfer ownership or remove all other members first.";
+      case "withdraw_invitations":
+        return "Withdraw all pending company invitations first.";
+      case "remove_members_and_withdraw_invitations":
+        return "Remove all other members and withdraw all pending invitations first.";
+      default:
+        return "The account cannot currently be deleted.";
+    }
+  }
 
-    await deleteDoc(doc(db, "users", uid));
+  function mapDeletionError(error) {
+    if (!error || !error.code || !error.code.startsWith("functions/")) {
+      return mapAuthError(error || {});
+    }
+
+    const reason = error.details?.reason;
+
+    if (reason === "recent_login_required") {
+      return "Please confirm your password again and retry.";
+    }
+    if (reason === "leave_company_first") {
+      return "You must leave the company first.";
+    }
+    if (reason === "company_has_members") {
+      return "Transfer ownership or remove all other members first.";
+    }
+    if (reason === "company_has_pending_invitations") {
+      return "Withdraw all pending company invitations first.";
+    }
+    if (error.code === "functions/unauthenticated") {
+      return "Please sign in again.";
+    }
+    if (error.code === "functions/unavailable") {
+      return "The service is currently unavailable. Please try again later.";
+    }
+
+    return error.message || "The account could not be deleted.";
   }
 
   async function checkFreePremium(user) {
@@ -715,6 +774,8 @@
 
       deleteForm.classList.add("hidden");
       deleteInitialBox.classList.remove("hidden");
+      approvedDeletionStatus = null;
+      deleteWarning.textContent = "";
 
       if (premiumBadge) {
         premiumBadge.style.display = "none";
@@ -844,7 +905,20 @@
       return;
     }
 
-    if (!confirm("Do you really want to permanently delete your PolymApp account?")) {
+    if (!approvedDeletionStatus?.canDeleteAccount) {
+      setStatus(
+        "Please check the account deletion requirements first.",
+        "error",
+        4000
+      );
+      return;
+    }
+
+    const confirmationMessage = approvedDeletionStatus.willDissolveCompany
+      ? "Do you really want to permanently delete your account and the company, including all company machines and tool lists?"
+      : "Do you really want to permanently delete your PolymApp account?";
+
+    if (!confirm(confirmationMessage)) {
       return;
     }
 
@@ -853,15 +927,16 @@
 
       const credential = EmailAuthProvider.credential(user.email, password);
       await reauthenticateWithCredential(user, credential);
+      await user.getIdToken(true);
 
-      await deleteUserData(user.uid);
-      await deleteUser(user);
+      await deletePolymAppAccountCall();
       await signOut(auth).catch(() => {});
 
       deleteForm.reset();
+      approvedDeletionStatus = null;
       setStatus("Your account has been deleted successfully.", "success", 4000);
     } catch (error) {
-      setStatus(mapAuthError(error), "error", 4000);
+      setStatus(mapDeletionError(error), "error", 6000);
     }
   });
 
@@ -874,16 +949,52 @@
     }
   });
 
-  startDeleteBtn.addEventListener("click", () => {
-    deleteInitialBox.classList.add("hidden");
-    deleteForm.classList.remove("hidden");
-    deletePassword.focus();
+  startDeleteBtn.addEventListener("click", async () => {
+    const user = auth.currentUser;
+
+    if (!user) {
+      setStatus("Please sign in again.", "error", 3500);
+      return;
+    }
+
+    startDeleteBtn.disabled = true;
+    approvedDeletionStatus = null;
+    setStatus("Checking account deletion requirements ...", "success", 5000);
+
+    try {
+      const result = await getAccountDeletionStatusCall();
+      const deletionStatus = result.data;
+
+      if (!deletionStatus.canDeleteAccount) {
+        setStatus(
+          getDeletionBlockMessage(deletionStatus),
+          "error",
+          8000
+        );
+        return;
+      }
+
+      approvedDeletionStatus = deletionStatus;
+      deleteWarning.textContent = deletionStatus.willDissolveCompany
+        ? `Deleting the account will also permanently delete ${deletionStatus.companyName || "the company"}, all company machines and all tool lists.`
+        : "Deleting the account will permanently remove your account and private PolymApp data.";
+
+      deleteInitialBox.classList.add("hidden");
+      deleteForm.classList.remove("hidden");
+      deletePassword.focus();
+    } catch (error) {
+      setStatus(mapDeletionError(error), "error", 6000);
+    } finally {
+      startDeleteBtn.disabled = false;
+    }
   });
 
   cancelDeleteBtn.addEventListener("click", () => {
     deleteForm.classList.add("hidden");
     deleteInitialBox.classList.remove("hidden");
     deleteForm.reset();
+    approvedDeletionStatus = null;
+    deleteWarning.textContent = "";
   });
 </script>
 
