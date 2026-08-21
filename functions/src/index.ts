@@ -38,3 +38,6 @@ export {
 export {
   getAccountDeletionStatus,
 } from "./account/getAccountDeletionStatus";
+export {
+  deletePolymAppAccount,
+} from "./account/deletePolymAppAccount";

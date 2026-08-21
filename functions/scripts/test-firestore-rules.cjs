@@ -618,10 +618,10 @@ async function main() {
     outsider.idToken,
   );
 
-  expectAllowed(
-    outsiderUserDelete,
-    "Nutzer ohne Firma löscht eigenes Benutzerprofil",
-  );
+  expectDenied(
+  outsiderUserDelete,
+  "Nutzer ohne Firma umgeht die zentrale Löschfunktion",
+);
 
   console.log("");
   console.log("Test erfolgreich");
@@ -632,7 +632,7 @@ async function main() {
   console.log("Admin und Owner können Maschinen verwalten.");
   console.log("Rollen und Einladungen sind direkt unveränderbar.");
   console.log("Private Maschinen bleiben nur dem Besitzer zugänglich.");
-  console.log("Account-Löschung ist bei Mitgliedschaft blockiert.");
+  console.log("Direkte Account-Löschung ist vollständig blockiert.");
 }
 
 main().catch((error) => {

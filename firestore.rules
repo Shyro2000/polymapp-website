@@ -33,19 +33,25 @@ service cloud.firestore {
       return request.resource.data
         .diff(resource.data)
         .affectedKeys()
-        .hasAny([
-          "companyId",
-          "companyJoinedAt",
-          "companyMembershipUpdatedAt"
-        ]);
+       .hasAny([
+  "companyId",
+  "companyJoinedAt",
+  "companyMembershipUpdatedAt",
+  "accountDeletionStatus",
+  "accountDeletionCompanyId",
+  "accountDeletionStartedAt"
+]);
     }
 
     function containsProtectedCompanyUserFields() {
       return request.resource.data.keys().hasAny([
-        "companyId",
-        "companyJoinedAt",
-        "companyMembershipUpdatedAt"
-      ]);
+  "companyId",
+  "companyJoinedAt",
+  "companyMembershipUpdatedAt",
+  "accountDeletionStatus",
+  "accountDeletionCompanyId",
+  "accountDeletionStartedAt"
+]);
     }
 
     // Benutzerprofil
@@ -62,10 +68,9 @@ service cloud.firestore {
         if isOwnUser(userId)
         && !changesProtectedCompanyUserFields();
 
-      // Mitglieder müssen zuerst austreten oder entfernt werden.
-      allow delete:
-        if isOwnUser(userId)
-        && !resource.data.keys().hasAny(["companyId"]);
+      // Account-Löschungen erfolgen nur über die Cloud Function.
+allow delete:
+  if false;
 
       // Referral-Abfragen dürfen nur eigene Empfehlungen liefern.
       allow list:
