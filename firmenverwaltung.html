@@ -221,6 +221,10 @@
       opacity: 0.6;
     }
 
+    button.unavailable:disabled {
+      cursor: not-allowed;
+    }
+
     .button-secondary {
       background: #656565;
     }
@@ -368,6 +372,23 @@
       grid-column: 1 / -1;
     }
 
+    .settings-area {
+      margin-top: 24px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .warning-card {
+      border-color: #e2bd78;
+      background: #fffaf0;
+    }
+
     .notice {
       margin-top: 16px;
       padding: 13px;
@@ -459,6 +480,10 @@
       }
 
       .profile-form {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-grid {
         grid-template-columns: 1fr;
       }
 
@@ -637,6 +662,64 @@
         </div>
       </div>
 
+      <div id="companySettingsPanel" class="settings-area">
+        <h3>Firmeneinstellungen</h3>
+
+        <div id="ownerSettings" class="settings-grid hidden">
+          <div class="management-card">
+            <h3>Firmenname ändern</h3>
+            <form id="updateCompanyNameForm">
+              <div class="input-group">
+                <label for="companyNameSettingsInput">Firmenname</label>
+                <input
+                  id="companyNameSettingsInput"
+                  name="companyName"
+                  type="text"
+                  minlength="2"
+                  maxlength="80"
+                  autocomplete="organization"
+                  required
+                >
+              </div>
+              <button id="updateCompanyNameButton" type="submit">
+                Firmennamen speichern
+              </button>
+            </form>
+          </div>
+
+          <div class="management-card warning-card">
+            <h3>Owner-Rechte übertragen</h3>
+            <p>
+              Der gewählte Benutzer wird neuer Owner. Deine eigene Rolle wird
+              danach automatisch zu Admin geändert.
+            </p>
+            <div class="input-group">
+              <label for="ownershipTargetSelect">Neuer Owner</label>
+              <select id="ownershipTargetSelect"></select>
+            </div>
+            <button id="transferOwnershipButton" type="button">
+              Owner-Rechte übertragen
+            </button>
+            <p class="notice notice-warning">
+              Vor einer Account-Löschung musst du die Owner-Rechte übertragen,
+              wenn weitere Mitglieder vorhanden sind.
+            </p>
+          </div>
+        </div>
+
+        <div id="memberExitPanel" class="management-card warning-card hidden">
+          <h3>Firma verlassen</h3>
+          <p id="memberExitDescription"></p>
+          <button id="leaveCompanyButton" type="button" class="danger-button">
+            Firma verlassen
+          </button>
+          <p class="notice notice-warning">
+            Deine privaten Maschinen bleiben erhalten. Nach dem Austritt hast
+            du keinen Zugriff mehr auf Firmenmaschinen und Firmenwerkzeuge.
+          </p>
+        </div>
+      </div>
+
       <div class="button-row">
         <button id="refreshButton" type="button" class="button-secondary">
           Ansicht aktualisieren
@@ -752,6 +835,15 @@
       functions,
       "updateCompanyMemberAdminData"
     );
+    const updateCompanyNameCall = httpsCallable(
+      functions,
+      "updateCompanyName"
+    );
+    const transferOwnershipCall = httpsCallable(
+      functions,
+      "transferCompanyOwnership"
+    );
+    const leaveCompanyCall = httpsCallable(functions, "leaveCompany");
 
     const loadingPanel = document.getElementById("loadingPanel");
     const loginPanel = document.getElementById("loginPanel");
@@ -780,6 +872,27 @@
     const inviteMemberButton = document.getElementById("inviteMemberButton");
     const sentInvitationList = document.getElementById("sentInvitationList");
     const memberList = document.getElementById("memberList");
+    const ownerSettings = document.getElementById("ownerSettings");
+    const memberExitPanel = document.getElementById("memberExitPanel");
+    const memberExitDescription = document.getElementById(
+      "memberExitDescription"
+    );
+    const updateCompanyNameForm = document.getElementById(
+      "updateCompanyNameForm"
+    );
+    const companyNameSettingsInput = document.getElementById(
+      "companyNameSettingsInput"
+    );
+    const updateCompanyNameButton = document.getElementById(
+      "updateCompanyNameButton"
+    );
+    const ownershipTargetSelect = document.getElementById(
+      "ownershipTargetSelect"
+    );
+    const transferOwnershipButton = document.getElementById(
+      "transferOwnershipButton"
+    );
+    const leaveCompanyButton = document.getElementById("leaveCompanyButton");
 
     let currentUser = null;
     let currentCompanyId = null;
@@ -947,6 +1060,7 @@
         : "Nicht verfügbar";
 
       updateManagementArea(role, reservedSeats, seatLimit);
+      renderCompanySettings();
     }
 
     function updateManagementArea(role, reservedSeats, seatLimit) {
@@ -1020,6 +1134,7 @@
             ])
           );
           renderMembers();
+          renderCompanySettings();
         },
         (error) => setStatus(error.message, "error", 7000)
       );
@@ -1034,6 +1149,7 @@
             ])
           );
           renderMembers();
+          renderCompanySettings();
         },
         (error) => setStatus(error.message, "error", 7000)
       );
@@ -1045,6 +1161,62 @@
         .join(" ");
 
       return fullName || profile?.email || "Mitglied";
+    }
+
+    function renderCompanySettings() {
+      if (!currentCompany || !currentMembership || !currentUser) {
+        return;
+      }
+
+      const isOwner = currentMembership.role === "owner" &&
+        currentCompany.ownerUid === currentUser.uid;
+
+      ownerSettings.classList.toggle("hidden", !isOwner);
+      memberExitPanel.classList.toggle("hidden", isOwner);
+
+      if (!isOwner) {
+        memberExitDescription.textContent =
+          `Du bist aktuell ${roleLabel(currentMembership.role)}. ` +
+          "Du kannst die Firma selbständig verlassen.";
+        return;
+      }
+
+      if (document.activeElement !== companyNameSettingsInput) {
+        companyNameSettingsInput.value = currentCompany.name || "";
+      }
+
+      const previousSelection = ownershipTargetSelect.value;
+      ownershipTargetSelect.replaceChildren();
+
+      const possibleOwners = [...currentMembers.values()]
+        .filter((member) =>
+          member.status === "active" &&
+          member.id !== currentUser.uid &&
+          member.role !== "owner"
+        )
+        .sort((left, right) => {
+          const leftProfile = currentMemberProfiles.get(left.id);
+          const rightProfile = currentMemberProfiles.get(right.id);
+          return memberDisplayName(leftProfile).localeCompare(
+            memberDisplayName(rightProfile),
+            "de"
+          );
+        });
+
+      for (const member of possibleOwners) {
+        const profile = currentMemberProfiles.get(member.id) || {};
+        const option = document.createElement("option");
+        option.value = member.id;
+        option.textContent =
+          `${memberDisplayName(profile)} (${roleLabel(member.role)})`;
+        option.selected = member.id === previousSelection;
+        ownershipTargetSelect.append(option);
+      }
+
+      const hasTarget = possibleOwners.length > 0;
+      ownershipTargetSelect.disabled = !hasTarget;
+      transferOwnershipButton.disabled = !hasTarget;
+      transferOwnershipButton.classList.toggle("unavailable", !hasTarget);
     }
 
     function createProfileField({label, name, value, maxLength, multiline}) {
@@ -1304,6 +1476,94 @@
         button.disabled = false;
       }
     }
+
+    updateCompanyNameForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const name = companyNameSettingsInput.value
+        .trim()
+        .replace(/\s+/g, " ");
+
+      if (name.length < 2 || name.length > 80) {
+        setStatus(
+          "Der Firmenname muss zwischen 2 und 80 Zeichen lang sein.",
+          "error"
+        );
+        return;
+      }
+
+      updateCompanyNameButton.disabled = true;
+
+      try {
+        const result = await updateCompanyNameCall({name});
+        setStatus(
+          result.data?.changed === false
+            ? "Der Firmenname ist bereits aktuell."
+            : "Der Firmenname wurde aktualisiert."
+        );
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        updateCompanyNameButton.disabled = false;
+      }
+    });
+
+    transferOwnershipButton.addEventListener("click", async () => {
+      const targetUid = ownershipTargetSelect.value;
+
+      if (!targetUid) {
+        setStatus("Bitte wähle einen neuen Owner.", "error");
+        return;
+      }
+
+      const targetName = ownershipTargetSelect
+        .selectedOptions[0]?.textContent || "dieses Mitglied";
+
+      const confirmed = window.confirm(
+        `Owner-Rechte wirklich an ${targetName} übertragen?\n\n` +
+        "Du wirst danach Admin und kannst die Übertragung nicht selbst rückgängig machen."
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      transferOwnershipButton.disabled = true;
+
+      try {
+        await transferOwnershipCall({targetUid});
+        setStatus("Die Owner-Rechte wurden erfolgreich übertragen.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+        transferOwnershipButton.disabled = false;
+      }
+    });
+
+    leaveCompanyButton.addEventListener("click", async () => {
+      const confirmed = window.confirm(
+        "Firma wirklich verlassen?\n\n" +
+        "Du verlierst den Zugriff auf alle Firmenmaschinen und Firmenwerkzeuge. " +
+        "Deine privaten Maschinen bleiben erhalten."
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      leaveCompanyButton.disabled = true;
+
+      try {
+        await leaveCompanyCall();
+        currentCompanyId = null;
+        stopCompanyListeners();
+        showNoCompanyState();
+        leaveCompanyButton.disabled = false;
+        setStatus("Du hast die Firma erfolgreich verlassen.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+        leaveCompanyButton.disabled = false;
+      }
+    });
 
     function renderSentInvitations(documents) {
       sentInvitationList.replaceChildren();
