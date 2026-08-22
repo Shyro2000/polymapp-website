@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    name="description"
+    content="PolymApp Firmenverwaltung für Mitglieder, Rollen und Einladungen."
+  >
+  <title>Firmenverwaltung - PolymApp</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" href="favicon.ico">
+
+  <style>
+    :root {
+      --red: #f60100;
+      --dark-red: #b80000;
+      --text: #222;
+      --muted: #5f6368;
+      --border: #ddd;
+      --surface: #f5f5f5;
+      --success: #1f6b2b;
+      --warning: #8a4b00;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+      background: #fff;
+    }
+
+    header {
+      position: relative;
+      padding: 40px 20px;
+      color: #fff;
+      text-align: center;
+      background: linear-gradient(180deg, var(--red) 0%, var(--dark-red) 100%);
+    }
+
+    .header-logo {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    header h2 {
+      margin: 0;
+      color: #fff;
+    }
+
+    .language-switch {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 0.9rem;
+    }
+
+    .language-switch a {
+      margin: 0 5px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    nav {
+      padding: 10px;
+      text-align: center;
+      background: #222;
+    }
+
+    nav a {
+      margin: 0 10px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    nav a:not(:last-child)::after {
+      content: " |";
+      margin-left: 10px;
+      color: #fff;
+    }
+
+    nav a.active {
+      font-weight: bold;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: #b00000;
+    }
+
+    .lead {
+      max-width: 760px;
+      color: var(--muted);
+    }
+
+    .panel {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin-top: 0;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .summary-item {
+      padding: 14px;
+      border: 1px solid #e1e1e1;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .summary-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-value {
+      display: block;
+      margin-top: 4px;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: bold;
+      background: #555;
+    }
+
+    .role-owner {
+      background: #8b0000;
+    }
+
+    .role-admin {
+      background: #9c4f00;
+    }
+
+    .role-editor {
+      background: #1769aa;
+    }
+
+    .role-viewer {
+      background: #5d6670;
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      font: inherit;
+      background: #fff;
+    }
+
+    button,
+    .button-link {
+      display: inline-block;
+      padding: 10px 18px;
+      border: 0;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      cursor: pointer;
+      background: var(--red);
+    }
+
+    button:hover,
+    .button-link:hover {
+      background: var(--dark-red);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.6;
+    }
+
+    .button-secondary {
+      background: #656565;
+    }
+
+    .button-secondary:hover {
+      background: #444;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .invitation-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .invitation-card {
+      padding: 16px;
+      border: 1px solid #d7d7d7;
+      border-left: 4px solid var(--red);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .invitation-card h3 {
+      margin: 0 0 6px;
+    }
+
+    .invitation-meta {
+      margin: 4px 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .management-area {
+      margin-top: 24px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+
+    .management-grid {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.85fr) minmax(320px, 1.15fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .management-card {
+      padding: 18px;
+      border: 1px solid #d7d7d7;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .management-card h3 {
+      margin-top: 0;
+    }
+
+    .management-card .empty-state {
+      padding: 8px 0;
+    }
+
+    .danger-button {
+      background: #9f0000;
+    }
+
+    .danger-button:hover {
+      background: #720000;
+    }
+
+    .member-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .member-card {
+      padding: 18px;
+      border: 1px solid #d7d7d7;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .member-heading {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .member-heading h4 {
+      margin: 0;
+      color: #222;
+      font-size: 1.08rem;
+    }
+
+    .member-email,
+    .member-details {
+      margin: 5px 0 0;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .member-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+      margin-top: 14px;
+    }
+
+    .member-actions select {
+      width: auto;
+      min-width: 140px;
+    }
+
+    .profile-details {
+      margin-top: 16px;
+      border-top: 1px solid #e2e2e2;
+      padding-top: 14px;
+    }
+
+    .profile-details summary {
+      color: #8b0000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .profile-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .profile-form .input-group {
+      margin: 0;
+    }
+
+    .profile-form .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .notice {
+      margin-top: 16px;
+      padding: 13px;
+      border-radius: 5px;
+      color: #174c24;
+      background: #e9f7ee;
+    }
+
+    .notice-warning {
+      color: #714000;
+      background: #fff5df;
+    }
+
+    .empty-state {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .status {
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      max-height: 0;
+      padding: 0 20px;
+      overflow: hidden;
+      opacity: 0;
+      text-align: center;
+      font-weight: bold;
+      pointer-events: none;
+      transition: opacity 0.35s ease, max-height 0.35s ease, padding 0.35s ease;
+    }
+
+    .status.visible {
+      max-height: 120px;
+      padding: 14px 20px;
+      opacity: 1;
+    }
+
+    .status.success {
+      color: var(--success);
+      border-bottom: 2px solid #b9e3c2;
+      background: #e9f7ee;
+    }
+
+    .status.error {
+      color: #a00000;
+      border-bottom: 2px solid #f1b5b5;
+      background: #fdecec;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      text-align: center;
+      background: #f2f2f2;
+    }
+
+    footer a {
+      color: #8b0000;
+    }
+
+    @media (max-width: 700px) {
+      .language-switch {
+        position: static;
+        margin-top: 12px;
+      }
+
+      nav a {
+        display: inline-block;
+        margin: 5px 8px;
+      }
+
+      nav a::after {
+        display: none;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .management-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-form {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-form .full-width {
+        grid-column: auto;
+      }
+
+      .member-actions,
+      .member-actions select,
+      .member-actions button {
+        width: 100%;
+      }
+
+      .button-row {
+        flex-direction: column;
+      }
+
+      .button-row button,
+      .button-row .button-link {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
+    <h2>Firmenverwaltung</h2>
+    <div class="language-switch">
+      <a href="firmenverwaltung.html">DE</a> |
+      <span>EN</span> |
+      <span>FR</span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="index.html">Startseite</a>
+    <a href="accountverwaltung.html">Accountverwaltung</a>
+    <a href="firmenverwaltung.html" class="active">Firmenverwaltung</a>
+    <a href="datenschutz.html">Datenschutzerklärung</a>
+    <a href="about.html">Über mich</a>
+    <a href="kontakt.html">Kontakt</a>
+  </nav>
+
+  <div id="status" class="status" aria-live="polite"></div>
+
+  <main class="container">
+    <h1>Firmenverwaltung</h1>
+    <p class="lead">
+      Erstelle eine Firma, nimm Einladungen an und verwalte später Mitglieder,
+      Rollen sowie gemeinsame Maschinen und Werkzeuglisten an einem Ort.
+    </p>
+
+    <section id="loadingPanel" class="panel">
+      <h2>Daten werden geladen</h2>
+      <p class="empty-state">Firmenstatus und Einladungen werden geprüft …</p>
+    </section>
+
+    <section id="loginPanel" class="panel hidden">
+      <h2>Anmeldung erforderlich</h2>
+      <p>
+        Melde dich zuerst mit deinem bestehenden PolymApp-Account an.
+      </p>
+      <a class="button-link" href="accountverwaltung.html">Zur Anmeldung</a>
+    </section>
+
+    <section id="invitationsPanel" class="panel hidden">
+      <h2>Offene Firmeneinladungen</h2>
+      <div id="invitationList" class="invitation-list"></div>
+    </section>
+
+    <section id="noCompanyPanel" class="panel hidden">
+      <h2>Eigene Firma erstellen</h2>
+      <p>
+        Du gehörst aktuell keiner Firma an. Du kannst eine neue Firma erstellen
+        oder eine offene Einladung annehmen.
+      </p>
+
+      <form id="createCompanyForm">
+        <div class="input-group">
+          <label for="companyNameInput">Firmenname</label>
+          <input
+            id="companyNameInput"
+            name="companyName"
+            type="text"
+            minlength="2"
+            maxlength="80"
+            autocomplete="organization"
+            required
+          >
+        </div>
+        <button id="createCompanyButton" type="submit">Firma erstellen</button>
+      </form>
+
+      <p class="notice notice-warning">
+        Nach der Erstellung bist du der Owner. Die Owner-Rechte müssen vor
+        einem späteren Austritt oder einer Account-Löschung übertragen werden,
+        sofern andere Mitglieder vorhanden sind.
+      </p>
+    </section>
+
+    <section id="companyPanel" class="panel hidden">
+      <h2 id="companyNameHeading">Firma</h2>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Meine Rolle</span>
+          <span id="roleValue" class="summary-value"></span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Aktive Mitglieder</span>
+          <span id="memberCountValue" class="summary-value">–</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Verfügbare Plätze</span>
+          <span id="seatValue" class="summary-value">–</span>
+        </div>
+      </div>
+
+      <p id="roleDescription" class="notice"></p>
+      <p class="notice">
+        Dein Firmenzugang wird über diese Firma verwaltet. Für die gemeinsamen
+        Firmenfunktionen ist kein separates persönliches Firmenabo erforderlich.
+      </p>
+
+      <div id="managementPanel" class="management-area hidden">
+        <h3>Einladungen verwalten</h3>
+        <p id="managementDescription" class="empty-state"></p>
+
+        <div class="management-grid">
+          <div class="management-card">
+            <h3>Mitglied einladen</h3>
+            <form id="inviteMemberForm">
+              <div class="input-group">
+                <label for="inviteEmailInput">E-Mail-Adresse</label>
+                <input
+                  id="inviteEmailInput"
+                  name="inviteEmail"
+                  type="email"
+                  maxlength="254"
+                  autocomplete="email"
+                  required
+                >
+              </div>
+
+              <div class="input-group">
+                <label for="inviteRoleSelect">Rolle</label>
+                <select id="inviteRoleSelect" name="inviteRole" required>
+                  <option id="inviteAdminOption" value="admin">Admin</option>
+                  <option value="editor">Editor</option>
+                  <option value="viewer">Viewer</option>
+                </select>
+              </div>
+
+              <button id="inviteMemberButton" type="submit">
+                Einladung versenden
+              </button>
+            </form>
+          </div>
+
+          <div class="management-card">
+            <h3>Versendete Einladungen</h3>
+            <div id="sentInvitationList" class="invitation-list">
+              <p class="empty-state">Offene Einladungen werden geladen …</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="management-card" style="margin-top: 18px;">
+          <h3>Mitglieder</h3>
+          <div id="memberList" class="member-list">
+            <p class="empty-state">Mitglieder werden geladen …</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="refreshButton" type="button" class="button-secondary">
+          Ansicht aktualisieren
+        </button>
+        <a class="button-link button-secondary" href="accountverwaltung.html">
+          Zum Account
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>PolymApp</strong> – Firmenverwaltung</p>
+    <p>
+      <a href="index.html">Startseite</a> ·
+      <a href="accountverwaltung.html">Accountverwaltung</a> ·
+      <a href="datenschutz.html">Datenschutz</a> ·
+      <a href="kontakt.html">Kontakt</a>
+    </p>
+    <p>© 2024–<span id="year"></span> PolymApp</p>
+  </footer>
+
+  <script type="module">
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth,
+      connectAuthEmulator,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      initializeAppCheck,
+      ReCaptchaV3Provider
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+    import {
+      getFirestore,
+      connectFirestoreEmulator,
+      collection,
+      doc,
+      onSnapshot,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
+      getFunctions,
+      connectFunctionsEmulator,
+      httpsCallable
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
+      authDomain: "twyt-80c82.firebaseapp.com",
+      projectId: "twyt-80c82",
+      storageBucket: "twyt-80c82.firebasestorage.app",
+      messagingSenderId: "64966382407",
+      appId: "1:64966382407:web:6739c6a7afa83eb7877262",
+      measurementId: "G-0QQYN8BKQD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(
+      window.location.hostname
+    );
+
+    if (!isLocalDevelopment) {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(
+          "6LcZLfYsAAAAACkYf08UWZp0KLBcfm9Lt820StlF"
+        ),
+        isTokenAutoRefreshEnabled: true
+      });
+    }
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const functions = getFunctions(app, "europe-west1");
+
+    if (isLocalDevelopment) {
+      connectAuthEmulator(auth, "http://127.0.0.1:9099", {
+        disableWarnings: true
+      });
+      connectFirestoreEmulator(db, "127.0.0.1", 8080);
+      connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+    }
+
+    const createCompanyCall = httpsCallable(functions, "createCompany");
+    const acceptInvitationCall = httpsCallable(
+      functions,
+      "acceptCompanyInvitation"
+    );
+    const declineInvitationCall = httpsCallable(
+      functions,
+      "declineCompanyInvitation"
+    );
+    const inviteCompanyMemberCall = httpsCallable(
+      functions,
+      "inviteCompanyMember"
+    );
+    const withdrawInvitationCall = httpsCallable(
+      functions,
+      "withdrawCompanyInvitation"
+    );
+    const updateMemberRoleCall = httpsCallable(
+      functions,
+      "updateCompanyMemberRole"
+    );
+    const removeMemberCall = httpsCallable(
+      functions,
+      "removeCompanyMember"
+    );
+    const updateMemberAdminDataCall = httpsCallable(
+      functions,
+      "updateCompanyMemberAdminData"
+    );
+
+    const loadingPanel = document.getElementById("loadingPanel");
+    const loginPanel = document.getElementById("loginPanel");
+    const invitationsPanel = document.getElementById("invitationsPanel");
+    const invitationList = document.getElementById("invitationList");
+    const noCompanyPanel = document.getElementById("noCompanyPanel");
+    const companyPanel = document.getElementById("companyPanel");
+    const createCompanyForm = document.getElementById("createCompanyForm");
+    const createCompanyButton = document.getElementById("createCompanyButton");
+    const companyNameInput = document.getElementById("companyNameInput");
+    const companyNameHeading = document.getElementById("companyNameHeading");
+    const roleValue = document.getElementById("roleValue");
+    const roleDescription = document.getElementById("roleDescription");
+    const memberCountValue = document.getElementById("memberCountValue");
+    const seatValue = document.getElementById("seatValue");
+    const refreshButton = document.getElementById("refreshButton");
+    const statusBox = document.getElementById("status");
+    const managementPanel = document.getElementById("managementPanel");
+    const managementDescription = document.getElementById(
+      "managementDescription"
+    );
+    const inviteMemberForm = document.getElementById("inviteMemberForm");
+    const inviteEmailInput = document.getElementById("inviteEmailInput");
+    const inviteRoleSelect = document.getElementById("inviteRoleSelect");
+    const inviteAdminOption = document.getElementById("inviteAdminOption");
+    const inviteMemberButton = document.getElementById("inviteMemberButton");
+    const sentInvitationList = document.getElementById("sentInvitationList");
+    const memberList = document.getElementById("memberList");
+
+    let currentUser = null;
+    let currentCompanyId = null;
+    let currentCompany = null;
+    let currentMembership = null;
+    let unsubscribeUser = null;
+    let unsubscribeCompany = null;
+    let unsubscribeMembership = null;
+    let unsubscribeInvitations = null;
+    let unsubscribeCompanyInvitations = null;
+    let unsubscribeMembers = null;
+    let unsubscribeMemberProfiles = null;
+    let managedCompanyId = null;
+    let currentMembers = new Map();
+    let currentMemberProfiles = new Map();
+    let statusTimer = null;
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    function setStatus(message, type = "success", duration = 5000) {
+      window.clearTimeout(statusTimer);
+      statusBox.textContent = message;
+      statusBox.className = `status ${type} visible`;
+
+      statusTimer = window.setTimeout(() => {
+        statusBox.classList.remove("visible");
+      }, duration);
+    }
+
+    function mapFunctionError(error) {
+      const reason = error?.details?.reason;
+
+      if (reason === "recent_login_required") {
+        return "Bitte melde dich erneut an.";
+      }
+      if (error?.code === "functions/already-exists") {
+        return error.message || "Der Eintrag besteht bereits.";
+      }
+      if (error?.code === "functions/resource-exhausted") {
+        return "Es ist kein freier Firmenplatz verfügbar.";
+      }
+      if (error?.code === "functions/permission-denied") {
+        return "Du hast für diese Aktion keine Berechtigung.";
+      }
+      if (error?.code === "functions/unauthenticated") {
+        return "Bitte melde dich erneut an.";
+      }
+      if (error?.code === "functions/unavailable") {
+        return "Der Dienst ist momentan nicht erreichbar.";
+      }
+
+      return error?.message || "Die Aktion konnte nicht ausgeführt werden.";
+    }
+
+    function roleLabel(role) {
+      switch (role) {
+        case "owner":
+          return "Owner";
+        case "admin":
+          return "Admin";
+        case "editor":
+          return "Editor";
+        case "viewer":
+          return "Viewer";
+        default:
+          return "Unbekannt";
+      }
+    }
+
+    function roleText(role) {
+      switch (role) {
+        case "owner":
+          return "Du verwaltest die Firma, Mitglieder, Rollen, Maschinen und Werkzeuglisten.";
+        case "admin":
+          return "Du verwaltest Mitglieder sowie Maschinen und Werkzeuglisten. Admin-Rechte vergibt nur der Owner.";
+        case "editor":
+          return "Du darfst Werkzeuge erstellen, bearbeiten und löschen. Maschinendaten bleiben unveränderbar.";
+        case "viewer":
+          return "Du kannst Firmenmaschinen und Werkzeuglisten ansehen, aber nicht verändern.";
+        default:
+          return "Die Firmenrolle konnte nicht geladen werden.";
+      }
+    }
+
+    function formatDate(value) {
+      const date = value?.toDate ? value.toDate() : null;
+
+      if (!date) {
+        return "unbekannt";
+      }
+
+      return new Intl.DateTimeFormat("de-CH", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(date);
+    }
+
+    function stopCompanyListeners() {
+      unsubscribeCompany?.();
+      unsubscribeMembership?.();
+      unsubscribeCompanyInvitations?.();
+      unsubscribeMembers?.();
+      unsubscribeMemberProfiles?.();
+      unsubscribeCompany = null;
+      unsubscribeMembership = null;
+      unsubscribeCompanyInvitations = null;
+      unsubscribeMembers = null;
+      unsubscribeMemberProfiles = null;
+      managedCompanyId = null;
+      currentMembers = new Map();
+      currentMemberProfiles = new Map();
+      currentCompany = null;
+      currentMembership = null;
+      managementPanel.classList.add("hidden");
+    }
+
+    function stopAllListeners() {
+      unsubscribeUser?.();
+      unsubscribeInvitations?.();
+      unsubscribeUser = null;
+      unsubscribeInvitations = null;
+      stopCompanyListeners();
+    }
+
+    function showLoggedOutState() {
+      loadingPanel.classList.add("hidden");
+      loginPanel.classList.remove("hidden");
+      invitationsPanel.classList.add("hidden");
+      noCompanyPanel.classList.add("hidden");
+      companyPanel.classList.add("hidden");
+    }
+
+    function showNoCompanyState() {
+      loadingPanel.classList.add("hidden");
+      loginPanel.classList.add("hidden");
+      noCompanyPanel.classList.remove("hidden");
+      companyPanel.classList.add("hidden");
+    }
+
+    function renderCompany() {
+      if (!currentCompany || !currentMembership) {
+        return;
+      }
+
+      loadingPanel.classList.add("hidden");
+      loginPanel.classList.add("hidden");
+      noCompanyPanel.classList.add("hidden");
+      companyPanel.classList.remove("hidden");
+
+      companyNameHeading.textContent = currentCompany.name || "Firma";
+
+      const role = currentMembership.role;
+      roleValue.textContent = roleLabel(role);
+      roleValue.className = `summary-value role-badge role-${role}`;
+      roleDescription.textContent = roleText(role);
+
+      const activeMemberCount = Number(currentCompany.activeMemberCount || 0);
+      const seatLimit = Number(currentCompany.seatLimit || 0);
+      const pendingCount = Number(currentCompany.pendingInvitationCount || 0);
+      const reservedSeats = activeMemberCount + pendingCount;
+
+      memberCountValue.textContent = `${activeMemberCount}`;
+      seatValue.textContent = seatLimit > 0
+        ? `${reservedSeats} von ${seatLimit} belegt oder reserviert`
+        : "Nicht verfügbar";
+
+      updateManagementArea(role, reservedSeats, seatLimit);
+    }
+
+    function updateManagementArea(role, reservedSeats, seatLimit) {
+      const canManageInvitations = role === "owner" || role === "admin";
+
+      if (!canManageInvitations) {
+        managementPanel.classList.add("hidden");
+        unsubscribeCompanyInvitations?.();
+        unsubscribeMembers?.();
+        unsubscribeMemberProfiles?.();
+        unsubscribeCompanyInvitations = null;
+        unsubscribeMembers = null;
+        unsubscribeMemberProfiles = null;
+        managedCompanyId = null;
+        currentMembers = new Map();
+        currentMemberProfiles = new Map();
+        return;
+      }
+
+      managementPanel.classList.remove("hidden");
+
+      const isOwner = role === "owner";
+      inviteAdminOption.disabled = !isOwner;
+      inviteAdminOption.hidden = !isOwner;
+
+      if (!isOwner && inviteRoleSelect.value === "admin") {
+        inviteRoleSelect.value = "editor";
+      }
+
+      const hasFreeSeat = seatLimit > 0 && reservedSeats < seatLimit;
+      inviteMemberButton.disabled = !hasFreeSeat;
+      inviteEmailInput.disabled = !hasFreeSeat;
+      inviteRoleSelect.disabled = !hasFreeSeat;
+
+      managementDescription.textContent = hasFreeSeat
+        ? "Aktive Mitglieder und gültige Einladungen reservieren jeweils einen Platz."
+        : "Alle verfügbaren Plätze sind momentan belegt oder reserviert.";
+
+      if (managedCompanyId !== currentCompanyId) {
+        startManagementListeners(currentCompanyId);
+      }
+
+      renderMembers();
+    }
+
+    function startManagementListeners(companyId) {
+      unsubscribeCompanyInvitations?.();
+      unsubscribeMembers?.();
+      unsubscribeMemberProfiles?.();
+      managedCompanyId = companyId;
+
+      const sentInvitationQuery = query(
+        collection(db, "companyInvitations"),
+        where("companyId", "==", companyId),
+        where("status", "==", "pending")
+      );
+
+      unsubscribeCompanyInvitations = onSnapshot(
+        sentInvitationQuery,
+        (snapshot) => renderSentInvitations(snapshot.docs),
+        (error) => setStatus(error.message, "error", 7000)
+      );
+
+      unsubscribeMembers = onSnapshot(
+        collection(db, "companies", companyId, "members"),
+        (snapshot) => {
+          currentMembers = new Map(
+            snapshot.docs.map((document) => [
+              document.id,
+              {id: document.id, ...document.data()}
+            ])
+          );
+          renderMembers();
+        },
+        (error) => setStatus(error.message, "error", 7000)
+      );
+
+      unsubscribeMemberProfiles = onSnapshot(
+        collection(db, "companies", companyId, "memberAdminData"),
+        (snapshot) => {
+          currentMemberProfiles = new Map(
+            snapshot.docs.map((document) => [
+              document.id,
+              {id: document.id, ...document.data()}
+            ])
+          );
+          renderMembers();
+        },
+        (error) => setStatus(error.message, "error", 7000)
+      );
+    }
+
+    function memberDisplayName(profile) {
+      const fullName = [profile?.firstName, profile?.lastName]
+        .filter((value) => typeof value === "string" && value.trim())
+        .join(" ");
+
+      return fullName || profile?.email || "Mitglied";
+    }
+
+    function createProfileField({label, name, value, maxLength, multiline}) {
+      const group = document.createElement("div");
+      group.className = `input-group${multiline ? " full-width" : ""}`;
+
+      const fieldLabel = document.createElement("label");
+      fieldLabel.textContent = label;
+
+      const field = document.createElement(multiline ? "textarea" : "input");
+      field.name = name;
+      field.maxLength = maxLength;
+      field.value = typeof value === "string" ? value : "";
+
+      if (multiline) {
+        field.rows = 4;
+      } else {
+        field.type = "text";
+      }
+
+      group.append(fieldLabel, field);
+      return group;
+    }
+
+    function canChangeMemberRole(member) {
+      const callerRole = currentMembership?.role;
+      const ownerUid = currentCompany?.ownerUid;
+
+      if (
+        member.id === currentUser?.uid ||
+        member.id === ownerUid ||
+        member.role === "owner"
+      ) {
+        return false;
+      }
+
+      if (callerRole === "owner") {
+        return true;
+      }
+
+      return callerRole === "admin" &&
+        (member.role === "editor" || member.role === "viewer");
+    }
+
+    function canRemoveMember(member) {
+      return canChangeMemberRole(member);
+    }
+
+    function renderMembers() {
+      if (!memberList || !currentMembership) {
+        return;
+      }
+
+      memberList.replaceChildren();
+
+      const members = [...currentMembers.values()]
+        .filter((member) => member.status === "active")
+        .sort((left, right) => {
+          if (left.role === "owner") return -1;
+          if (right.role === "owner") return 1;
+
+          const leftProfile = currentMemberProfiles.get(left.id);
+          const rightProfile = currentMemberProfiles.get(right.id);
+
+          return memberDisplayName(leftProfile).localeCompare(
+            memberDisplayName(rightProfile),
+            "de"
+          );
+        });
+
+      if (members.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.className = "empty-state";
+        emptyMessage.textContent = "Keine aktiven Mitglieder gefunden.";
+        memberList.append(emptyMessage);
+        return;
+      }
+
+      for (const member of members) {
+        memberList.append(createMemberCard(member));
+      }
+    }
+
+    function createMemberCard(member) {
+      const profile = currentMemberProfiles.get(member.id) || {};
+      const card = document.createElement("article");
+      card.className = "member-card";
+
+      const heading = document.createElement("div");
+      heading.className = "member-heading";
+
+      const name = document.createElement("h4");
+      name.textContent = memberDisplayName(profile);
+
+      const role = document.createElement("span");
+      role.className = `role-badge role-${member.role}`;
+      role.textContent = roleLabel(member.role);
+      heading.append(name, role);
+
+      const email = document.createElement("p");
+      email.className = "member-email";
+      email.textContent = profile.email || "Keine E-Mail-Adresse hinterlegt";
+
+      const details = document.createElement("p");
+      details.className = "member-details";
+      const detailParts = [profile.employmentStatus, profile.department]
+        .filter((value) => typeof value === "string" && value.trim());
+      details.textContent = detailParts.length > 0
+        ? detailParts.join(" · ")
+        : "Noch keine Anstellungs- oder Abteilungsangaben";
+
+      card.append(heading, email, details);
+
+      if (canChangeMemberRole(member)) {
+        const actions = document.createElement("div");
+        actions.className = "member-actions";
+
+        const roleSelect = document.createElement("select");
+        const availableRoles = currentMembership.role === "owner"
+          ? ["admin", "editor", "viewer"]
+          : ["editor", "viewer"];
+
+        for (const availableRole of availableRoles) {
+          const option = document.createElement("option");
+          option.value = availableRole;
+          option.textContent = roleLabel(availableRole);
+          option.selected = availableRole === member.role;
+          roleSelect.append(option);
+        }
+
+        const saveRoleButton = document.createElement("button");
+        saveRoleButton.type = "button";
+        saveRoleButton.textContent = "Rolle speichern";
+        saveRoleButton.addEventListener("click", () => {
+          handleRoleUpdate(member.id, roleSelect.value, saveRoleButton);
+        });
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "danger-button";
+        removeButton.textContent = "Mitglied entfernen";
+        removeButton.addEventListener("click", () => {
+          handleRemoveMember(member.id, memberDisplayName(profile), removeButton);
+        });
+
+        actions.append(roleSelect, saveRoleButton, removeButton);
+        card.append(actions);
+      }
+
+      const profileDetails = document.createElement("details");
+      profileDetails.className = "profile-details";
+
+      const summary = document.createElement("summary");
+      summary.textContent = "Administrative Mitgliederdaten bearbeiten";
+
+      const form = document.createElement("form");
+      form.className = "profile-form";
+      form.append(
+        createProfileField({
+          label: "Vorname",
+          name: "firstName",
+          value: profile.firstName,
+          maxLength: 80
+        }),
+        createProfileField({
+          label: "Nachname",
+          name: "lastName",
+          value: profile.lastName,
+          maxLength: 80
+        }),
+        createProfileField({
+          label: "Abteilung",
+          name: "department",
+          value: profile.department,
+          maxLength: 120
+        }),
+        createProfileField({
+          label: "Anstellungsstatus / Lehrjahr",
+          name: "employmentStatus",
+          value: profile.employmentStatus,
+          maxLength: 120
+        }),
+        createProfileField({
+          label: "Notizen",
+          name: "notes",
+          value: profile.notes,
+          maxLength: 2000,
+          multiline: true
+        })
+      );
+
+      const saveProfileButton = document.createElement("button");
+      saveProfileButton.type = "submit";
+      saveProfileButton.className = "full-width";
+      saveProfileButton.textContent = "Mitgliederdaten speichern";
+      form.append(saveProfileButton);
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        handleProfileUpdate(member.id, form, saveProfileButton);
+      });
+
+      profileDetails.append(summary, form);
+      card.append(profileDetails);
+      return card;
+    }
+
+    async function handleRoleUpdate(targetUid, role, button) {
+      if (!window.confirm(`Rolle wirklich zu ${roleLabel(role)} ändern?`)) {
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        await updateMemberRoleCall({targetUid, role});
+        setStatus("Die Mitgliederrolle wurde aktualisiert.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+        button.disabled = false;
+      }
+    }
+
+    async function handleRemoveMember(targetUid, displayName, button) {
+      if (!window.confirm(`${displayName} wirklich aus der Firma entfernen?`)) {
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        await removeMemberCall({targetUid});
+        setStatus("Das Mitglied wurde aus der Firma entfernt.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+        button.disabled = false;
+      }
+    }
+
+    async function handleProfileUpdate(memberUid, form, button) {
+      const formData = new FormData(form);
+      const profile = {
+        firstName: String(formData.get("firstName") || ""),
+        lastName: String(formData.get("lastName") || ""),
+        department: String(formData.get("department") || ""),
+        employmentStatus: String(formData.get("employmentStatus") || ""),
+        notes: String(formData.get("notes") || "")
+      };
+
+      button.disabled = true;
+
+      try {
+        await updateMemberAdminDataCall({memberUid, profile});
+        setStatus("Die Mitgliederdaten wurden gespeichert.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+        button.disabled = false;
+      }
+    }
+
+    function renderSentInvitations(documents) {
+      sentInvitationList.replaceChildren();
+
+      const now = Date.now();
+      const invitations = documents
+        .filter((document) => {
+          const expiresAt = document.data().expiresAt?.toMillis?.() || 0;
+          return expiresAt > now;
+        })
+        .sort((left, right) => {
+          const leftTime = left.data().createdAt?.toMillis?.() || 0;
+          const rightTime = right.data().createdAt?.toMillis?.() || 0;
+          return rightTime - leftTime;
+        });
+
+      if (invitations.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.className = "empty-state";
+        emptyMessage.textContent = "Keine offenen Einladungen vorhanden.";
+        sentInvitationList.append(emptyMessage);
+        return;
+      }
+
+      for (const invitation of invitations) {
+        const data = invitation.data();
+        const card = document.createElement("article");
+        card.className = "invitation-card";
+
+        const title = document.createElement("h3");
+        title.textContent = data.invitedEmail || "Unbekannte E-Mail-Adresse";
+
+        const role = document.createElement("p");
+        role.className = "invitation-meta";
+        role.textContent = `Rolle: ${roleLabel(data.role)}`;
+
+        const expiry = document.createElement("p");
+        expiry.className = "invitation-meta";
+        expiry.textContent = `Gültig bis: ${formatDate(data.expiresAt)}`;
+
+        const withdrawButton = document.createElement("button");
+        withdrawButton.type = "button";
+        withdrawButton.className = "danger-button";
+        withdrawButton.textContent = "Einladung zurückziehen";
+
+        const callerIsAdmin = currentMembership?.role === "admin";
+        const invitationIsAdmin = data.role === "admin";
+
+        if (callerIsAdmin && invitationIsAdmin) {
+          withdrawButton.disabled = true;
+          withdrawButton.title = "Admin-Einladungen verwaltet nur der Owner.";
+        } else {
+          withdrawButton.addEventListener("click", () => {
+            handleWithdrawInvitation(invitation.id, withdrawButton);
+          });
+        }
+
+        card.append(title, role, expiry, withdrawButton);
+        sentInvitationList.append(card);
+      }
+    }
+
+    async function handleWithdrawInvitation(invitationId, button) {
+      if (!window.confirm("Möchtest du diese Einladung zurückziehen?")) {
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        await withdrawInvitationCall({invitationId});
+        setStatus("Die Einladung wurde zurückgezogen.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+        button.disabled = false;
+      }
+    }
+
+    function startCompanyListeners(companyId) {
+      stopCompanyListeners();
+      currentCompanyId = companyId;
+
+      unsubscribeCompany = onSnapshot(
+        doc(db, "companies", companyId),
+        (snapshot) => {
+          if (!snapshot.exists()) {
+            setStatus("Die Firma wurde nicht gefunden.", "error");
+            return;
+          }
+
+          currentCompany = snapshot.data();
+          renderCompany();
+        },
+        (error) => setStatus(error.message, "error")
+      );
+
+      unsubscribeMembership = onSnapshot(
+        doc(db, "companies", companyId, "members", currentUser.uid),
+        (snapshot) => {
+          if (!snapshot.exists()) {
+            setStatus("Die Firmenmitgliedschaft wurde nicht gefunden.", "error");
+            return;
+          }
+
+          currentMembership = snapshot.data();
+          renderCompany();
+        },
+        (error) => setStatus(error.message, "error")
+      );
+    }
+
+    function renderInvitations(documents) {
+      invitationList.replaceChildren();
+
+      const now = Date.now();
+      const activeInvitations = documents.filter((document) => {
+        const data = document.data();
+        const expiresAt = data.expiresAt?.toMillis?.() || 0;
+
+        return data.status === "pending" && expiresAt > now;
+      });
+
+      if (activeInvitations.length === 0) {
+        invitationsPanel.classList.add("hidden");
+        return;
+      }
+
+      invitationsPanel.classList.remove("hidden");
+
+      for (const invitation of activeInvitations) {
+        const data = invitation.data();
+        const card = document.createElement("article");
+        card.className = "invitation-card";
+
+        const title = document.createElement("h3");
+        title.textContent = data.companyName || "Firmeneinladung";
+
+        const role = document.createElement("p");
+        role.className = "invitation-meta";
+        role.textContent = `Vorgesehene Rolle: ${roleLabel(data.role)}`;
+
+        const expiry = document.createElement("p");
+        expiry.className = "invitation-meta";
+        expiry.textContent = `Gültig bis: ${formatDate(data.expiresAt)}`;
+
+        const buttons = document.createElement("div");
+        buttons.className = "button-row";
+
+        const acceptButton = document.createElement("button");
+        acceptButton.type = "button";
+        acceptButton.textContent = "Einladung annehmen";
+        acceptButton.addEventListener("click", () => {
+          handleInvitationAction("accept", invitation.id, acceptButton);
+        });
+
+        const declineButton = document.createElement("button");
+        declineButton.type = "button";
+        declineButton.className = "button-secondary";
+        declineButton.textContent = "Ablehnen";
+        declineButton.addEventListener("click", () => {
+          handleInvitationAction("decline", invitation.id, declineButton);
+        });
+
+        buttons.append(acceptButton, declineButton);
+        card.append(title, role, expiry, buttons);
+        invitationList.append(card);
+      }
+    }
+
+    function startInvitationListener(user) {
+      unsubscribeInvitations?.();
+
+      if (!user.email) {
+        invitationsPanel.classList.add("hidden");
+        return;
+      }
+
+      const invitationQuery = query(
+        collection(db, "companyInvitations"),
+        where("invitedEmail", "==", user.email.trim().toLowerCase())
+      );
+
+      unsubscribeInvitations = onSnapshot(
+        invitationQuery,
+        (snapshot) => renderInvitations(snapshot.docs),
+        (error) => setStatus(error.message, "error")
+      );
+    }
+
+    async function handleInvitationAction(action, invitationId, button) {
+      const isAccept = action === "accept";
+      const message = isAccept
+        ? "Möchtest du dieser Firma wirklich beitreten?"
+        : "Möchtest du diese Einladung wirklich ablehnen?";
+
+      if (!window.confirm(message)) {
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        if (isAccept) {
+          await acceptInvitationCall({invitationId});
+          setStatus("Du bist der Firma erfolgreich beigetreten.");
+        } else {
+          await declineInvitationCall({invitationId});
+          setStatus("Die Einladung wurde abgelehnt.");
+        }
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    createCompanyForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const name = companyNameInput.value.trim();
+
+      if (name.length < 2 || name.length > 80) {
+        setStatus(
+          "Der Firmenname muss zwischen 2 und 80 Zeichen lang sein.",
+          "error"
+        );
+        return;
+      }
+
+      createCompanyButton.disabled = true;
+
+      try {
+        await createCompanyCall({name});
+        createCompanyForm.reset();
+        setStatus("Die Firma wurde erfolgreich erstellt.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        createCompanyButton.disabled = false;
+      }
+    });
+
+    inviteMemberForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const email = inviteEmailInput.value.trim().toLowerCase();
+      const role = inviteRoleSelect.value;
+
+      if (!email) {
+        setStatus("Bitte gib eine E-Mail-Adresse ein.", "error");
+        return;
+      }
+
+      if (!["admin", "editor", "viewer"].includes(role)) {
+        setStatus("Bitte wähle eine gültige Rolle.", "error");
+        return;
+      }
+
+      inviteMemberButton.disabled = true;
+
+      try {
+        await inviteCompanyMemberCall({email, role});
+        inviteMemberForm.reset();
+
+        if (currentMembership?.role === "admin") {
+          inviteRoleSelect.value = "editor";
+        }
+
+        setStatus("Die Einladung wurde erfolgreich erstellt.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        const activeMemberCount = Number(
+          currentCompany?.activeMemberCount || 0
+        );
+        const pendingCount = Number(
+          currentCompany?.pendingInvitationCount || 0
+        );
+        const seatLimit = Number(currentCompany?.seatLimit || 0);
+
+        if (activeMemberCount + pendingCount < seatLimit) {
+          inviteMemberButton.disabled = false;
+        }
+      }
+    });
+
+    refreshButton.addEventListener("click", () => {
+      if (currentCompanyId) {
+        startCompanyListeners(currentCompanyId);
+        setStatus("Die Firmenansicht wurde aktualisiert.");
+      }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      stopAllListeners();
+      currentUser = user;
+      currentCompanyId = null;
+
+      if (!user) {
+        showLoggedOutState();
+        return;
+      }
+
+      loadingPanel.classList.remove("hidden");
+      loginPanel.classList.add("hidden");
+      startInvitationListener(user);
+
+      unsubscribeUser = onSnapshot(
+        doc(db, "users", user.uid),
+        (snapshot) => {
+          if (!snapshot.exists()) {
+            loadingPanel.classList.add("hidden");
+            setStatus("Das Benutzerprofil wurde nicht gefunden.", "error");
+            return;
+          }
+
+          const companyId = snapshot.data().companyId;
+
+          if (typeof companyId === "string" && companyId.length > 0) {
+            if (companyId !== currentCompanyId) {
+              startCompanyListeners(companyId);
+            }
+          } else {
+            currentCompanyId = null;
+            stopCompanyListeners();
+            showNoCompanyState();
+          }
+        },
+        (error) => {
+          loadingPanel.classList.add("hidden");
+          setStatus(error.message, "error", 7000);
+        }
+      );
+    });
+  </script>
+</body>
+</html>
