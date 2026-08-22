@@ -389,6 +389,53 @@
       background: #fffaf0;
     }
 
+    .machine-list {
+      display: grid;
+      gap: 10px;
+      max-height: 380px;
+      padding-right: 4px;
+      overflow-y: auto;
+    }
+
+    .machine-choice,
+    .machine-entry {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border: 1px solid #dedede;
+      border-radius: 5px;
+      background: #fff;
+    }
+
+    .machine-choice input {
+      width: auto;
+      margin-top: 4px;
+    }
+
+    .machine-choice.disabled {
+      color: var(--muted);
+      background: #f1f1f1;
+    }
+
+    .machine-name {
+      display: block;
+      font-weight: bold;
+    }
+
+    .machine-meta {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .selection-count {
+      margin: 12px 0;
+      color: var(--muted);
+      font-weight: bold;
+    }
+
     .notice {
       margin-top: 16px;
       padding: 13px;
@@ -660,6 +707,45 @@
             <p class="empty-state">Mitglieder werden geladen …</p>
           </div>
         </div>
+
+        <div class="management-card" style="margin-top: 18px;">
+          <h3>Private Maschinen in die Firma kopieren</h3>
+          <p>
+            Wähle bis zu 20 private Maschinen aus. Die privaten Originale
+            bleiben erhalten. Werkzeuglisten werden vollständig mitkopiert.
+          </p>
+
+          <div class="management-grid">
+            <div>
+              <h3>Meine privaten Maschinen</h3>
+              <div id="privateMachineList" class="machine-list">
+                <p class="empty-state">Private Maschinen werden geladen …</p>
+              </div>
+              <p id="machineSelectionCount" class="selection-count">
+                0 von maximal 20 ausgewählt
+              </p>
+              <button
+                id="importMachinesButton"
+                type="button"
+                class="unavailable"
+                disabled
+              >
+                Ausgewählte Maschinen kopieren
+              </button>
+            </div>
+
+            <div>
+              <h3>Bereits vorhandene Firmenmaschinen</h3>
+              <p class="empty-state">
+                Zur Übersicht werden nur die Maschinendaten ohne Werkzeugliste
+                angezeigt.
+              </p>
+              <div id="companyMachineList" class="machine-list">
+                <p class="empty-state">Firmenmaschinen werden geladen …</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="companySettingsPanel" class="settings-area">
@@ -844,6 +930,10 @@
       "transferCompanyOwnership"
     );
     const leaveCompanyCall = httpsCallable(functions, "leaveCompany");
+    const importPrivateMachinesCall = httpsCallable(
+      functions,
+      "importPrivateMachinesToCompany"
+    );
 
     const loadingPanel = document.getElementById("loadingPanel");
     const loginPanel = document.getElementById("loginPanel");
@@ -893,6 +983,14 @@
       "transferOwnershipButton"
     );
     const leaveCompanyButton = document.getElementById("leaveCompanyButton");
+    const privateMachineList = document.getElementById("privateMachineList");
+    const companyMachineList = document.getElementById("companyMachineList");
+    const machineSelectionCount = document.getElementById(
+      "machineSelectionCount"
+    );
+    const importMachinesButton = document.getElementById(
+      "importMachinesButton"
+    );
 
     let currentUser = null;
     let currentCompanyId = null;
@@ -905,9 +1003,14 @@
     let unsubscribeCompanyInvitations = null;
     let unsubscribeMembers = null;
     let unsubscribeMemberProfiles = null;
+    let unsubscribePrivateMachines = null;
+    let unsubscribeCompanyMachines = null;
     let managedCompanyId = null;
     let currentMembers = new Map();
     let currentMemberProfiles = new Map();
+    let currentPrivateMachines = new Map();
+    let currentCompanyMachines = new Map();
+    let selectedPrivateMachineIds = new Set();
     let statusTimer = null;
 
     document.getElementById("year").textContent = new Date().getFullYear();
@@ -996,14 +1099,21 @@
       unsubscribeCompanyInvitations?.();
       unsubscribeMembers?.();
       unsubscribeMemberProfiles?.();
+      unsubscribePrivateMachines?.();
+      unsubscribeCompanyMachines?.();
       unsubscribeCompany = null;
       unsubscribeMembership = null;
       unsubscribeCompanyInvitations = null;
       unsubscribeMembers = null;
       unsubscribeMemberProfiles = null;
+      unsubscribePrivateMachines = null;
+      unsubscribeCompanyMachines = null;
       managedCompanyId = null;
       currentMembers = new Map();
       currentMemberProfiles = new Map();
+      currentPrivateMachines = new Map();
+      currentCompanyMachines = new Map();
+      selectedPrivateMachineIds = new Set();
       currentCompany = null;
       currentMembership = null;
       managementPanel.classList.add("hidden");
@@ -1071,12 +1181,19 @@
         unsubscribeCompanyInvitations?.();
         unsubscribeMembers?.();
         unsubscribeMemberProfiles?.();
+        unsubscribePrivateMachines?.();
+        unsubscribeCompanyMachines?.();
         unsubscribeCompanyInvitations = null;
         unsubscribeMembers = null;
         unsubscribeMemberProfiles = null;
+        unsubscribePrivateMachines = null;
+        unsubscribeCompanyMachines = null;
         managedCompanyId = null;
         currentMembers = new Map();
         currentMemberProfiles = new Map();
+        currentPrivateMachines = new Map();
+        currentCompanyMachines = new Map();
+        selectedPrivateMachineIds = new Set();
         return;
       }
 
@@ -1110,6 +1227,8 @@
       unsubscribeCompanyInvitations?.();
       unsubscribeMembers?.();
       unsubscribeMemberProfiles?.();
+      unsubscribePrivateMachines?.();
+      unsubscribeCompanyMachines?.();
       managedCompanyId = companyId;
 
       const sentInvitationQuery = query(
@@ -1153,6 +1272,177 @@
         },
         (error) => setStatus(error.message, "error", 7000)
       );
+
+      unsubscribePrivateMachines = onSnapshot(
+        collection(db, "users", currentUser.uid, "machines"),
+        (snapshot) => {
+          currentPrivateMachines = new Map(
+            snapshot.docs.map((document) => [
+              document.id,
+              {id: document.id, ...document.data()}
+            ])
+          );
+          renderMachineImport();
+        },
+        (error) => setStatus(error.message, "error", 7000)
+      );
+
+      unsubscribeCompanyMachines = onSnapshot(
+        collection(db, "companies", companyId, "machines"),
+        (snapshot) => {
+          currentCompanyMachines = new Map(
+            snapshot.docs.map((document) => [
+              document.id,
+              {id: document.id, ...document.data()}
+            ])
+          );
+          renderMachineImport();
+        },
+        (error) => setStatus(error.message, "error", 7000)
+      );
+    }
+
+    function machineDisplayName(machine) {
+      return typeof machine?.name === "string" && machine.name.trim()
+        ? machine.name.trim()
+        : "Unbenannte Maschine";
+    }
+
+    function machineMetaText(machine) {
+      return [machine?.manufacturer, machine?.type, machine?.machineType]
+        .filter((value, index, values) =>
+          typeof value === "string" &&
+          value.trim() &&
+          values.indexOf(value) === index
+        )
+        .join(" · ");
+    }
+
+    function renderMachineImport() {
+      if (!currentUser || !currentMembership) {
+        return;
+      }
+
+      const importedSourceIds = new Set(
+        [...currentCompanyMachines.values()]
+          .filter((machine) =>
+            machine.sourceOwnerUid === currentUser.uid &&
+            typeof machine.sourceMachineId === "string"
+          )
+          .map((machine) => machine.sourceMachineId)
+      );
+
+      for (const machineId of [...selectedPrivateMachineIds]) {
+        if (
+          !currentPrivateMachines.has(machineId) ||
+          importedSourceIds.has(machineId)
+        ) {
+          selectedPrivateMachineIds.delete(machineId);
+        }
+      }
+
+      privateMachineList.replaceChildren();
+      const privateMachines = [...currentPrivateMachines.values()].sort(
+        (left, right) => machineDisplayName(left).localeCompare(
+          machineDisplayName(right),
+          "de"
+        )
+      );
+
+      if (privateMachines.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.className = "empty-state";
+        emptyMessage.textContent = "Keine privaten Maschinen vorhanden.";
+        privateMachineList.append(emptyMessage);
+      } else {
+        for (const machine of privateMachines) {
+          const alreadyImported = importedSourceIds.has(machine.id);
+          const label = document.createElement("label");
+          label.className = `machine-choice${alreadyImported ? " disabled" : ""}`;
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = machine.id;
+          checkbox.disabled = alreadyImported;
+          checkbox.checked = selectedPrivateMachineIds.has(machine.id);
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+              if (selectedPrivateMachineIds.size >= 20) {
+                checkbox.checked = false;
+                setStatus(
+                  "Pro Import können maximal 20 Maschinen ausgewählt werden.",
+                  "error"
+                );
+                return;
+              }
+              selectedPrivateMachineIds.add(machine.id);
+            } else {
+              selectedPrivateMachineIds.delete(machine.id);
+            }
+            updateMachineImportButton();
+          });
+
+          const text = document.createElement("span");
+          const name = document.createElement("span");
+          name.className = "machine-name";
+          name.textContent = machineDisplayName(machine);
+
+          const meta = document.createElement("span");
+          meta.className = "machine-meta";
+          const machineMeta = machineMetaText(machine);
+          meta.textContent = alreadyImported
+            ? "Bereits von dir in diese Firma kopiert"
+            : machineMeta || "Keine weiteren Maschinendaten";
+
+          text.append(name, meta);
+          label.append(checkbox, text);
+          privateMachineList.append(label);
+        }
+      }
+
+      companyMachineList.replaceChildren();
+      const companyMachines = [...currentCompanyMachines.values()].sort(
+        (left, right) => machineDisplayName(left).localeCompare(
+          machineDisplayName(right),
+          "de"
+        )
+      );
+
+      if (companyMachines.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.className = "empty-state";
+        emptyMessage.textContent = "Noch keine Firmenmaschinen vorhanden.";
+        companyMachineList.append(emptyMessage);
+      } else {
+        for (const machine of companyMachines) {
+          const entry = document.createElement("div");
+          entry.className = "machine-entry";
+
+          const text = document.createElement("span");
+          const name = document.createElement("span");
+          name.className = "machine-name";
+          name.textContent = machineDisplayName(machine);
+
+          const meta = document.createElement("span");
+          meta.className = "machine-meta";
+          meta.textContent = machineMetaText(machine) ||
+            "Keine weiteren Maschinendaten";
+
+          text.append(name, meta);
+          entry.append(text);
+          companyMachineList.append(entry);
+        }
+      }
+
+      updateMachineImportButton();
+    }
+
+    function updateMachineImportButton() {
+      const selectedCount = selectedPrivateMachineIds.size;
+      machineSelectionCount.textContent =
+        `${selectedCount} von maximal 20 ausgewählt`;
+      importMachinesButton.disabled = selectedCount === 0;
+      importMachinesButton.classList.toggle("unavailable", selectedCount === 0);
     }
 
     function memberDisplayName(profile) {
@@ -1562,6 +1852,49 @@
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
         leaveCompanyButton.disabled = false;
+      }
+    });
+
+    importMachinesButton.addEventListener("click", async () => {
+      const machineIds = [...selectedPrivateMachineIds];
+
+      if (machineIds.length === 0) {
+        setStatus("Bitte wähle mindestens eine Maschine aus.", "error");
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `${machineIds.length} Maschine(n) inklusive Werkzeuglisten ` +
+        "in die Firma kopieren?\n\nDie privaten Originale bleiben erhalten."
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      importMachinesButton.disabled = true;
+      importMachinesButton.classList.remove("unavailable");
+
+      try {
+        const result = await importPrivateMachinesCall({machineIds});
+        const importedCount = result.data?.importedMachines?.length || 0;
+        const skippedCount =
+          result.data?.alreadyImportedMachineIds?.length || 0;
+
+        selectedPrivateMachineIds = new Set();
+        updateMachineImportButton();
+
+        const skippedText = skippedCount > 0
+          ? ` ${skippedCount} bereits vorhandene Maschine(n) wurden übersprungen.`
+          : "";
+        setStatus(
+          `${importedCount} Maschine(n) wurden kopiert.${skippedText}`,
+          "success",
+          7000
+        );
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+        updateMachineImportButton();
       }
     });
 
