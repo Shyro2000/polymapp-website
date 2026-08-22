@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta
     name="description"
-    content="PolymApp Firmenverwaltung für Mitglieder, Rollen und Einladungen."
+    content="Gestion d’entreprise PolymApp pour les membres, les rôles et les invitations."
   >
-  <title>Firmenverwaltung - PolymApp</title>
+  <title>Gestion d’entreprise - PolymApp</title>
 
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -616,7 +616,7 @@
 <body>
   <header>
     <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
-    <h2>Firmenverwaltung</h2>
+    <h2>Gestion d’entreprise</h2>
     <div class="language-switch">
     <a href="firmenverwaltung.html">DE</a> |
     <a href="firmenverwaltung-en.html">EN</a> |
@@ -625,51 +625,51 @@
   </header>
 
   <nav>
-    <a href="index.html">Startseite</a>
-    <a href="accountverwaltung.html">Accountverwaltung</a>
-    <a href="firmenverwaltung.html" class="active">Firmenverwaltung</a>
-    <a href="datenschutz.html">Datenschutzerklärung</a>
-    <a href="about.html">Über mich</a>
-    <a href="kontakt.html">Kontakt</a>
+    <a href="index-fr.html">Accueil</a>
+    <a href="accountverwaltung-fr.html">Gestion du compte</a>
+    <a href="firmenverwaltung-fr.html" class="active">Gestion d’entreprise</a>
+    <a href="datenschutz-fr.html">Protection des données</a>
+    <a href="about-fr.html">À propos</a>
+    <a href="kontakt-fr.html">Contact</a>
   </nav>
 
   <div id="status" class="status" aria-live="polite"></div>
 
   <main class="container">
-    <h1>Firmenverwaltung</h1>
+    <h1>Gestion d’entreprise</h1>
     <p class="lead">
-      Erstelle eine Firma, nimm Einladungen an und verwalte später Mitglieder,
-      Rollen sowie gemeinsame Maschinen und Werkzeuglisten an einem Ort.
+      Créez une entreprise, acceptez des invitations et gérez les membres, les
+      rôles, les machines partagées et les listes d’outils au même endroit.
     </p>
 
     <section id="loadingPanel" class="panel">
-      <h2>Daten werden geladen</h2>
-      <p class="empty-state">Firmenstatus und Einladungen werden geprüft …</p>
+      <h2>Chargement des données</h2>
+      <p class="empty-state">Vérification du statut de l’entreprise et des invitations…</p>
     </section>
 
     <section id="loginPanel" class="panel hidden">
-      <h2>Anmeldung erforderlich</h2>
+      <h2>Connexion requise</h2>
       <p>
-        Melde dich zuerst mit deinem bestehenden PolymApp-Account an.
+        Connectez-vous d’abord avec votre compte PolymApp existant.
       </p>
-      <a class="button-link" href="accountverwaltung.html">Zur Anmeldung</a>
+      <a class="button-link" href="accountverwaltung-fr.html">Se connecter</a>
     </section>
 
     <section id="invitationsPanel" class="panel hidden">
-      <h2>Offene Firmeneinladungen</h2>
+      <h2>Invitations d’entreprise ouvertes</h2>
       <div id="invitationList" class="invitation-list"></div>
     </section>
 
     <section id="noCompanyPanel" class="panel hidden">
-      <h2>Eigene Firma erstellen</h2>
+      <h2>Créer votre propre entreprise</h2>
       <p>
-        Du gehörst aktuell keiner Firma an. Du kannst eine neue Firma erstellen
-        oder eine offene Einladung annehmen.
+        Vous n’appartenez actuellement à aucune entreprise. Vous pouvez créer une
+        nouvelle entreprise ou accepter une invitation ouverte.
       </p>
 
       <form id="createCompanyForm">
         <div class="input-group">
-          <label for="companyNameInput">Firmenname</label>
+          <label for="companyNameInput">Nom de l’entreprise</label>
           <input
             id="companyNameInput"
             name="companyName"
@@ -680,70 +680,70 @@
             required
           >
         </div>
-        <button id="createCompanyButton" type="submit">Firma erstellen</button>
+        <button id="createCompanyButton" type="submit">Créer l’entreprise</button>
       </form>
 
       <p class="notice notice-warning">
-        Nach der Erstellung bist du der Inhaber. Die Inhaberrechte müssen vor
-        einem späteren Austritt oder einer Account-Löschung übertragen werden,
-        sofern andere Mitglieder vorhanden sind.
+        Après la création, vous êtes propriétaire. La propriété doit être transférée
+        avant de quitter l’entreprise ou de supprimer votre compte si d’autres
+        membres sont présents.
       </p>
     </section>
 
     <section id="companyPanel" class="panel hidden">
-      <h2 id="companyNameHeading">Firma</h2>
+      <h2 id="companyNameHeading">Entreprise</h2>
 
       <div class="summary-grid">
         <div class="summary-item">
-          <span class="summary-label">Meine Rolle</span>
+          <span class="summary-label">Mon rôle</span>
           <span id="roleValue" class="summary-value"></span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Aktive Mitglieder</span>
+          <span class="summary-label">Membres actifs</span>
           <span id="memberCountValue" class="summary-value">–</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Verfügbare Plätze</span>
+          <span class="summary-label">Places disponibles</span>
           <span id="seatValue" class="summary-value">–</span>
         </div>
       </div>
 
       <p id="roleDescription" class="notice"></p>
       <p class="notice">
-        Dein Firmenzugang wird über diese Firma verwaltet. Für die gemeinsamen
-        Firmenfunktionen ist kein separates persönliches Firmenabo erforderlich.
+        Votre accès est géré par cette entreprise. Aucun abonnement d’entreprise
+        personnel séparé n’est requis pour les fonctions partagées.
       </p>
 
       <div id="managementPanel" class="management-area hidden">
         <div id="machineImportNotice" class="notice action-notice hidden">
-          <strong>Private Maschinen in die Firma übernehmen?</strong>
+          <strong>Copier des machines privées dans l’entreprise ?</strong>
           <p>
-            Du hast private Maschinen, die noch nicht in diese Firma kopiert
-            wurden. Die privaten Originale bleiben dabei erhalten.
+            Vous avez des machines privées qui n’ont pas encore été copiées dans cette
+            entreprise. Les originaux privés restent inchangés.
           </p>
           <div class="button-row">
             <button id="showMachineImportButton" type="button">
-              Maschinen auswählen
+              Sélectionner les machines
             </button>
             <button
               id="dismissMachineImportButton"
               type="button"
               class="button-secondary"
             >
-              Später
+              Plus tard
             </button>
           </div>
         </div>
 
-        <h3>Einladungen verwalten</h3>
+        <h3>Gérer les invitations</h3>
         <p id="managementDescription" class="empty-state"></p>
 
         <div class="management-grid">
           <div class="management-card">
-            <h3>Mitglied einladen</h3>
+            <h3>Inviter un membre</h3>
             <form id="inviteMemberForm">
               <div class="input-group">
-                <label for="inviteEmailInput">E-Mail-Adresse</label>
+                <label for="inviteEmailInput">Adresse e-mail</label>
                 <input
                   id="inviteEmailInput"
                   name="inviteEmail"
@@ -755,43 +755,43 @@
               </div>
 
               <div class="input-group">
-                <label for="inviteRoleSelect">Rolle</label>
+                <label for="inviteRoleSelect">Rôle</label>
                 <select id="inviteRoleSelect" name="inviteRole" required>
- 		 <option id="inviteAdminOption" value="admin">Administrator</option>
- 		 <option value="editor">Bearbeiter</option>
-		 <option value="viewer">Betrachter</option>
-		</select>
+  		<option id="inviteAdminOption" value="admin">Administrateur</option>
+ 		<option value="editor">Éditeur</option>
+ 		<option value="viewer">Lecteur</option>
+	       </select>
               </div>
 
               <button id="inviteMemberButton" type="submit">
-                Einladung versenden
+                Envoyer l’invitation
               </button>
             </form>
           </div>
 
           <div class="management-card">
             <h3 class="list-section-heading">
-              Aktuelle Einladungen
+              Invitations actuelles
               <span id="activeInvitationCount" class="entry-count"></span>
             </h3>
             <div id="activeSentInvitationList" class="invitation-list">
-              <p class="empty-state">Aktuelle Einladungen werden geladen …</p>
+              <p class="empty-state">Chargement des invitations actuelles…</p>
             </div>
 
             <h3 class="list-section-heading">
-              Verlauf
+              Historique
               <span id="invitationHistoryCount" class="entry-count"></span>
             </h3>
             <div id="invitationHistoryList" class="invitation-list">
-              <p class="empty-state">Einladungsverlauf wird geladen …</p>
+              <p class="empty-state">Chargement de l’historique des invitations…</p>
             </div>
           </div>
         </div>
 
         <div class="management-card" style="margin-top: 18px;">
-          <h3>Mitglieder</h3>
+          <h3>Membres</h3>
           <div id="memberList" class="member-list">
-            <p class="empty-state">Mitglieder werden geladen …</p>
+            <p class="empty-state">Chargement des membres…</p>
           </div>
         </div>
 
@@ -800,20 +800,20 @@
           class="management-card"
           style="margin-top: 18px;"
         >
-          <h3>Private Maschinen in die Firma kopieren</h3>
+          <h3>Copier des machines privées dans l’entreprise</h3>
           <p>
-            Wähle bis zu 20 private Maschinen aus. Die privaten Originale
-            bleiben erhalten. Werkzeuglisten werden vollständig mitkopiert.
+            Sélectionnez jusqu’à 20 machines privées. Les originaux privés restent
+            inchangés. Les listes d’outils sont entièrement copiées.
           </p>
 
           <div class="management-grid">
             <div>
-              <h3>Meine privaten Maschinen</h3>
+              <h3>Mes machines privées</h3>
               <div id="privateMachineList" class="machine-list">
-                <p class="empty-state">Private Maschinen werden geladen …</p>
+                <p class="empty-state">Chargement des machines privées…</p>
               </div>
               <p id="machineSelectionCount" class="selection-count">
-                0 von maximal 20 ausgewählt
+                0 sélectionnée sur 20 au maximum
               </p>
               <button
                 id="importMachinesButton"
@@ -821,18 +821,18 @@
                 class="unavailable"
                 disabled
               >
-                Ausgewählte Maschinen kopieren
+                Copier les machines sélectionnées
               </button>
             </div>
 
             <div>
-              <h3>Bereits vorhandene Firmenmaschinen</h3>
+              <h3>Machines d’entreprise existantes</h3>
               <p class="empty-state">
-                Zur Übersicht werden nur die Maschinendaten ohne Werkzeugliste
-                angezeigt.
+                Pour plus de clarté, seules les données des machines sont affichées, sans
+                la liste d’outils.
               </p>
               <div id="companyMachineList" class="machine-list">
-                <p class="empty-state">Firmenmaschinen werden geladen …</p>
+                <p class="empty-state">Chargement des machines d’entreprise…</p>
               </div>
             </div>
           </div>
@@ -840,14 +840,14 @@
       </div>
 
       <div id="companySettingsPanel" class="settings-area">
-        <h3>Firmeneinstellungen</h3>
+        <h3>Paramètres de l’entreprise</h3>
 
         <div id="ownerSettings" class="settings-grid hidden">
           <div class="management-card">
-            <h3>Firmenname ändern</h3>
+            <h3>Modifier le nom de l’entreprise</h3>
             <form id="updateCompanyNameForm">
               <div class="input-group">
-                <label for="companyNameSettingsInput">Firmenname</label>
+                <label for="companyNameSettingsInput">Nom de l’entreprise</label>
                 <input
                   id="companyNameSettingsInput"
                   name="companyName"
@@ -859,86 +859,83 @@
                 >
               </div>
               <button id="updateCompanyNameButton" type="submit">
-                Firmennamen speichern
+                Enregistrer le nom
               </button>
             </form>
           </div>
 
-<div class="management-card warning-card">
-  <h3>Firma löschen</h3>
-
-  <p id="deleteCompanyDescription">
-    Die Voraussetzungen für die Löschung werden geprüft.
-  </p>
-
-  <button
-    id="deleteCompanyButton"
-    type="button"
-    class="danger-button"
-    disabled
-  >
-    Firma endgültig löschen
-  </button>
-
-  <p class="notice notice-warning">
-    Dabei werden alle Firmenmaschinen, Werkzeuglisten,
-    Mitgliederdaten und Einladungen unwiderruflich gelöscht.
-    Dein persönlicher Account und deine privaten Maschinen
-    bleiben erhalten.
-  </p>
-</div>
-
           <div class="management-card warning-card">
-            <h3>Inhaberrechte übertragen</h3>
+            <h3>Transférer la propriété</h3>
             <p>
-              Der gewählte Benutzer wird neuer Inhaber. Deine eigene Rolle wird
-              danach automatisch zum Administrator geändert.
+              L’utilisateur sélectionné devient le nouveau propriétaire. Votre rôle est
+              ensuite automatiquement changé en administrateur.
             </p>
             <div class="input-group">
-              <label for="ownershipTargetSelect">Neuer Inhaber</label>
+              <label for="ownershipTargetSelect">Nouveau propriétaire</label>
               <select id="ownershipTargetSelect"></select>
             </div>
             <button id="transferOwnershipButton" type="button">
-              Inhaberrechte übertragen
+              Transférer la propriété
             </button>
             <p class="notice notice-warning">
-              Vor einer Account-Löschung musst du die Inhaberrechte übertragen,
-              wenn weitere Mitglieder vorhanden sind.
+              Avant de supprimer votre compte, vous devez transférer la propriété si
+              d’autres membres sont présents.
+            </p>
+          </div>
+
+          <div class="management-card warning-card">
+            <h3>Supprimer l’entreprise</h3>
+            <p id="deleteCompanyDescription">
+              Les conditions de suppression sont en cours de vérification.
+            </p>
+            <button
+              id="deleteCompanyButton"
+              type="button"
+              class="danger-button"
+              disabled
+            >
+              Supprimer définitivement l’entreprise
+            </button>
+            <p class="notice notice-warning">
+              Toutes les machines de l’entreprise, les listes d’outils,
+              les données des membres et les invitations seront définitivement
+              supprimées. Votre compte personnel et vos machines privées
+              restent inchangés.
             </p>
           </div>
         </div>
 
         <div id="memberExitPanel" class="management-card warning-card hidden">
-          <h3>Firma verlassen</h3>
+          <h3>Quitter l’entreprise</h3>
           <p id="memberExitDescription"></p>
           <button id="leaveCompanyButton" type="button" class="danger-button">
-            Firma verlassen
+            Quitter l’entreprise
           </button>
           <p class="notice notice-warning">
-            Deine privaten Maschinen bleiben erhalten. Nach dem Austritt hast
-            du keinen Zugriff mehr auf Firmenmaschinen und Firmenwerkzeuge.
+            Vos machines privées restent inchangées. Après votre départ, vous n’avez
+            plus accès aux machines et aux outils de l’entreprise.
           </p>
         </div>
       </div>
 
       <div class="button-row">
         <button id="refreshButton" type="button" class="button-secondary">
-          Ansicht aktualisieren
+          Actualiser l’affichage
         </button>
-        <a class="button-link button-secondary" href="accountverwaltung.html">
-          Zum Account
+        <a class="button-link button-secondary" href="accountverwaltung-fr.html">
+          Accéder au compte
         </a>
       </div>
     </section>
   </main>
 
   <footer>
-    <p><strong>PolymApp</strong> – Firmenverwaltung</p>
+    <p><strong>PolymApp</strong> – Gestion d’entreprise</p>
     <p>
-      <a href="index.html">Startseite</a> ·
-      <a href="accountverwaltung.html">Accountverwaltung</a> ·
-      <a href="datenschutz.html">Datenschutz</a> ·
-      <a href="kontakt.html">Kontakt</a>
+      <a href="index-fr.html">Accueil</a> ·
+      <a href="accountverwaltung-fr.html">Gestion du compte</a> ·
+      <a href="datenschutz-fr.html">Protection des données</a> ·
+      <a href="kontakt-fr.html">Contact</a>
     </p>
     <p>© 2024–<span id="year"></span> PolymApp</p>
   </footer>
@@ -1045,7 +1042,7 @@
       "transferCompanyOwnership"
     );
     const leaveCompanyCall = httpsCallable(functions, "leaveCompany");
-    const deleteCompanyCall = httpsCallable(functions,"deleteCompany");
+    const deleteCompanyCall = httpsCallable(functions, "deleteCompany");
     const importPrivateMachinesCall = httpsCallable(
       functions,
       "importPrivateMachinesToCompany"
@@ -1110,8 +1107,12 @@
       "transferOwnershipButton"
     );
     const leaveCompanyButton = document.getElementById("leaveCompanyButton");
-    const deleteCompanyButton = document.getElementById("deleteCompanyButton");
-    const deleteCompanyDescription = document.getElementById("deleteCompanyDescription");
+    const deleteCompanyButton = document.getElementById(
+      "deleteCompanyButton"
+    );
+    const deleteCompanyDescription = document.getElementById(
+      "deleteCompanyDescription"
+    );
     const privateMachineList = document.getElementById("privateMachineList");
     const companyMachineList = document.getElementById("companyMachineList");
     const machineSelectionCount = document.getElementById(
@@ -1165,56 +1166,75 @@
 
     function mapFunctionError(error) {
       const reason = error?.details?.reason;
+      const serverMessage = String(error?.message || "");
 
       if (reason === "recent_login_required") {
-        return "Bitte melde dich erneut an.";
+        return "Veuillez vous reconnecter.";
       }
       if (error?.code === "functions/already-exists") {
-        return error.message || "Der Eintrag besteht bereits.";
+        if (serverMessage.includes("Mitglied dieser Firma")) {
+          return "Cette personne est déjà membre de cette entreprise.";
+        }
+        if (serverMessage.includes("Einladung")) {
+          return "Une invitation existe déjà pour cette adresse e-mail.";
+        }
+        return "Cette entrée existe déjà.";
       }
       if (error?.code === "functions/resource-exhausted") {
-        return "Es ist kein freier Firmenplatz verfügbar.";
+        return "Aucune capacité n’est disponible pour cette action.";
       }
       if (error?.code === "functions/permission-denied") {
-        return "Du hast für diese Aktion keine Berechtigung.";
+        return "Vous n’avez pas l’autorisation d’effectuer cette action.";
       }
       if (error?.code === "functions/unauthenticated") {
-        return "Bitte melde dich erneut an.";
+        return "Veuillez vous reconnecter.";
       }
       if (error?.code === "functions/unavailable") {
-        return "Der Dienst ist momentan nicht erreichbar.";
+        return "Le service est actuellement indisponible.";
+      }
+      if (error?.code === "functions/invalid-argument") {
+        return "Les informations transmises ne sont pas valides.";
+      }
+      if (error?.code === "functions/failed-precondition") {
+        return "Les conditions requises pour cette action ne sont pas remplies.";
+      }
+      if (error?.code === "functions/not-found") {
+        return "L’entrée demandée n’a pas été trouvée.";
+      }
+      if (error?.code === "functions/deadline-exceeded") {
+        return "L’invitation ou la demande a expiré.";
       }
 
-      return error?.message || "Die Aktion konnte nicht ausgeführt werden.";
+      return "L’action n’a pas pu être effectuée.";
     }
 
     function roleLabel(role) {
-  switch (role) {
-    case "owner":
-      return "Inhaber";
-    case "admin":
-      return "Administrator";
-    case "editor":
-      return "Bearbeiter";
-    case "viewer":
-      return "Betrachter";
-    default:
-      return "Unbekannt";
-  }
-}
+      switch (role) {
+        case "owner":
+          return "Propriétaire";
+        case "admin":
+          return "Administrateur";
+        case "editor":
+          return "Éditeur";
+        case "viewer":
+          return "Lecteur";
+        default:
+          return "Inconnu";
+      }
+    }
 
     function roleText(role) {
       switch (role) {
         case "owner":
-          return "Du verwaltest die Firma, Mitglieder, Rollen, Maschinen und Werkzeuglisten.";
+          return "Vous gérez l’entreprise, les membres, les rôles, les machines et les listes d’outils.";
         case "admin":
-          return "Du verwaltest Mitglieder sowie Maschinen und Werkzeuglisten. Administratorrechte vergibt nur der Inhaber.";
+          return "Vous gérez les membres, les machines et les listes d’outils. Seul le propriétaire peut attribuer les droits d’administrateur.";
         case "editor":
-          return "Du darfst Werkzeuge erstellen, bearbeiten und löschen. Maschinendaten bleiben unveränderbar.";
+          return "Vous pouvez créer, modifier et supprimer des outils. Les données des machines restent en lecture seule.";
         case "viewer":
-          return "Du kannst Firmenmaschinen und Werkzeuglisten ansehen, aber nicht verändern.";
+          return "Vous pouvez consulter les machines et les listes d’outils de l’entreprise, mais pas les modifier.";
         default:
-          return "Die Firmenrolle konnte nicht geladen werden.";
+          return "Le rôle dans l’entreprise n’a pas pu être chargé.";
       }
     }
 
@@ -1222,10 +1242,10 @@
       const date = value?.toDate ? value.toDate() : null;
 
       if (!date) {
-        return "unbekannt";
+        return "inconnu";
       }
 
-      return new Intl.DateTimeFormat("de-CH", {
+      return new Intl.DateTimeFormat("fr-CH", {
         dateStyle: "medium",
         timeStyle: "short"
       }).format(date);
@@ -1291,7 +1311,7 @@
       noCompanyPanel.classList.add("hidden");
       companyPanel.classList.remove("hidden");
 
-      companyNameHeading.textContent = currentCompany.name || "Firma";
+      companyNameHeading.textContent = currentCompany.name || "Entreprise";
 
       const role = currentMembership.role;
       roleValue.textContent = roleLabel(role);
@@ -1305,8 +1325,8 @@
 
       memberCountValue.textContent = `${activeMemberCount}`;
       seatValue.textContent = seatLimit > 0
-        ? `${reservedSeats} von ${seatLimit} belegt oder reserviert`
-        : "Nicht verfügbar";
+        ? `${reservedSeats} sur ${seatLimit} occupées ou réservées`
+        : "Indisponible";
 
       updateManagementArea(role, reservedSeats, seatLimit);
       renderCompanySettings();
@@ -1352,8 +1372,8 @@
       inviteRoleSelect.disabled = !hasFreeSeat;
 
       managementDescription.textContent = hasFreeSeat
-        ? "Aktive Mitglieder und gültige Einladungen reservieren jeweils einen Platz."
-        : "Alle verfügbaren Plätze sind momentan belegt oder reserviert.";
+        ? "Chaque membre actif et chaque invitation valide réserve une place."
+        : "Toutes les places disponibles sont actuellement occupées ou réservées.";
 
       if (managedCompanyId !== currentCompanyId) {
         startManagementListeners(currentCompanyId);
@@ -1443,7 +1463,7 @@
     function machineDisplayName(machine) {
       return typeof machine?.name === "string" && machine.name.trim()
         ? machine.name.trim()
-        : "Unbenannte Maschine";
+        : "Machine sans nom";
     }
 
     function machineMetaText(machine) {
@@ -1518,7 +1538,7 @@
       if (privateMachines.length === 0) {
         const emptyMessage = document.createElement("p");
         emptyMessage.className = "empty-state";
-        emptyMessage.textContent = "Keine privaten Maschinen vorhanden.";
+        emptyMessage.textContent = "Aucune machine privée disponible.";
         privateMachineList.append(emptyMessage);
       } else {
         for (const machine of privateMachines) {
@@ -1536,7 +1556,7 @@
               if (selectedPrivateMachineIds.size >= 20) {
                 checkbox.checked = false;
                 setStatus(
-                  "Pro Import können maximal 20 Maschinen ausgewählt werden.",
+                  "Vous pouvez sélectionner au maximum 20 machines par importation.",
                   "error"
                 );
                 return;
@@ -1557,8 +1577,8 @@
           meta.className = "machine-meta";
           const machineMeta = machineMetaText(machine);
           meta.textContent = alreadyImported
-            ? "Bereits von dir in diese Firma kopiert"
-            : machineMeta || "Keine weiteren Maschinendaten";
+            ? "Déjà copiée par vous dans cette entreprise"
+            : machineMeta || "Aucune donnée machine supplémentaire";
 
           text.append(name, meta);
           label.append(checkbox, text);
@@ -1577,7 +1597,7 @@
       if (companyMachines.length === 0) {
         const emptyMessage = document.createElement("p");
         emptyMessage.className = "empty-state";
-        emptyMessage.textContent = "Noch keine Firmenmaschinen vorhanden.";
+        emptyMessage.textContent = "Aucune machine d’entreprise disponible pour le moment.";
         companyMachineList.append(emptyMessage);
       } else {
         for (const machine of companyMachines) {
@@ -1592,7 +1612,7 @@
           const meta = document.createElement("span");
           meta.className = "machine-meta";
           meta.textContent = machineMetaText(machine) ||
-            "Keine weiteren Maschinendaten";
+            "Aucune donnée machine supplémentaire";
 
           text.append(name, meta);
           entry.append(text);
@@ -1608,7 +1628,7 @@
     function updateMachineImportButton() {
       const selectedCount = selectedPrivateMachineIds.size;
       machineSelectionCount.textContent =
-        `${selectedCount} von maximal 20 ausgewählt`;
+        `${selectedCount} sélectionnée(s) sur 20 au maximum`;
       importMachinesButton.disabled = selectedCount === 0;
       importMachinesButton.classList.toggle("unavailable", selectedCount === 0);
     }
@@ -1635,7 +1655,7 @@
       try {
         window.localStorage.setItem(machineImportNoticeKey(), "1");
       } catch {
-        // Der Import bleibt auch ohne lokalen Speicher vollständig nutzbar.
+        // L’importation reste utilisable même sans stockage local.
       }
       machineImportNotice.classList.add("hidden");
     }
@@ -1655,139 +1675,108 @@
         .filter((value) => typeof value === "string" && value.trim())
         .join(" ");
 
-      return fullName || profile?.email || "Mitglied";
+      return fullName || profile?.email || "Membre";
     }
 
     function renderCompanySettings() {
-  if (!currentCompany || !currentMembership || !currentUser) {
-    return;
-  }
+      if (!currentCompany || !currentMembership || !currentUser) {
+        return;
+      }
 
-  const isOwner =
-    currentMembership.role === "owner" &&
-    currentCompany.ownerUid === currentUser.uid;
+      const isOwner = currentMembership.role === "owner" &&
+        currentCompany.ownerUid === currentUser.uid;
 
-  ownerSettings.classList.toggle("hidden", !isOwner);
-  memberExitPanel.classList.toggle("hidden", isOwner);
+      ownerSettings.classList.toggle("hidden", !isOwner);
+      memberExitPanel.classList.toggle("hidden", isOwner);
 
-  if (!isOwner) {
-    memberExitDescription.textContent =
-      `Du bist aktuell ${roleLabel(currentMembership.role)}. ` +
-      "Du kannst die Firma selbständig verlassen.";
-    return;
-  }
+      if (!isOwner) {
+        memberExitDescription.textContent =
+          `Votre rôle actuel est ${roleLabel(currentMembership.role)}. ` +
+          "Vous pouvez quitter l’entreprise vous-même.";
+        return;
+      }
 
-  if (document.activeElement !== companyNameSettingsInput) {
-    companyNameSettingsInput.value =
-      currentCompany.name || "";
-  }
+      if (document.activeElement !== companyNameSettingsInput) {
+        companyNameSettingsInput.value = currentCompany.name || "";
+      }
 
-  const previousSelection =
-    ownershipTargetSelect.value;
+      const previousSelection = ownershipTargetSelect.value;
+      ownershipTargetSelect.replaceChildren();
 
-  ownershipTargetSelect.replaceChildren();
+      const possibleOwners = [...currentMembers.values()]
+        .filter((member) =>
+          member.status === "active" &&
+          member.id !== currentUser.uid &&
+          member.role !== "owner"
+        )
+        .sort((left, right) => {
+          const leftProfile = currentMemberProfiles.get(left.id);
+          const rightProfile = currentMemberProfiles.get(right.id);
+          return memberDisplayName(leftProfile).localeCompare(
+            memberDisplayName(rightProfile),
+            "fr"
+          );
+        });
 
-  const possibleOwners = [...currentMembers.values()]
-    .filter((member) =>
-      member.status === "active" &&
-      member.id !== currentUser.uid &&
-      member.role !== "owner"
-    )
-    .sort((left, right) => {
-      const leftProfile =
-        currentMemberProfiles.get(left.id);
+      for (const member of possibleOwners) {
+        const profile = currentMemberProfiles.get(member.id) || {};
+        const option = document.createElement("option");
+        option.value = member.id;
+        option.textContent =
+          `${memberDisplayName(profile)} (${roleLabel(member.role)})`;
+        option.selected = member.id === previousSelection;
+        ownershipTargetSelect.append(option);
+      }
 
-      const rightProfile =
-        currentMemberProfiles.get(right.id);
-
-      return memberDisplayName(leftProfile).localeCompare(
-        memberDisplayName(rightProfile),
-        "de",
+      const hasTransferTarget = possibleOwners.length > 0;
+      ownershipTargetSelect.disabled = !hasTransferTarget;
+      transferOwnershipButton.disabled = !hasTransferTarget;
+      transferOwnershipButton.classList.toggle(
+        "unavailable",
+        !hasTransferTarget
       );
-    });
 
-  for (const member of possibleOwners) {
-    const profile =
-      currentMemberProfiles.get(member.id) || {};
+      const activeMembers = [...currentMembers.values()]
+        .filter((member) => member.status === "active");
 
-    const option =
-      document.createElement("option");
+      const otherActiveMemberExists = activeMembers.some(
+        (member) => member.id !== currentUser.uid
+      );
 
-    option.value = member.id;
-    option.textContent =
-      `${memberDisplayName(profile)} ` +
-      `(${roleLabel(member.role)})`;
+      const storedMemberCount = Number(
+        currentCompany.activeMemberCount || 0
+      );
+      const invitationsLoaded = currentActiveInvitationCount !== null;
+      const hasActiveInvitations =
+        currentActiveInvitationCount !== null &&
+        currentActiveInvitationCount > 0;
 
-    option.selected =
-      member.id === previousSelection;
+      const canDeleteCompany =
+        invitationsLoaded &&
+        storedMemberCount === 1 &&
+        !otherActiveMemberExists &&
+        !hasActiveInvitations;
 
-    ownershipTargetSelect.append(option);
-  }
+      deleteCompanyButton.disabled = !canDeleteCompany;
+      deleteCompanyButton.classList.toggle(
+        "unavailable",
+        !canDeleteCompany
+      );
 
-  const hasTransferTarget =
-    possibleOwners.length > 0;
-
-  ownershipTargetSelect.disabled =
-    !hasTransferTarget;
-
-  transferOwnershipButton.disabled =
-    !hasTransferTarget;
-
-  transferOwnershipButton.classList.toggle(
-    "unavailable",
-    !hasTransferTarget,
-  );
-
-  const activeMembers = [...currentMembers.values()]
-    .filter((member) => member.status === "active");
-
-  const otherActiveMemberExists =
-    activeMembers.some(
-      (member) => member.id !== currentUser.uid,
-    );
-
-  const storedMemberCount =
-    Number(currentCompany.activeMemberCount || 0);
-
-  const invitationsLoaded =
-    currentActiveInvitationCount !== null;
-
-  const hasActiveInvitations =
-    currentActiveInvitationCount !== null &&
-    currentActiveInvitationCount > 0;
-
-  const canDeleteCompany =
-    invitationsLoaded &&
-    storedMemberCount === 1 &&
-    !otherActiveMemberExists &&
-    !hasActiveInvitations;
-
-  deleteCompanyButton.disabled =
-    !canDeleteCompany;
-
-  deleteCompanyButton.classList.toggle(
-    "unavailable",
-    !canDeleteCompany,
-  );
-
-  if (!invitationsLoaded) {
-    deleteCompanyDescription.textContent =
-      "Die offenen Einladungen werden geprüft.";
-  } else if (
-    storedMemberCount !== 1 ||
-    otherActiveMemberExists
-  ) {
-    deleteCompanyDescription.textContent =
-      "Entferne zuerst alle anderen Firmenmitglieder.";
-  } else if (hasActiveInvitations) {
-    deleteCompanyDescription.textContent =
-      "Ziehe zuerst alle gültigen offenen Einladungen zurück.";
-  } else {
-    deleteCompanyDescription.textContent =
-      "Du bist das einzige Mitglied und es bestehen keine " +
-      "gültigen offenen Einladungen. Die Firma kann gelöscht werden.";
-  }
-}
+      if (!invitationsLoaded) {
+        deleteCompanyDescription.textContent =
+          "Vérification des invitations en cours.";
+      } else if (storedMemberCount !== 1 || otherActiveMemberExists) {
+        deleteCompanyDescription.textContent =
+          "Supprimez d’abord tous les autres membres de l’entreprise.";
+      } else if (hasActiveInvitations) {
+        deleteCompanyDescription.textContent =
+          "Retirez d’abord toutes les invitations valides en attente.";
+      } else {
+        deleteCompanyDescription.textContent =
+          "Vous êtes l’unique membre et aucune invitation valide n’est en attente. L’entreprise peut être supprimée.";
+      }
+    }
 
     function createProfileField({label, name, value, maxLength, multiline}) {
       const group = document.createElement("div");
@@ -1860,7 +1849,7 @@
       if (members.length === 0) {
         const emptyMessage = document.createElement("p");
         emptyMessage.className = "empty-state";
-        emptyMessage.textContent = "Keine aktiven Mitglieder gefunden.";
+        emptyMessage.textContent = "Aucun membre actif trouvé.";
         memberList.append(emptyMessage);
         return;
       }
@@ -1888,7 +1877,7 @@
 
       const email = document.createElement("p");
       email.className = "member-email";
-      email.textContent = profile.email || "Keine E-Mail-Adresse hinterlegt";
+      email.textContent = profile.email || "Aucune adresse e-mail enregistrée";
 
       const details = document.createElement("p");
       details.className = "member-details";
@@ -1896,7 +1885,7 @@
         .filter((value) => typeof value === "string" && value.trim());
       details.textContent = detailParts.length > 0
         ? detailParts.join(" · ")
-        : "Noch keine Anstellungs- oder Abteilungsangaben";
+        : "Aucune information d’emploi ou de service pour le moment";
 
       card.append(heading, email, details);
 
@@ -1919,7 +1908,7 @@
 
         const saveRoleButton = document.createElement("button");
         saveRoleButton.type = "button";
-        saveRoleButton.textContent = "Rolle speichern";
+        saveRoleButton.textContent = "Enregistrer le rôle";
         saveRoleButton.addEventListener("click", () => {
           handleRoleUpdate(member.id, roleSelect.value, saveRoleButton);
         });
@@ -1927,7 +1916,7 @@
         const removeButton = document.createElement("button");
         removeButton.type = "button";
         removeButton.className = "danger-button";
-        removeButton.textContent = "Mitglied entfernen";
+        removeButton.textContent = "Retirer le membre";
         removeButton.addEventListener("click", () => {
           handleRemoveMember(member.id, memberDisplayName(profile), removeButton);
         });
@@ -1940,37 +1929,37 @@
       profileDetails.className = "profile-details";
 
       const summary = document.createElement("summary");
-      summary.textContent = "Administrative Mitgliederdaten bearbeiten";
+      summary.textContent = "Modifier les données administratives du membre";
 
       const form = document.createElement("form");
       form.className = "profile-form";
       form.append(
         createProfileField({
-          label: "Vorname",
+          label: "Prénom",
           name: "firstName",
           value: profile.firstName,
           maxLength: 80
         }),
         createProfileField({
-          label: "Nachname",
+          label: "Nom",
           name: "lastName",
           value: profile.lastName,
           maxLength: 80
         }),
         createProfileField({
-          label: "Abteilung",
+          label: "Service",
           name: "department",
           value: profile.department,
           maxLength: 120
         }),
         createProfileField({
-          label: "Anstellungsstatus / Lehrjahr",
+          label: "Statut d’emploi / année d’apprentissage",
           name: "employmentStatus",
           value: profile.employmentStatus,
           maxLength: 120
         }),
         createProfileField({
-          label: "Notizen",
+          label: "Notes",
           name: "notes",
           value: profile.notes,
           maxLength: 2000,
@@ -1981,7 +1970,7 @@
       const saveProfileButton = document.createElement("button");
       saveProfileButton.type = "submit";
       saveProfileButton.className = "full-width";
-      saveProfileButton.textContent = "Mitgliederdaten speichern";
+      saveProfileButton.textContent = "Enregistrer les données du membre";
       form.append(saveProfileButton);
 
       form.addEventListener("submit", (event) => {
@@ -1995,7 +1984,7 @@
     }
 
     async function handleRoleUpdate(targetUid, role, button) {
-      if (!window.confirm(`Rolle wirklich zu ${roleLabel(role)} ändern?`)) {
+      if (!window.confirm(`Voulez-vous vraiment changer le rôle en ${roleLabel(role)} ?`)) {
         return;
       }
 
@@ -2003,7 +1992,7 @@
 
       try {
         await updateMemberRoleCall({targetUid, role});
-        setStatus("Die Mitgliederrolle wurde aktualisiert.");
+        setStatus("Le rôle du membre a été mis à jour.");
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
         button.disabled = false;
@@ -2011,7 +2000,7 @@
     }
 
     async function handleRemoveMember(targetUid, displayName, button) {
-      if (!window.confirm(`${displayName} wirklich aus der Firma entfernen?`)) {
+      if (!window.confirm(`Voulez-vous vraiment retirer ${displayName} de l’entreprise ?`)) {
         return;
       }
 
@@ -2019,7 +2008,7 @@
 
       try {
         await removeMemberCall({targetUid});
-        setStatus("Das Mitglied wurde aus der Firma entfernt.");
+        setStatus("Le membre a été retiré de l’entreprise.");
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
         button.disabled = false;
@@ -2040,7 +2029,7 @@
 
       try {
         await updateMemberAdminDataCall({memberUid, profile});
-        setStatus("Die Mitgliederdaten wurden gespeichert.");
+        setStatus("Les données du membre ont été enregistrées.");
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
         button.disabled = false;
@@ -2056,7 +2045,7 @@
 
       if (name.length < 2 || name.length > 80) {
         setStatus(
-          "Der Firmenname muss zwischen 2 und 80 Zeichen lang sein.",
+          "Le nom de l’entreprise doit comporter entre 2 et 80 caractères.",
           "error"
         );
         return;
@@ -2068,8 +2057,8 @@
         const result = await updateCompanyNameCall({name});
         setStatus(
           result.data?.changed === false
-            ? "Der Firmenname ist bereits aktuell."
-            : "Der Firmenname wurde aktualisiert."
+            ? "Le nom de l’entreprise est déjà à jour."
+            : "Le nom de l’entreprise a été mis à jour."
         );
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
@@ -2082,16 +2071,16 @@
       const targetUid = ownershipTargetSelect.value;
 
       if (!targetUid) {
-        setStatus("Bitte wähle einen neuen Inhaber.", "error");
+        setStatus("Veuillez sélectionner un nouveau propriétaire.", "error");
         return;
       }
 
       const targetName = ownershipTargetSelect
-        .selectedOptions[0]?.textContent || "dieses Mitglied";
+        .selectedOptions[0]?.textContent || "ce membre";
 
       const confirmed = window.confirm(
-        `Inhaberrechte wirklich an ${targetName} übertragen?\n\n` +
-        "Du wirst danach Administrator und kannst die Übertragung nicht selbst rückgängig machen."
+        `Voulez-vous vraiment transférer la propriété à ${targetName} ?\n\n` +
+        "Vous deviendrez ensuite administrateur et ne pourrez pas annuler vous-même le transfert."
       );
 
       if (!confirmed) {
@@ -2102,7 +2091,7 @@
 
       try {
         await transferOwnershipCall({targetUid});
-        setStatus("Die Inhaberrechte wurden erfolgreich übertragen.");
+        setStatus("La propriété a été transférée avec succès.");
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
         transferOwnershipButton.disabled = false;
@@ -2111,9 +2100,9 @@
 
     leaveCompanyButton.addEventListener("click", async () => {
       const confirmed = window.confirm(
-        "Firma wirklich verlassen?\n\n" +
-        "Du verlierst den Zugriff auf alle Firmenmaschinen und Firmenwerkzeuge. " +
-        "Deine privaten Maschinen bleiben erhalten."
+        "Voulez-vous vraiment quitter l’entreprise ?\n\n" +
+        "Vous perdrez l’accès à toutes les machines et à tous les outils de l’entreprise. " +
+        "Vos machines privées restent inchangées."
       );
 
       if (!confirmed) {
@@ -2128,110 +2117,78 @@
         stopCompanyListeners();
         showNoCompanyState();
         leaveCompanyButton.disabled = false;
-        setStatus("Du hast die Firma erfolgreich verlassen.");
+        setStatus("Vous avez quitté l’entreprise avec succès.");
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
         leaveCompanyButton.disabled = false;
       }
     });
 
-deleteCompanyButton.addEventListener(
-  "click",
-  async () => {
-    if (
-      !currentCompany ||
-      !currentMembership ||
-      !currentUser
-    ) {
-      setStatus(
-        "Die Firmendaten wurden noch nicht vollständig geladen.",
-        "error",
-      );
-      return;
-    }
+    deleteCompanyButton.addEventListener("click", async () => {
+      if (!currentCompany || !currentMembership || !currentUser) {
+        setStatus("Les données de l’entreprise ne sont pas encore entièrement chargées.", "error");
+        return;
+      }
 
-    const isOwner =
-      currentMembership.role === "owner" &&
-      currentCompany.ownerUid === currentUser.uid;
+      const isOwner = currentMembership.role === "owner" &&
+        currentCompany.ownerUid === currentUser.uid;
 
-    if (!isOwner) {
-      setStatus(
-        "Nur der Inhaber darf die Firma löschen.",
-        "error",
-      );
-      return;
-    }
+      if (!isOwner) {
+        setStatus("Seul le propriétaire peut supprimer l’entreprise.", "error");
+        return;
+      }
 
-    const companyName =
-      String(currentCompany.name || "").trim();
-
-    const confirmed = window.confirm(
-      `Firma „${companyName}“ wirklich löschen?\n\n` +
-      "Alle Firmenmaschinen, Werkzeuglisten, " +
-      "Mitgliederdaten und Einladungen werden " +
-      "unwiderruflich gelöscht.\n\n" +
-      "Dein persönlicher Account und deine privaten " +
-      "Maschinen bleiben erhalten.",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    const enteredCompanyName = window.prompt(
-      "Gib zur Bestätigung den vollständigen " +
-      "Firmennamen ein:",
-      "",
-    );
-
-    if (enteredCompanyName === null) {
-      return;
-    }
-
-    if (enteredCompanyName.trim() !== companyName) {
-      setStatus(
-        "Der eingegebene Firmenname stimmt nicht überein.",
-        "error",
-        7000,
-      );
-      return;
-    }
-
-    deleteCompanyButton.disabled = true;
-
-    try {
-      await deleteCompanyCall();
-
-      currentCompanyId = null;
-      stopCompanyListeners();
-      showNoCompanyState();
-
-      setStatus(
-        `Die Firma „${companyName}“ wurde vollständig gelöscht.`,
-      );
-    } catch (error) {
-      setStatus(
-        mapFunctionError(error),
-        "error",
-        7000,
+      const companyName = String(currentCompany.name || "").trim();
+      const confirmed = window.confirm(
+        `Voulez-vous vraiment supprimer l’entreprise « ${companyName} » ?\n\n` +
+        "Toutes les machines de l’entreprise, les listes d’outils, les données des membres et les invitations seront définitivement supprimées.\n\nVotre compte personnel et vos machines privées restent inchangés."
       );
 
-      renderCompanySettings();
-    }
-  },
-);
+      if (!confirmed) {
+        return;
+      }
+
+      const enteredCompanyName = window.prompt(
+        "Pour confirmer, saisissez le nom complet de l’entreprise :",
+        ""
+      );
+
+      if (enteredCompanyName === null) {
+        return;
+      }
+
+      if (enteredCompanyName.trim() !== companyName) {
+        setStatus("Le nom de l’entreprise saisi ne correspond pas.", "error", 7000);
+        return;
+      }
+
+      deleteCompanyButton.disabled = true;
+
+      try {
+        await deleteCompanyCall();
+        currentCompanyId = null;
+        stopCompanyListeners();
+        showNoCompanyState();
+        setStatus(
+          `L’entreprise « ${companyName} » a été entièrement supprimée.`
+        );
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+        renderCompanySettings();
+      }
+    });
 
     importMachinesButton.addEventListener("click", async () => {
       const machineIds = [...selectedPrivateMachineIds];
 
       if (machineIds.length === 0) {
-        setStatus("Bitte wähle mindestens eine Maschine aus.", "error");
+        setStatus("Veuillez sélectionner au moins une machine.", "error");
         return;
       }
 
       const confirmed = window.confirm(
-        `${machineIds.length} Maschine(n) inklusive Werkzeuglisten ` +
-        "in die Firma kopieren?\n\nDie privaten Originale bleiben erhalten."
+        `${machineIds.length} machine(s), listes d’outils comprises, ` +
+        "copier dans l’entreprise ?\n\nLes originaux privés restent inchangés."
       );
 
       if (!confirmed) {
@@ -2252,10 +2209,10 @@ deleteCompanyButton.addEventListener(
         dismissMachineImportNotice();
 
         const skippedText = skippedCount > 0
-          ? ` ${skippedCount} bereits vorhandene Maschine(n) wurden übersprungen.`
+          ? ` ${skippedCount} machine(s) existante(s) ont été ignorées.`
           : "";
         setStatus(
-          `${importedCount} Maschine(n) wurden kopiert.${skippedText}`,
+          `${importedCount} machine(s) ont été copiée(s).${skippedText}`,
           "success",
           7000
         );
@@ -2277,85 +2234,65 @@ deleteCompanyButton.addEventListener(
     function invitationStatusLabel(status) {
       switch (status) {
         case "pending":
-          return "Ausstehend";
+          return "En attente";
         case "accepted":
-          return "Angenommen";
+          return "Acceptée";
         case "declined":
-          return "Abgelehnt";
+          return "Refusée";
         case "expired":
-          return "Abgelaufen";
+          return "Expirée";
         case "withdrawn":
-          return "Zurückgezogen";
+          return "Retirée";
         case "invalidated":
-          return "Automatisch ungültig";
+          return "Invalidée automatiquement";
         default:
-          return "Unbekannter Status";
+          return "Statut inconnu";
       }
     }
 
     function renderSentInvitations(documents) {
-  const now = Date.now();
+      const now = Date.now();
+      const invitations = [...documents]
+        .map((invitation) => {
+          const data = invitation.data();
+          const expiresAtMilliseconds = data.expiresAt?.toMillis?.() || 0;
+          const effectiveStatus = data.status === "pending" &&
+            expiresAtMilliseconds <= now
+            ? "expired"
+            : data.status;
 
-  const invitations = [...documents]
-    .map((invitation) => {
-      const data = invitation.data();
+          return {invitation, data, effectiveStatus};
+        })
+        .sort((left, right) => {
+          const leftTime = left.data.createdAt?.toMillis?.() || 0;
+          const rightTime = right.data.createdAt?.toMillis?.() || 0;
+          return rightTime - leftTime;
+        });
 
-      const expiresAtMilliseconds =
-        data.expiresAt?.toMillis?.() || 0;
+      const activeInvitations = invitations.filter(
+        (item) => item.effectiveStatus === "pending"
+      );
+      const invitationHistory = invitations.filter(
+        (item) => item.effectiveStatus !== "pending"
+      );
 
-      const effectiveStatus =
-        data.status === "pending" &&
-        expiresAtMilliseconds <= now
-          ? "expired"
-          : data.status;
+      currentActiveInvitationCount = activeInvitations.length;
+      activeInvitationCount.textContent = `(${activeInvitations.length})`;
+      invitationHistoryCount.textContent = `(${invitationHistory.length})`;
 
-      return {
-        invitation,
-        data,
-        effectiveStatus,
-      };
-    })
-    .sort((left, right) => {
-      const leftTime =
-        left.data.createdAt?.toMillis?.() || 0;
+      renderInvitationGroup(
+        activeSentInvitationList,
+        activeInvitations,
+        "Aucune invitation actuelle."
+      );
+      renderInvitationGroup(
+        invitationHistoryList,
+        invitationHistory,
+        "Aucun historique d’invitations pour le moment."
+      );
 
-      const rightTime =
-        right.data.createdAt?.toMillis?.() || 0;
-
-      return rightTime - leftTime;
-    });
-
-  const activeInvitations = invitations.filter(
-    (item) => item.effectiveStatus === "pending",
-  );
-
-  const invitationHistory = invitations.filter(
-    (item) => item.effectiveStatus !== "pending",
-  );
-
-  currentActiveInvitationCount =
-    activeInvitations.length;
-
-  activeInvitationCount.textContent =
-    `(${activeInvitations.length})`;
-
-  invitationHistoryCount.textContent =
-    `(${invitationHistory.length})`;
-
-  renderInvitationGroup(
-    activeSentInvitationList,
-    activeInvitations,
-    "Keine aktuellen Einladungen vorhanden.",
-  );
-
-  renderInvitationGroup(
-    invitationHistoryList,
-    invitationHistory,
-    "Noch kein Einladungsverlauf vorhanden.",
-  );
-
-  renderCompanySettings();
-}
+      renderCompanySettings();
+    }
 
     function renderInvitationGroup(container, invitations, emptyText) {
       container.replaceChildren();
@@ -2374,15 +2311,15 @@ deleteCompanyButton.addEventListener(
         card.className = "invitation-card";
 
         const title = document.createElement("h3");
-        title.textContent = data.invitedEmail || "Unbekannte E-Mail-Adresse";
+        title.textContent = data.invitedEmail || "Adresse e-mail inconnue";
 
         const role = document.createElement("p");
         role.className = "invitation-meta";
-        role.textContent = `Rolle: ${roleLabel(data.role)}`;
+        role.textContent = `Rôle : ${roleLabel(data.role)}`;
 
         const expiry = document.createElement("p");
         expiry.className = "invitation-meta";
-        expiry.textContent = `Gültig bis: ${formatDate(data.expiresAt)}`;
+        expiry.textContent = `Valable jusqu’au : ${formatDate(data.expiresAt)}`;
 
         const status = document.createElement("span");
         status.className = `invitation-state ${effectiveStatus || "unknown"}`;
@@ -2396,7 +2333,7 @@ deleteCompanyButton.addEventListener(
           withdrawButton.className = "danger-button";
           withdrawButton.style.display = "block";
           withdrawButton.style.marginTop = "12px";
-          withdrawButton.textContent = "Einladung zurückziehen";
+          withdrawButton.textContent = "Retirer l’invitation";
 
           const callerIsAdmin = currentMembership?.role === "admin";
           const invitationIsAdmin = data.role === "admin";
@@ -2404,7 +2341,7 @@ deleteCompanyButton.addEventListener(
           if (callerIsAdmin && invitationIsAdmin) {
             withdrawButton.disabled = true;
             withdrawButton.classList.add("unavailable");
-            withdrawButton.title = "Administrator-Einladungen verwaltet nur der Inhaber.";
+            withdrawButton.title = "Seul le propriétaire peut gérer les invitations d’administrateurs.";
           } else {
             withdrawButton.addEventListener("click", () => {
               handleWithdrawInvitation(invitation.id, withdrawButton);
@@ -2421,7 +2358,7 @@ deleteCompanyButton.addEventListener(
     }
 
     async function handleWithdrawInvitation(invitationId, button) {
-      if (!window.confirm("Möchtest du diese Einladung zurückziehen?")) {
+      if (!window.confirm("Voulez-vous retirer cette invitation ?")) {
         return;
       }
 
@@ -2429,7 +2366,7 @@ deleteCompanyButton.addEventListener(
 
       try {
         await withdrawInvitationCall({invitationId});
-        setStatus("Die Einladung wurde zurückgezogen.");
+        setStatus("L’invitation a été retirée.");
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
         button.disabled = false;
@@ -2444,7 +2381,7 @@ deleteCompanyButton.addEventListener(
         doc(db, "companies", companyId),
         (snapshot) => {
           if (!snapshot.exists()) {
-            setStatus("Die Firma wurde nicht gefunden.", "error");
+            setStatus("L’entreprise n’a pas été trouvée.", "error");
             return;
           }
 
@@ -2458,7 +2395,7 @@ deleteCompanyButton.addEventListener(
         doc(db, "companies", companyId, "members", currentUser.uid),
         (snapshot) => {
           if (!snapshot.exists()) {
-            setStatus("Die Firmenmitgliedschaft wurde nicht gefunden.", "error");
+            setStatus("L’adhésion à l’entreprise n’a pas été trouvée.", "error");
             return;
           }
 
@@ -2493,22 +2430,22 @@ deleteCompanyButton.addEventListener(
         card.className = "invitation-card";
 
         const title = document.createElement("h3");
-        title.textContent = data.companyName || "Firmeneinladung";
+        title.textContent = data.companyName || "Invitation d’entreprise";
 
         const role = document.createElement("p");
         role.className = "invitation-meta";
-        role.textContent = `Vorgesehene Rolle: ${roleLabel(data.role)}`;
+        role.textContent = `Rôle prévu : ${roleLabel(data.role)}`;
 
         const expiry = document.createElement("p");
         expiry.className = "invitation-meta";
-        expiry.textContent = `Gültig bis: ${formatDate(data.expiresAt)}`;
+        expiry.textContent = `Valable jusqu’au : ${formatDate(data.expiresAt)}`;
 
         const buttons = document.createElement("div");
         buttons.className = "button-row";
 
         const acceptButton = document.createElement("button");
         acceptButton.type = "button";
-        acceptButton.textContent = "Einladung annehmen";
+        acceptButton.textContent = "Accepter l’invitation";
         acceptButton.addEventListener("click", () => {
           handleInvitationAction("accept", invitation.id, acceptButton);
         });
@@ -2516,7 +2453,7 @@ deleteCompanyButton.addEventListener(
         const declineButton = document.createElement("button");
         declineButton.type = "button";
         declineButton.className = "button-secondary";
-        declineButton.textContent = "Ablehnen";
+        declineButton.textContent = "Refuser";
         declineButton.addEventListener("click", () => {
           handleInvitationAction("decline", invitation.id, declineButton);
         });
@@ -2550,8 +2487,8 @@ deleteCompanyButton.addEventListener(
     async function handleInvitationAction(action, invitationId, button) {
       const isAccept = action === "accept";
       const message = isAccept
-        ? "Möchtest du dieser Firma wirklich beitreten?"
-        : "Möchtest du diese Einladung wirklich ablehnen?";
+        ? "Voulez-vous vraiment rejoindre cette entreprise ?"
+        : "Voulez-vous vraiment refuser cette invitation ?";
 
       if (!window.confirm(message)) {
         return;
@@ -2562,10 +2499,10 @@ deleteCompanyButton.addEventListener(
       try {
         if (isAccept) {
           await acceptInvitationCall({invitationId});
-          setStatus("Du bist der Firma erfolgreich beigetreten.");
+          setStatus("Vous avez rejoint l’entreprise avec succès.");
         } else {
           await declineInvitationCall({invitationId});
-          setStatus("Die Einladung wurde abgelehnt.");
+          setStatus("L’invitation a été refusée.");
         }
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
@@ -2581,7 +2518,7 @@ deleteCompanyButton.addEventListener(
 
       if (name.length < 2 || name.length > 80) {
         setStatus(
-          "Der Firmenname muss zwischen 2 und 80 Zeichen lang sein.",
+          "Le nom de l’entreprise doit comporter entre 2 et 80 caractères.",
           "error"
         );
         return;
@@ -2592,7 +2529,7 @@ deleteCompanyButton.addEventListener(
       try {
         await createCompanyCall({name});
         createCompanyForm.reset();
-        setStatus("Die Firma wurde erfolgreich erstellt.");
+        setStatus("L’entreprise a été créée avec succès.");
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
       } finally {
@@ -2607,12 +2544,12 @@ deleteCompanyButton.addEventListener(
       const role = inviteRoleSelect.value;
 
       if (!email) {
-        setStatus("Bitte gib eine E-Mail-Adresse ein.", "error");
+        setStatus("Veuillez saisir une adresse e-mail.", "error");
         return;
       }
 
       if (!["admin", "editor", "viewer"].includes(role)) {
-        setStatus("Bitte wähle eine gültige Rolle.", "error");
+        setStatus("Veuillez sélectionner un rôle valide.", "error");
         return;
       }
 
@@ -2626,7 +2563,7 @@ deleteCompanyButton.addEventListener(
           inviteRoleSelect.value = "editor";
         }
 
-        setStatus("Die Einladung wurde erfolgreich erstellt.");
+        setStatus("L’invitation a été créée avec succès.");
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
       } finally {
@@ -2647,7 +2584,7 @@ deleteCompanyButton.addEventListener(
     refreshButton.addEventListener("click", () => {
       if (currentCompanyId) {
         startCompanyListeners(currentCompanyId);
-        setStatus("Die Firmenansicht wurde aktualisiert.");
+        setStatus("L’affichage de l’entreprise a été actualisé.");
       }
     });
 
@@ -2670,7 +2607,7 @@ deleteCompanyButton.addEventListener(
         (snapshot) => {
           if (!snapshot.exists()) {
             loadingPanel.classList.add("hidden");
-            setStatus("Das Benutzerprofil wurde nicht gefunden.", "error");
+            setStatus("Le profil utilisateur n’a pas été trouvé.", "error");
             return;
           }
 
