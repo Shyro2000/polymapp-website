@@ -263,6 +263,60 @@
       font-size: 0.95rem;
     }
 
+    .invitation-state {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: bold;
+      background: #666;
+    }
+
+    .invitation-state.pending {
+      background: #1769aa;
+    }
+
+    .invitation-state.accepted {
+      background: #287437;
+    }
+
+    .invitation-state.declined,
+    .invitation-state.withdrawn,
+    .invitation-state.invalidated,
+    .invitation-state.expired {
+      background: #686868;
+    }
+
+    .action-notice strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1.05rem;
+    }
+
+    .action-notice p {
+      margin: 0;
+    }
+
+    .list-section-heading {
+      margin: 20px 0 10px;
+      padding-top: 16px;
+      border-top: 1px solid #e1e1e1;
+    }
+
+    .list-section-heading:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .entry-count {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: normal;
+    }
+
     .management-area {
       margin-top: 24px;
       padding-top: 22px;
@@ -392,9 +446,8 @@
     .machine-list {
       display: grid;
       gap: 10px;
-      max-height: 380px;
       padding-right: 4px;
-      overflow-y: auto;
+      overflow-y: visible;
     }
 
     .machine-choice,
@@ -659,6 +712,26 @@
       </p>
 
       <div id="managementPanel" class="management-area hidden">
+        <div id="machineImportNotice" class="notice action-notice hidden">
+          <strong>Private Maschinen in die Firma übernehmen?</strong>
+          <p>
+            Du hast private Maschinen, die noch nicht in diese Firma kopiert
+            wurden. Die privaten Originale bleiben dabei erhalten.
+          </p>
+          <div class="button-row">
+            <button id="showMachineImportButton" type="button">
+              Maschinen auswählen
+            </button>
+            <button
+              id="dismissMachineImportButton"
+              type="button"
+              class="button-secondary"
+            >
+              Später
+            </button>
+          </div>
+        </div>
+
         <h3>Einladungen verwalten</h3>
         <p id="managementDescription" class="empty-state"></p>
 
@@ -694,14 +767,29 @@
           </div>
 
           <div class="management-card">
-            <h3>Versendete Einladungen</h3>
-            <div id="sentInvitationList" class="invitation-list">
-              <p class="empty-state">Offene Einladungen werden geladen …</p>
+            <h3 class="list-section-heading">
+              Aktuelle Einladungen
+              <span id="activeInvitationCount" class="entry-count"></span>
+            </h3>
+            <div id="activeSentInvitationList" class="invitation-list">
+              <p class="empty-state">Aktuelle Einladungen werden geladen …</p>
+            </div>
+
+            <h3 class="list-section-heading">
+              Verlauf
+              <span id="invitationHistoryCount" class="entry-count"></span>
+            </h3>
+            <div id="invitationHistoryList" class="invitation-list">
+              <p class="empty-state">Einladungsverlauf wird geladen …</p>
             </div>
           </div>
         </div>
 
-        <div class="management-card" style="margin-top: 18px;">
+        <div
+          id="machineImportSection"
+          class="management-card"
+          style="margin-top: 18px;"
+        >
           <h3>Mitglieder</h3>
           <div id="memberList" class="member-list">
             <p class="empty-state">Mitglieder werden geladen …</p>
@@ -960,7 +1048,18 @@
     const inviteRoleSelect = document.getElementById("inviteRoleSelect");
     const inviteAdminOption = document.getElementById("inviteAdminOption");
     const inviteMemberButton = document.getElementById("inviteMemberButton");
-    const sentInvitationList = document.getElementById("sentInvitationList");
+    const activeSentInvitationList = document.getElementById(
+      "activeSentInvitationList"
+    );
+    const invitationHistoryList = document.getElementById(
+      "invitationHistoryList"
+    );
+    const activeInvitationCount = document.getElementById(
+      "activeInvitationCount"
+    );
+    const invitationHistoryCount = document.getElementById(
+      "invitationHistoryCount"
+    );
     const memberList = document.getElementById("memberList");
     const ownerSettings = document.getElementById("ownerSettings");
     const memberExitPanel = document.getElementById("memberExitPanel");
@@ -990,6 +1089,14 @@
     );
     const importMachinesButton = document.getElementById(
       "importMachinesButton"
+    );
+    const machineImportNotice = document.getElementById("machineImportNotice");
+    const machineImportSection = document.getElementById("machineImportSection");
+    const showMachineImportButton = document.getElementById(
+      "showMachineImportButton"
+    );
+    const dismissMachineImportButton = document.getElementById(
+      "dismissMachineImportButton"
     );
 
     let currentUser = null;
@@ -1233,8 +1340,7 @@
 
       const sentInvitationQuery = query(
         collection(db, "companyInvitations"),
-        where("companyId", "==", companyId),
-        where("status", "==", "pending")
+        where("companyId", "==", companyId)
       );
 
       unsubscribeCompanyInvitations = onSnapshot(
@@ -1318,6 +1424,29 @@
         .join(" · ");
     }
 
+    function limitVisibleItems(container, visibleItemCount) {
+      window.requestAnimationFrame(() => {
+        const items = [...container.children];
+
+        if (items.length <= visibleItemCount) {
+          container.style.maxHeight = "none";
+          container.style.overflowY = "visible";
+          return;
+        }
+
+        const visibleItems = items.slice(0, visibleItemCount);
+        const styles = window.getComputedStyle(container);
+        const gap = Number.parseFloat(styles.rowGap || styles.gap) || 0;
+        const height = visibleItems.reduce(
+          (total, item) => total + item.getBoundingClientRect().height,
+          gap * (visibleItemCount - 1)
+        );
+
+        container.style.maxHeight = `${Math.ceil(height)}px`;
+        container.style.overflowY = "auto";
+      });
+    }
+
     function renderMachineImport() {
       if (!currentUser || !currentMembership) {
         return;
@@ -1331,6 +1460,11 @@
           )
           .map((machine) => machine.sourceMachineId)
       );
+
+      const unimportedMachineCount = [...currentPrivateMachines.values()]
+        .filter((machine) => !importedSourceIds.has(machine.id))
+        .length;
+      updateMachineImportNotice(unimportedMachineCount);
 
       for (const machineId of [...selectedPrivateMachineIds]) {
         if (
@@ -1434,6 +1568,8 @@
         }
       }
 
+      limitVisibleItems(privateMachineList, 4);
+      limitVisibleItems(companyMachineList, 4);
       updateMachineImportButton();
     }
 
@@ -1443,6 +1579,43 @@
         `${selectedCount} von maximal 20 ausgewählt`;
       importMachinesButton.disabled = selectedCount === 0;
       importMachinesButton.classList.toggle("unavailable", selectedCount === 0);
+    }
+
+    function machineImportNoticeKey() {
+      const joinedAt = currentMembership?.joinedAt?.toMillis?.() || "unknown";
+      return [
+        "polymapp-machine-import-notice",
+        currentUser?.uid || "user",
+        currentCompanyId || "company",
+        joinedAt
+      ].join(":");
+    }
+
+    function isMachineImportNoticeDismissed() {
+      try {
+        return window.localStorage.getItem(machineImportNoticeKey()) === "1";
+      } catch {
+        return false;
+      }
+    }
+
+    function dismissMachineImportNotice() {
+      try {
+        window.localStorage.setItem(machineImportNoticeKey(), "1");
+      } catch {
+        // Der Import bleibt auch ohne lokalen Speicher vollständig nutzbar.
+      }
+      machineImportNotice.classList.add("hidden");
+    }
+
+    function updateMachineImportNotice(unimportedMachineCount) {
+      const canImport = currentMembership?.role === "owner" ||
+        currentMembership?.role === "admin";
+      const shouldShow = canImport &&
+        unimportedMachineCount > 0 &&
+        !isMachineImportNoticeDismissed();
+
+      machineImportNotice.classList.toggle("hidden", !shouldShow);
     }
 
     function memberDisplayName(profile) {
@@ -1883,6 +2056,7 @@
 
         selectedPrivateMachineIds = new Set();
         updateMachineImportButton();
+        dismissMachineImportNotice();
 
         const skippedText = skippedCount > 0
           ? ` ${skippedCount} bereits vorhandene Maschine(n) wurden übersprungen.`
@@ -1898,31 +2072,88 @@
       }
     });
 
-    function renderSentInvitations(documents) {
-      sentInvitationList.replaceChildren();
+    showMachineImportButton.addEventListener("click", () => {
+      dismissMachineImportNotice();
+      machineImportSection.scrollIntoView({behavior: "smooth", block: "start"});
+    });
 
+    dismissMachineImportButton.addEventListener("click", () => {
+      dismissMachineImportNotice();
+    });
+
+    function invitationStatusLabel(status) {
+      switch (status) {
+        case "pending":
+          return "Ausstehend";
+        case "accepted":
+          return "Angenommen";
+        case "declined":
+          return "Abgelehnt";
+        case "expired":
+          return "Abgelaufen";
+        case "withdrawn":
+          return "Zurückgezogen";
+        case "invalidated":
+          return "Automatisch ungültig";
+        default:
+          return "Unbekannter Status";
+      }
+    }
+
+    function renderSentInvitations(documents) {
       const now = Date.now();
-      const invitations = documents
-        .filter((document) => {
-          const expiresAt = document.data().expiresAt?.toMillis?.() || 0;
-          return expiresAt > now;
+      const invitations = [...documents]
+        .map((invitation) => {
+          const data = invitation.data();
+          const expiresAtMilliseconds = data.expiresAt?.toMillis?.() || 0;
+          const effectiveStatus = data.status === "pending" &&
+            expiresAtMilliseconds <= now
+            ? "expired"
+            : data.status;
+
+          return {invitation, data, effectiveStatus};
         })
         .sort((left, right) => {
-          const leftTime = left.data().createdAt?.toMillis?.() || 0;
-          const rightTime = right.data().createdAt?.toMillis?.() || 0;
+          const leftTime = left.data.createdAt?.toMillis?.() || 0;
+          const rightTime = right.data.createdAt?.toMillis?.() || 0;
           return rightTime - leftTime;
         });
+
+      const activeInvitations = invitations.filter(
+        (item) => item.effectiveStatus === "pending"
+      );
+      const invitationHistory = invitations.filter(
+        (item) => item.effectiveStatus !== "pending"
+      );
+
+      activeInvitationCount.textContent = `(${activeInvitations.length})`;
+      invitationHistoryCount.textContent = `(${invitationHistory.length})`;
+
+      renderInvitationGroup(
+        activeSentInvitationList,
+        activeInvitations,
+        "Keine aktuellen Einladungen vorhanden."
+      );
+      renderInvitationGroup(
+        invitationHistoryList,
+        invitationHistory,
+        "Noch kein Einladungsverlauf vorhanden."
+      );
+    }
+
+    function renderInvitationGroup(container, invitations, emptyText) {
+      container.replaceChildren();
 
       if (invitations.length === 0) {
         const emptyMessage = document.createElement("p");
         emptyMessage.className = "empty-state";
-        emptyMessage.textContent = "Keine offenen Einladungen vorhanden.";
-        sentInvitationList.append(emptyMessage);
+        emptyMessage.textContent = emptyText;
+        container.append(emptyMessage);
         return;
       }
 
-      for (const invitation of invitations) {
-        const data = invitation.data();
+      for (const item of invitations) {
+        const {invitation, data, effectiveStatus} = item;
         const card = document.createElement("article");
         card.className = "invitation-card";
 
@@ -1937,26 +2168,40 @@
         expiry.className = "invitation-meta";
         expiry.textContent = `Gültig bis: ${formatDate(data.expiresAt)}`;
 
-        const withdrawButton = document.createElement("button");
-        withdrawButton.type = "button";
-        withdrawButton.className = "danger-button";
-        withdrawButton.textContent = "Einladung zurückziehen";
+        const status = document.createElement("span");
+        status.className = `invitation-state ${effectiveStatus || "unknown"}`;
+        status.textContent = invitationStatusLabel(effectiveStatus);
 
-        const callerIsAdmin = currentMembership?.role === "admin";
-        const invitationIsAdmin = data.role === "admin";
+        card.append(title, role, expiry, status);
 
-        if (callerIsAdmin && invitationIsAdmin) {
-          withdrawButton.disabled = true;
-          withdrawButton.title = "Admin-Einladungen verwaltet nur der Owner.";
-        } else {
-          withdrawButton.addEventListener("click", () => {
-            handleWithdrawInvitation(invitation.id, withdrawButton);
-          });
+        if (effectiveStatus === "pending") {
+          const withdrawButton = document.createElement("button");
+          withdrawButton.type = "button";
+          withdrawButton.className = "danger-button";
+          withdrawButton.style.display = "block";
+          withdrawButton.style.marginTop = "12px";
+          withdrawButton.textContent = "Einladung zurückziehen";
+
+          const callerIsAdmin = currentMembership?.role === "admin";
+          const invitationIsAdmin = data.role === "admin";
+
+          if (callerIsAdmin && invitationIsAdmin) {
+            withdrawButton.disabled = true;
+            withdrawButton.classList.add("unavailable");
+            withdrawButton.title = "Admin-Einladungen verwaltet nur der Owner.";
+          } else {
+            withdrawButton.addEventListener("click", () => {
+              handleWithdrawInvitation(invitation.id, withdrawButton);
+            });
+          }
+
+          card.append(withdrawButton);
         }
 
-        card.append(title, role, expiry, withdrawButton);
-        sentInvitationList.append(card);
+        container.append(card);
       }
+
+      limitVisibleItems(container, 3);
     }
 
     async function handleWithdrawInvitation(invitationId, button) {

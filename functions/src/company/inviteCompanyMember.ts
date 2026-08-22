@@ -165,13 +165,27 @@ export const inviteCompanyMember = onCall(async (request) => {
       .collection("companyInvitations")
       .doc(invitationId);
 
+    const existingMemberQuery = companyRef
+      .collection("memberAdminData")
+      .where("email", "==", email)
+      .limit(1);
+
     const pendingQuery = db
       .collection("companyInvitations")
       .where("companyId", "==", companyId)
       .where("status", "==", "pending");
 
+    const existingMemberSnapshot =
+      await transaction.get(existingMemberQuery);
     const pendingSnapshot =
       await transaction.get(pendingQuery);
+
+    if (!existingMemberSnapshot.empty) {
+      throw new HttpsError(
+        "already-exists",
+        "Diese Person ist bereits Mitglied dieser Firma.",
+      );
+    }
 
     const now = Timestamp.now();
     const nowMilliseconds = now.toMillis();
