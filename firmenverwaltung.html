@@ -950,7 +950,10 @@
     import {
       getAuth,
       connectAuthEmulator,
-      onAuthStateChanged
+      onAuthStateChanged,
+      sendEmailVerification,
+      reload,
+      getIdToken
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       initializeAppCheck,
@@ -1150,6 +1153,7 @@
     let selectedPrivateMachineIds = new Set();
     let currentActiveInvitationCount = null;
     let statusTimer = null;
+    let verificationEmailSent = false;
 
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -1163,9 +1167,69 @@
       }, duration);
     }
 
+    async function ensureEmailVerifiedForCompanyAction() {
+      const user = auth.currentUser;
+
+      if (!user || !user.email) {
+        setStatus("Bitte melde dich erneut an.", "error", 7000);
+        return false;
+      }
+
+      try {
+        await reload(user);
+
+        if (user.emailVerified) {
+          await getIdToken(user, true);
+          return true;
+        }
+
+        if (!verificationEmailSent) {
+          auth.languageCode = "de";
+          await sendEmailVerification(user);
+          verificationEmailSent = true;
+        }
+
+        setStatus(
+          `Eine Bestätigungs-E-Mail wurde an ${user.email} gesendet. ` +
+          "Öffne den Link und führe diese Aktion danach erneut aus.",
+          "error",
+          12000
+        );
+
+        return false;
+      } catch (error) {
+        if (error?.code === "auth/too-many-requests") {
+          setStatus(
+            "Es wurden zu viele Bestätigungs-E-Mails angefordert. " +
+            "Bitte warte einen Moment und versuche es erneut.",
+            "error",
+            10000
+          );
+        } else if (error?.code === "auth/network-request-failed") {
+          setStatus(
+            "Die Bestätigungs-E-Mail konnte wegen eines Verbindungsfehlers nicht versendet werden.",
+            "error",
+            10000
+          );
+        } else {
+          setStatus(
+            error?.message ||
+              "Die E-Mail-Verifizierung konnte nicht gestartet werden.",
+            "error",
+            10000
+          );
+        }
+
+        return false;
+      }
+    }
+
     function mapFunctionError(error) {
       const reason = error?.details?.reason;
 
+      if (reason === "email_not_verified") {
+        return "Bestätige zuerst deine E-Mail-Adresse.";
+      }
       if (reason === "recent_login_required") {
         return "Bitte melde dich erneut an.";
       }
@@ -1282,7 +1346,12 @@
     }
 
     function renderCompany() {
-      if (!currentCompany || !currentMembership) {
+      if (
+        !currentCompanyId ||
+        !currentCompany ||
+        !currentMembership
+      ) {
+        companyPanel.classList.add("hidden");
         return;
       }
 
@@ -2553,13 +2622,20 @@ deleteCompanyButton.addEventListener(
         ? "Möchtest du dieser Firma wirklich beitreten?"
         : "Möchtest du diese Einladung wirklich ablehnen?";
 
-      if (!window.confirm(message)) {
-        return;
-      }
-
       button.disabled = true;
 
       try {
+        const emailIsVerified =
+          await ensureEmailVerifiedForCompanyAction();
+
+        if (!emailIsVerified) {
+          return;
+        }
+
+        if (!window.confirm(message)) {
+          return;
+        }
+
         if (isAccept) {
           await acceptInvitationCall({invitationId});
           setStatus("Du bist der Firma erfolgreich beigetreten.");
@@ -2590,6 +2666,13 @@ deleteCompanyButton.addEventListener(
       createCompanyButton.disabled = true;
 
       try {
+        const emailIsVerified =
+          await ensureEmailVerifiedForCompanyAction();
+
+        if (!emailIsVerified) {
+          return;
+        }
+
         await createCompanyCall({name});
         createCompanyForm.reset();
         setStatus("Die Firma wurde erfolgreich erstellt.");
@@ -2653,6 +2736,7 @@ deleteCompanyButton.addEventListener(
 
     onAuthStateChanged(auth, (user) => {
       stopAllListeners();
+      verificationEmailSent = false;
       currentUser = user;
       currentCompanyId = null;
 

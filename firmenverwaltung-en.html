@@ -944,7 +944,10 @@
     import {
       getAuth,
       connectAuthEmulator,
-      onAuthStateChanged
+      onAuthStateChanged,
+      sendEmailVerification,
+      reload,
+      getIdToken
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       initializeAppCheck,
@@ -1148,6 +1151,7 @@
     let selectedPrivateMachineIds = new Set();
     let currentActiveInvitationCount = null;
     let statusTimer = null;
+    let verificationEmailSent = false;
 
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -1161,10 +1165,70 @@
       }, duration);
     }
 
+    async function ensureEmailVerifiedForCompanyAction() {
+      const user = auth.currentUser;
+
+      if (!user || !user.email) {
+        setStatus("Please sign in again.", "error", 7000);
+        return false;
+      }
+
+      try {
+        await reload(user);
+
+        if (user.emailVerified) {
+          await getIdToken(user, true);
+          return true;
+        }
+
+        if (!verificationEmailSent) {
+          auth.languageCode = "en";
+          await sendEmailVerification(user);
+          verificationEmailSent = true;
+        }
+
+        setStatus(
+          `A verification email was sent to ${user.email}. ` +
+          "Open the link and then perform this action again.",
+          "error",
+          12000
+        );
+
+        return false;
+      } catch (error) {
+        if (error?.code === "auth/too-many-requests") {
+          setStatus(
+            "Too many verification emails were requested. " +
+            "Please wait a moment and try again.",
+            "error",
+            10000
+          );
+        } else if (error?.code === "auth/network-request-failed") {
+          setStatus(
+            "The verification email could not be sent because of a connection error.",
+            "error",
+            10000
+          );
+        } else {
+          setStatus(
+            error?.message ||
+              "Email verification could not be started.",
+            "error",
+            10000
+          );
+        }
+
+        return false;
+      }
+    }
+
     function mapFunctionError(error) {
       const reason = error?.details?.reason;
       const serverMessage = String(error?.message || "");
 
+      if (reason === "email_not_verified") {
+        return "Verify your email address first.";
+      }
       if (reason === "recent_login_required") {
         return "Please sign in again.";
       }
@@ -1299,7 +1363,12 @@
     }
 
     function renderCompany() {
-      if (!currentCompany || !currentMembership) {
+      if (
+        !currentCompanyId ||
+        !currentCompany ||
+        !currentMembership
+      ) {
+        companyPanel.classList.add("hidden");
         return;
       }
 
@@ -2487,13 +2556,20 @@
         ? "Do you really want to join this company?"
         : "Do you really want to decline this invitation?";
 
-      if (!window.confirm(message)) {
-        return;
-      }
-
       button.disabled = true;
 
       try {
+        const emailIsVerified =
+          await ensureEmailVerifiedForCompanyAction();
+
+        if (!emailIsVerified) {
+          return;
+        }
+
+        if (!window.confirm(message)) {
+          return;
+        }
+
         if (isAccept) {
           await acceptInvitationCall({invitationId});
           setStatus("You have joined the company successfully.");
@@ -2524,6 +2600,13 @@
       createCompanyButton.disabled = true;
 
       try {
+        const emailIsVerified =
+          await ensureEmailVerifiedForCompanyAction();
+
+        if (!emailIsVerified) {
+          return;
+        }
+
         await createCompanyCall({name});
         createCompanyForm.reset();
         setStatus("The company has been created successfully.");
@@ -2587,6 +2670,7 @@
 
     onAuthStateChanged(auth, (user) => {
       stopAllListeners();
+      verificationEmailSent = false;
       currentUser = user;
       currentCompanyId = null;
 
