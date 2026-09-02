@@ -37,6 +37,7 @@ service cloud.firestore {
   "companyId",
   "companyJoinedAt",
   "companyMembershipUpdatedAt",
+  "companyFeatureAccess",
   "accountDeletionStatus",
   "accountDeletionCompanyId",
   "accountDeletionStartedAt"
@@ -48,6 +49,7 @@ service cloud.firestore {
   "companyId",
   "companyJoinedAt",
   "companyMembershipUpdatedAt",
+  "companyFeatureAccess",
   "accountDeletionStatus",
   "accountDeletionCompanyId",
   "accountDeletionStartedAt"
