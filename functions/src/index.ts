@@ -41,3 +41,7 @@ export {
 export {
   deletePolymAppAccount,
 } from "./account/deletePolymAppAccount";
+export {
+  deleteCompany,
+} from "./company/deleteCompany";
+

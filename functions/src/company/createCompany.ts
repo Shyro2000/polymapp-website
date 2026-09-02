@@ -11,6 +11,26 @@ export const createCompany = onCall(async (request) => {
     );
   }
 
+  const authenticatedEmail = request.auth.token.email;
+
+  if (
+    typeof authenticatedEmail !== "string" ||
+    authenticatedEmail.trim().length === 0
+  ) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Im Account fehlt eine gültige E-Mail-Adresse.",
+    );
+  }
+
+  if (request.auth.token.email_verified !== true) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Die E-Mail-Adresse muss zuerst bestätigt werden.",
+      {reason: "email_not_verified"},
+    );
+  }
+
   const rawName: unknown = request.data?.name;
 
   if (typeof rawName !== "string") {
@@ -38,11 +58,8 @@ export const createCompany = onCall(async (request) => {
   const memberAdminDataRef = companyRef
     .collection("memberAdminData")
     .doc(uid);
-  const authenticatedEmail = request.auth.token.email;
   const memberEmail =
-    typeof authenticatedEmail === "string" ?
-      authenticatedEmail.trim().toLowerCase() :
-      "";
+    authenticatedEmail.trim().toLowerCase();
 
   return db.runTransaction(async (transaction) => {
     const userSnapshot = await transaction.get(userRef);

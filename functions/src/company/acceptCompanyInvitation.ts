@@ -39,6 +39,7 @@ export const acceptCompanyInvitation = onCall(
       throw new HttpsError(
         "failed-precondition",
         "Die E-Mail-Adresse muss zuerst bestätigt werden.",
+        {reason: "email_not_verified"},
       );
     }
 

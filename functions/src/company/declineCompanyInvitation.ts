@@ -17,8 +17,6 @@ export const declineCompanyInvitation = onCall(
     }
 
     const authenticatedEmail = request.auth.token.email;
-    const emailVerified =
-      request.auth.token.email_verified === true;
     const rawInvitationId: unknown =
       request.data?.invitationId;
 
@@ -31,13 +29,6 @@ export const declineCompanyInvitation = onCall(
       throw new HttpsError(
         "failed-precondition",
         "Im Account fehlt eine gültige E-Mail-Adresse.",
-      );
-    }
-
-    if (!emailVerified) {
-      throw new HttpsError(
-        "failed-precondition",
-        "Die E-Mail-Adresse muss zuerst bestätigt werden.",
       );
     }
 
