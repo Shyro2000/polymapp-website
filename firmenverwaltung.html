@@ -39,40 +39,39 @@
     }
 
     header {
-      position: relative;
-      padding: 40px 20px;
-      color: #fff;
-      text-align: center;
-      background: linear-gradient(180deg, var(--red) 0%, var(--dark-red) 100%);
-    }
-
-    .header-logo {
-      width: 100%;
-      max-width: 400px;
-      height: auto;
-      margin-bottom: 10px;
-    }
+    position: relative;
+    background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+}
+      .header-logo {
+        max-width: 400px;
+        width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+      }
 
     header h2 {
-      margin: 0;
       color: #fff;
     }
 
     .language-switch {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 0.9rem;
-    }
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 0.9em;
+      }
 
-    .language-switch a {
-      margin: 0 5px;
-      color: #fff;
-      text-decoration: none;
-    }
-    .language-switch a:hover {
-      text-decoration: underline;
-    }
+      .language-switch a {
+        color: white;
+        text-decoration: none;
+        margin: 0 5px;
+      }
+
+      .language-switch a:hover {
+        text-decoration: underline;
+      }
 
     nav {
       padding: 10px;
@@ -86,11 +85,12 @@
       text-decoration: none;
     }
 
-    nav a:not(:last-child)::after {
-      content: " |";
-      margin-left: 10px;
-      color: #fff;
-    }
+    /* Trenner automatisch nach jedem Link – außer dem letzten */
+      nav a:not(:last-child)::after {
+        content: " |";
+        color: white;
+        margin-left: 10px;
+      }
 
     nav a.active {
       font-weight: bold;
@@ -560,56 +560,53 @@
     }
 
     @media (max-width: 700px) {
-      .language-switch {
-        position: static;
-        margin-top: 12px;
-      }
+    
 
-      nav a {
+    nav a {
         display: inline-block;
         margin: 5px 8px;
-      }
+    }
 
-      nav a::after {
-        display: none;
-      }
+    nav a:not(:last-child)::after {
+        display: inline;
+    }
 
-      .summary-grid {
+    .summary-grid {
         grid-template-columns: 1fr;
-      }
+    }
 
-      .management-grid {
+    .management-grid {
         grid-template-columns: 1fr;
-      }
+    }
 
-      .profile-form {
+    .profile-form {
         grid-template-columns: 1fr;
-      }
+    }
 
-      .settings-grid {
+    .settings-grid {
         grid-template-columns: 1fr;
-      }
+    }
 
-      .profile-form .full-width {
+    .profile-form .full-width {
         grid-column: auto;
-      }
+    }
 
-      .member-actions,
-      .member-actions select,
-      .member-actions button {
+    .member-actions,
+    .member-actions select,
+    .member-actions button {
         width: 100%;
-      }
+    }
 
-      .button-row {
+    .button-row {
         flex-direction: column;
-      }
+    }
 
-      .button-row button,
-      .button-row .button-link {
+    .button-row button,
+    .button-row .button-link {
         width: 100%;
         text-align: center;
-      }
     }
+}
   </style>
 </head>
 
@@ -638,7 +635,7 @@
   <main class="container">
     <h1>Firmenverwaltung</h1>
     <p class="lead">
-      Erstelle eine Firma, nimm Einladungen an und verwalte später Mitglieder,
+      Erstellen Sie eine Firma, nehmen Sie Einladungen an und verwalten Sie später Mitglieder,
       Rollen sowie gemeinsame Maschinen und Werkzeuglisten an einem Ort.
     </p>
 
@@ -650,7 +647,7 @@
     <section id="loginPanel" class="panel hidden">
       <h2>Anmeldung erforderlich</h2>
       <p>
-        Melde dich zuerst mit deinem bestehenden PolymApp-Account an.
+        Melden Sie sich zuerst mit Ihrem bestehenden PolymApp-Account an.
       </p>
       <a class="button-link" href="accountverwaltung.html">Zur Anmeldung</a>
     </section>
@@ -663,7 +660,7 @@
     <section id="noCompanyPanel" class="panel hidden">
       <h2>Eigene Firma erstellen</h2>
       <p>
-        Du gehörst aktuell keiner Firma an. Du kannst eine neue Firma erstellen
+        Sie gehören aktuell keiner Firma an. Sie können eine neue Firma erstellen
         oder eine offene Einladung annehmen.
       </p>
 
@@ -684,7 +681,7 @@
       </form>
 
       <p class="notice notice-warning">
-        Nach der Erstellung bist du der Inhaber. Die Inhaberrechte müssen vor
+        Nach der Erstellung sind Sie der Inhaber. Die Inhaberrechte müssen vor
         einem späteren Austritt oder einer Account-Löschung übertragen werden,
         sofern andere Mitglieder vorhanden sind.
       </p>
@@ -710,7 +707,7 @@
 
       <p id="roleDescription" class="notice"></p>
       <p class="notice">
-        Dein Firmenzugang wird über diese Firma verwaltet. Für die gemeinsamen
+        Ihr Firmenzugang wird über diese Firma verwaltet. Für die gemeinsamen
         Firmenfunktionen ist kein separates persönliches Firmenabo erforderlich.
       </p>
 
@@ -718,7 +715,7 @@
         <div id="machineImportNotice" class="notice action-notice hidden">
           <strong>Private Maschinen in die Firma übernehmen?</strong>
           <p>
-            Du hast private Maschinen, die noch nicht in diese Firma kopiert
+            Sie haben private Maschinen, die noch nicht in diese Firma kopiert
             wurden. Die privaten Originale bleiben dabei erhalten.
           </p>
           <div class="button-row">
@@ -802,7 +799,7 @@
         >
           <h3>Private Maschinen in die Firma kopieren</h3>
           <p>
-            Wähle bis zu 20 private Maschinen aus. Die privaten Originale
+            Wählen Sie bis zu 20 private Maschinen aus. Die privaten Originale
             bleiben erhalten. Werkzeuglisten werden vollständig mitkopiert.
           </p>
 
@@ -883,7 +880,7 @@
   <p class="notice notice-warning">
     Dabei werden alle Firmenmaschinen, Werkzeuglisten,
     Mitgliederdaten und Einladungen unwiderruflich gelöscht.
-    Dein persönlicher Account und deine privaten Maschinen
+    Ihr persönlicher Account und Ihre privaten Maschinen
     bleiben erhalten.
   </p>
 </div>
@@ -891,7 +888,7 @@
           <div class="management-card warning-card">
             <h3>Inhaberrechte übertragen</h3>
             <p>
-              Der gewählte Benutzer wird neuer Inhaber. Deine eigene Rolle wird
+              Der gewählte Benutzer wird neuer Inhaber. Ihre eigene Rolle wird
               danach automatisch zum Administrator geändert.
             </p>
             <div class="input-group">
@@ -902,7 +899,7 @@
               Inhaberrechte übertragen
             </button>
             <p class="notice notice-warning">
-              Vor einer Account-Löschung musst du die Inhaberrechte übertragen,
+              Vor einer Account-Löschung müssen Sie die Inhaberrechte übertragen,
               wenn weitere Mitglieder vorhanden sind.
             </p>
           </div>
@@ -915,8 +912,8 @@
             Firma verlassen
           </button>
           <p class="notice notice-warning">
-            Deine privaten Maschinen bleiben erhalten. Nach dem Austritt hast
-            du keinen Zugriff mehr auf Firmenmaschinen und Firmenwerkzeuge.
+            Ihre privaten Maschinen bleiben erhalten. Nach dem Austritt haben Sie
+            keinen Zugriff mehr auf Firmenmaschinen und Firmenwerkzeuge.
           </p>
         </div>
       </div>
@@ -938,6 +935,7 @@
       <a href="index.html">Startseite</a> ·
       <a href="accountverwaltung.html">Accountverwaltung</a> ·
       <a href="datenschutz.html">Datenschutz</a> ·
+      <a href="about.html">Über mich</a> ·
       <a href="kontakt.html">Kontakt</a>
     </p>
     <p>© 2024–<span id="year"></span> PolymApp</p>
@@ -1171,7 +1169,7 @@
       const user = auth.currentUser;
 
       if (!user || !user.email) {
-        setStatus("Bitte melde dich erneut an.", "error", 7000);
+        setStatus("Bitte melden Sie sich erneut an.", "error", 7000);
         return false;
       }
 
@@ -1191,7 +1189,7 @@
 
         setStatus(
           `Eine Bestätigungs-E-Mail wurde an ${user.email} gesendet. ` +
-          "Öffne den Link und führe diese Aktion danach erneut aus.",
+          "Öffnen Sie den Link und führen Sie diese Aktion danach erneut aus.",
           "error",
           12000
         );
@@ -1201,7 +1199,7 @@
         if (error?.code === "auth/too-many-requests") {
           setStatus(
             "Es wurden zu viele Bestätigungs-E-Mails angefordert. " +
-            "Bitte warte einen Moment und versuche es erneut.",
+            "Bitte warten Sie einen Moment und versuchen Sie es erneut.",
             "error",
             10000
           );
@@ -1228,10 +1226,10 @@
       const reason = error?.details?.reason;
 
       if (reason === "email_not_verified") {
-        return "Bestätige zuerst deine E-Mail-Adresse.";
+        return "Bestätigen Sie zuerst Ihre E-Mail-Adresse.";
       }
       if (reason === "recent_login_required") {
-        return "Bitte melde dich erneut an.";
+        return "Bitte melden Sie sich erneut an.";
       }
       if (error?.code === "functions/already-exists") {
         return error.message || "Der Eintrag besteht bereits.";
@@ -1240,10 +1238,10 @@
         return "Es ist kein freier Firmenplatz verfügbar.";
       }
       if (error?.code === "functions/permission-denied") {
-        return "Du hast für diese Aktion keine Berechtigung.";
+        return "Sie haben für diese Aktion keine Berechtigung.";
       }
       if (error?.code === "functions/unauthenticated") {
-        return "Bitte melde dich erneut an.";
+        return "Bitte melden Sie sich erneut an.";
       }
       if (error?.code === "functions/unavailable") {
         return "Der Dienst ist momentan nicht erreichbar.";
@@ -1270,13 +1268,13 @@
     function roleText(role) {
       switch (role) {
         case "owner":
-          return "Du verwaltest die Firma, Mitglieder, Rollen, Maschinen und Werkzeuglisten.";
+          return "Sie verwalten die Firma, Mitglieder, Rollen, Maschinen und Werkzeuglisten.";
         case "admin":
-          return "Du verwaltest Mitglieder sowie Maschinen und Werkzeuglisten. Administratorrechte vergibt nur der Inhaber.";
+          return "Sie verwalten Mitglieder sowie Maschinen und Werkzeuglisten. Administratorrechte vergibt nur der Inhaber.";
         case "editor":
-          return "Du darfst Werkzeuge erstellen, bearbeiten und löschen. Maschinendaten bleiben unveränderbar.";
+          return "Sie dürfen Werkzeuge erstellen, bearbeiten und löschen. Maschinendaten bleiben unveränderbar.";
         case "viewer":
-          return "Du kannst Firmenmaschinen und Werkzeuglisten ansehen, aber nicht verändern.";
+          return "Sie können Firmenmaschinen und Werkzeuglisten ansehen, aber nicht verändern.";
         default:
           return "Die Firmenrolle konnte nicht geladen werden.";
       }
@@ -1626,7 +1624,7 @@
           meta.className = "machine-meta";
           const machineMeta = machineMetaText(machine);
           meta.textContent = alreadyImported
-            ? "Bereits von dir in diese Firma kopiert"
+            ? "Bereits von Ihnen in diese Firma kopiert"
             : machineMeta || "Keine weiteren Maschinendaten";
 
           text.append(name, meta);
@@ -1741,8 +1739,8 @@
 
   if (!isOwner) {
     memberExitDescription.textContent =
-      `Du bist aktuell ${roleLabel(currentMembership.role)}. ` +
-      "Du kannst die Firma selbständig verlassen.";
+      `Sie sind aktuell ${roleLabel(currentMembership.role)}. ` +
+      "Sie können die Firma selbständig verlassen.";
     return;
   }
 
@@ -1847,13 +1845,13 @@
     otherActiveMemberExists
   ) {
     deleteCompanyDescription.textContent =
-      "Entferne zuerst alle anderen Firmenmitglieder.";
+      "Entfernen Sie zuerst alle anderen Firmenmitglieder.";
   } else if (hasActiveInvitations) {
     deleteCompanyDescription.textContent =
-      "Ziehe zuerst alle gültigen offenen Einladungen zurück.";
+      "Ziehen Sie zuerst alle gültigen offenen Einladungen zurück.";
   } else {
     deleteCompanyDescription.textContent =
-      "Du bist das einzige Mitglied und es bestehen keine " +
+      "Sie sind das einzige Mitglied und es bestehen keine " +
       "gültigen offenen Einladungen. Die Firma kann gelöscht werden.";
   }
 }
@@ -2151,7 +2149,7 @@
       const targetUid = ownershipTargetSelect.value;
 
       if (!targetUid) {
-        setStatus("Bitte wähle einen neuen Inhaber.", "error");
+        setStatus("Bitte wählen Sie einen neuen Inhaber.", "error");
         return;
       }
 
@@ -2160,7 +2158,7 @@
 
       const confirmed = window.confirm(
         `Inhaberrechte wirklich an ${targetName} übertragen?\n\n` +
-        "Du wirst danach Administrator und kannst die Übertragung nicht selbst rückgängig machen."
+        "Sie werden danach Administrator und können die Übertragung nicht selbst rückgängig machen."
       );
 
       if (!confirmed) {
@@ -2181,8 +2179,8 @@
     leaveCompanyButton.addEventListener("click", async () => {
       const confirmed = window.confirm(
         "Firma wirklich verlassen?\n\n" +
-        "Du verlierst den Zugriff auf alle Firmenmaschinen und Firmenwerkzeuge. " +
-        "Deine privaten Maschinen bleiben erhalten."
+        "Sie verlieren den Zugriff auf alle Firmenmaschinen und Firmenwerkzeuge. " +
+        "Ihre privaten Maschinen bleiben erhalten."
       );
 
       if (!confirmed) {
@@ -2197,7 +2195,7 @@
         stopCompanyListeners();
         showNoCompanyState();
         leaveCompanyButton.disabled = false;
-        setStatus("Du hast die Firma erfolgreich verlassen.");
+        setStatus("Sie haben die Firma erfolgreich verlassen.");
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
         leaveCompanyButton.disabled = false;
@@ -2239,7 +2237,7 @@ deleteCompanyButton.addEventListener(
       "Alle Firmenmaschinen, Werkzeuglisten, " +
       "Mitgliederdaten und Einladungen werden " +
       "unwiderruflich gelöscht.\n\n" +
-      "Dein persönlicher Account und deine privaten " +
+      "Ihr persönlicher Account und Ihre privaten " +
       "Maschinen bleiben erhalten.",
     );
 
@@ -2248,7 +2246,7 @@ deleteCompanyButton.addEventListener(
     }
 
     const enteredCompanyName = window.prompt(
-      "Gib zur Bestätigung den vollständigen " +
+      "Geben Sie zur Bestätigung den vollständigen " +
       "Firmennamen ein:",
       "",
     );
@@ -2294,7 +2292,7 @@ deleteCompanyButton.addEventListener(
       const machineIds = [...selectedPrivateMachineIds];
 
       if (machineIds.length === 0) {
-        setStatus("Bitte wähle mindestens eine Maschine aus.", "error");
+        setStatus("Bitte wählen Sie mindestens eine Maschine aus.", "error");
         return;
       }
 
@@ -2490,7 +2488,7 @@ deleteCompanyButton.addEventListener(
     }
 
     async function handleWithdrawInvitation(invitationId, button) {
-      if (!window.confirm("Möchtest du diese Einladung zurückziehen?")) {
+      if (!window.confirm("Möchten Sie diese Einladung zurückziehen?")) {
         return;
       }
 
@@ -2619,8 +2617,8 @@ deleteCompanyButton.addEventListener(
     async function handleInvitationAction(action, invitationId, button) {
       const isAccept = action === "accept";
       const message = isAccept
-        ? "Möchtest du dieser Firma wirklich beitreten?"
-        : "Möchtest du diese Einladung wirklich ablehnen?";
+        ? "Möchten Sie dieser Firma wirklich beitreten?"
+        : "Möchten Sie diese Einladung wirklich ablehnen?";
 
       button.disabled = true;
 
@@ -2638,7 +2636,7 @@ deleteCompanyButton.addEventListener(
 
         if (isAccept) {
           await acceptInvitationCall({invitationId});
-          setStatus("Du bist der Firma erfolgreich beigetreten.");
+          setStatus("Sie sind der Firma erfolgreich beigetreten.");
         } else {
           await declineInvitationCall({invitationId});
           setStatus("Die Einladung wurde abgelehnt.");
@@ -2690,12 +2688,12 @@ deleteCompanyButton.addEventListener(
       const role = inviteRoleSelect.value;
 
       if (!email) {
-        setStatus("Bitte gib eine E-Mail-Adresse ein.", "error");
+        setStatus("Bitte geben Sie eine E-Mail-Adresse ein.", "error");
         return;
       }
 
       if (!["admin", "editor", "viewer"].includes(role)) {
-        setStatus("Bitte wähle eine gültige Rolle.", "error");
+        setStatus("Bitte wählen Sie eine gültige Rolle.", "error");
         return;
       }
 

@@ -39,12 +39,12 @@
     }
 
     header {
-      position: relative;
-      padding: 40px 20px;
-      color: #fff;
-      text-align: center;
-      background: linear-gradient(180deg, var(--red) 0%, var(--dark-red) 100%);
-    }
+    position: relative;
+    background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+}
 
     .header-logo {
       width: 100%;
@@ -54,25 +54,25 @@
     }
 
     header h2 {
-      margin: 0;
       color: #fff;
     }
 
     .language-switch {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 0.9rem;
-    }
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 0.9em;
+      }
 
-    .language-switch a {
-      margin: 0 5px;
-      color: #fff;
-      text-decoration: none;
-    }
-    .language-switch a:hover {
-      text-decoration: underline;
-    }
+      .language-switch a {
+        color: white;
+        text-decoration: none;
+        margin: 0 5px;
+      }
+
+      .language-switch a:hover {
+        text-decoration: underline;
+      }
 
     nav {
       padding: 10px;
@@ -560,56 +560,53 @@
     }
 
     @media (max-width: 700px) {
-      .language-switch {
-        position: static;
-        margin-top: 12px;
-      }
 
-      nav a {
+
+    nav a {
         display: inline-block;
         margin: 5px 8px;
-      }
+    }
 
-      nav a::after {
-        display: none;
-      }
+    nav a:not(:last-child)::after {
+        display: inline;
+    }
 
-      .summary-grid {
+    .summary-grid {
         grid-template-columns: 1fr;
-      }
+    }
 
-      .management-grid {
+    .management-grid {
         grid-template-columns: 1fr;
-      }
+    }
 
-      .profile-form {
+    .profile-form {
         grid-template-columns: 1fr;
-      }
+    }
 
-      .settings-grid {
+    .settings-grid {
         grid-template-columns: 1fr;
-      }
+    }
 
-      .profile-form .full-width {
+    .profile-form .full-width {
         grid-column: auto;
-      }
+    }
 
-      .member-actions,
-      .member-actions select,
-      .member-actions button {
+    .member-actions,
+    .member-actions select,
+    .member-actions button {
         width: 100%;
-      }
+    }
 
-      .button-row {
+    .button-row {
         flex-direction: column;
-      }
+    }
 
-      .button-row button,
-      .button-row .button-link {
+    .button-row button,
+    .button-row .button-link {
         width: 100%;
         text-align: center;
-      }
     }
+}
   </style>
 </head>
 
@@ -932,6 +929,7 @@
       <a href="index-en.html">Home</a> ·
       <a href="accountverwaltung-en.html">Account management</a> ·
       <a href="datenschutz-en.html">Privacy</a> ·
+      <a href="about-en.html">About</a> ·
       <a href="kontakt-en.html">Contact</a>
     </p>
     <p>© 2024–<span id="year"></span> PolymApp</p>

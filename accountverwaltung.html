@@ -272,7 +272,7 @@
 
 <div class="container">
   <h2>Accountverwaltung</h2>
-  <p>Hier können sie ihren PolymApp Account direkt über die Webseite erstellen, sich anmelden oder den Account löschen.</p>
+  <p>Hier können Sie Ihren PolymApp Account direkt über die Webseite erstellen, sich anmelden oder den Account löschen.</p>
 
   <div class="auth-box" id="registerBox">
     <h2>Konto erstellen</h2>
@@ -310,7 +310,7 @@
 
   <div class="auth-box" id="loginBox">
     <h2>Anmelden</h2>
-    <p class="small-text">Mit ihrem bestehenden PolymApp Account einloggen.</p>
+    <p class="small-text">Mit Ihrem bestehenden PolymApp Account einloggen.</p>
 
     <form id="loginForm">
       <div class="input-group">
@@ -369,7 +369,10 @@
 
     <div class="account-info" style="border-top: 2px solid #B00000; margin-top: 20px;">
       <h3 style="margin-top: 0; color: #B00000;">Kollegen einladen & gratis Premium sichern</h3>
-      <p class="small-text">Teilen Sie Ihren persönlichen Link: Wenn sich 3 Ihrer Kollegen registrieren und ein Premium-Abo erwerben – oder selbst 3 Kollegen werben –, erhalten Sie PolymApp Premium komplett kostenlos!</p>
+      <p class="small-text">
+  Teilen Sie Ihren persönlichen Link: Wenn sich 3 Ihrer Kollegen registrieren und ein Premium-Abo erwerben – oder selbst 3 Kollegen werben –, erhalten Sie PolymApp Premium komplett kostenlos.
+  Der Referral-Bonus gilt nur für private Nutzer, die ihr Premium-Abo selbst abschliessen. Nutzer, deren PolymApp-Zugang über eine Firma bzw. deren Firmeninhaber abgedeckt wird, sind vom Referral-Bonus ausgeschlossen.
+</p>
         
       <div class="input-group" style="margin-top: 15px;">
         <label for="referralLinkInput">Mein Empfehlungslink:</label>
@@ -620,7 +623,7 @@
       case "auth/user-not-found":
         return "E-Mail oder Passwort ist falsch.";
       case "auth/requires-recent-login":
-        return "Bitte dich kurz neu anmelden und den Vorgang erneut ausführen.";
+        return "Bitte melden Sie sich kurz neu an und führen Sie den Vorgang erneut aus.";
       case "auth/network-request-failed":
         return "Netzwerkfehler. Bitte später erneut versuchen.";
       default:
@@ -633,13 +636,13 @@
 
     switch (status.requiredAction) {
       case "leave_company":
-        return `Du musst zuerst aus ${companyName} austreten.`;
+        return `Sie müssen zuerst aus ${companyName} austreten.`;
       case "transfer_ownership_or_remove_members":
-        return "Übertrage zuerst die Owner-Rechte oder entferne alle anderen Mitglieder.";
+        return "Übertragen Sie zuerst die Owner-Rechte oder entfernen Sie alle anderen Mitglieder.";
       case "withdraw_invitations":
-        return "Ziehe zuerst alle offenen Firmeneinladungen zurück.";
+        return "Ziehen Sie zuerst alle offenen Firmeneinladungen zurück.";
       case "remove_members_and_withdraw_invitations":
-        return "Entferne zuerst alle anderen Mitglieder und ziehe alle offenen Einladungen zurück.";
+        return "Entfernen Sie zuerst alle anderen Mitglieder und ziehen Sie alle offenen Einladungen zurück.";
       default:
         return "Der Account kann momentan nicht gelöscht werden.";
     }
@@ -653,22 +656,22 @@
     const reason = error.details?.reason;
 
     if (reason === "recent_login_required") {
-      return "Bitte bestätige dein Passwort erneut und versuche es nochmals.";
+      return "Bitte bestätigen Sie Ihr Passwort erneut und versuchen Sie es nochmals.";
     }
     if (reason === "leave_company_first") {
-      return "Du musst zuerst aus der Firma austreten.";
+      return "Sie müssen zuerst aus der Firma austreten.";
     }
     if (reason === "company_has_members") {
-      return "Übertrage zuerst die Owner-Rechte oder entferne alle anderen Mitglieder.";
+      return "Übertragen Sie zuerst die Owner-Rechte oder entfernen Sie alle anderen Mitglieder.";
     }
     if (reason === "company_has_pending_invitations") {
-      return "Ziehe zuerst alle offenen Firmeneinladungen zurück.";
+      return "Ziehen Sie zuerst alle offenen Firmeneinladungen zurück.";
     }
     if (error.code === "functions/unauthenticated") {
-      return "Bitte melde dich erneut an.";
+      return "Bitte melden Sie sich erneut an.";
     }
     if (error.code === "functions/unavailable") {
-      return "Der Dienst ist momentan nicht erreichbar. Bitte versuche es später erneut.";
+      return "Der Dienst ist momentan nicht erreichbar. Bitte versuchen Sie es später erneut.";
     }
 
     return error.message || "Der Account konnte nicht gelöscht werden.";
@@ -917,7 +920,7 @@
 
     if (!approvedDeletionStatus?.canDeleteAccount) {
       setStatus(
-        "Bitte prüfe zuerst die Voraussetzungen für die Account-Löschung.",
+        "Bitte prüfen Sie zuerst die Voraussetzungen für die Account-Löschung.",
         "error",
         4000
       );
@@ -963,7 +966,7 @@
     const user = auth.currentUser;
 
     if (!user) {
-      setStatus("Bitte melde dich erneut an.", "error", 3500);
+      setStatus("Bitte melden Sie sich erneut an.", "error", 3500);
       return;
     }
 
@@ -987,7 +990,7 @@
       approvedDeletionStatus = deletionStatus;
       deleteWarning.textContent = deletionStatus.willDissolveCompany
         ? `Beim Löschen werden auch ${deletionStatus.companyName || "die Firma"}, sämtliche Firmenmaschinen und alle Werkzeuglisten endgültig gelöscht.`
-        : "Beim Löschen werden dein Account und deine privaten PolymApp-Daten endgültig entfernt.";
+        : "Beim Löschen werden Ihr Account und Ihre privaten PolymApp-Daten endgültig entfernt.";
 
       deleteInitialBox.classList.add("hidden");
       deleteForm.classList.remove("hidden");

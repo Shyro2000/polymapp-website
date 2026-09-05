@@ -272,7 +272,7 @@
 
 <div class="container">
   <h2>Gestion du compte</h2>
-  <p>Tu peux créer ton compte PolymApp, te connecter ou le supprimer directement via le site web.</p>
+  <p>Vous pouvez créer votre compte PolymApp, vous connecter ou le supprimer directement via le site web.</p>
 
   <div class="auth-box" id="registerBox">
     <h2>Créer un compte</h2>
@@ -369,7 +369,10 @@
     
     <div class="account-info" style="border-top: 2px solid #B00000; margin-top: 20px;">
       <h3 style="margin-top: 0; color: #B00000;">Inviter des collègues et obtenir Premium gratuitement</h3>
-      <p class="small-text">Partagez votre lien personnel : si 3 de vos collègues s'inscrivent et souscrivent à un abonnement Premium – ou s'ils parrainent à leur tour 3 collègues –, vous bénéficierez de PolymApp Premium entièrement gratuitement !</p>      
+<p class="small-text">
+  Partagez votre lien personnel : si 3 de vos collègues s’inscrivent et souscrivent à un abonnement Premium – ou parrainent à leur tour 3 collègues –, vous bénéficierez de PolymApp Premium entièrement gratuitement.
+  Le bonus de parrainage est réservé aux utilisateurs privés qui souscrivent eux-mêmes à leur abonnement Premium. Les utilisateurs dont l’accès à PolymApp est pris en charge par une entreprise ou son propriétaire ne sont pas éligibles au bonus de parrainage.
+</p>
       <div class="input-group" style="margin-top: 15px;">
         <label for="referralLinkInput">Mon lien de parrainage:</label>
         <div style="display: flex; gap: 10px;">
@@ -379,7 +382,7 @@
       </div>
 
       <div style="margin-top: 20px; background: #f9f9f9; padding: 12px; border-radius: 4px; border: 1px solid #eee;">
-        <p style="margin: 0 0 8px 0;"><strong>Tes statistiques:</strong></p>
+        <p style="margin: 0 0 8px 0;"><strong>Vos statistiques:</strong></p>
         <ul style="margin: 0; padding-left: 20px; font-size: 0.95em;">
           <li>Utilisateurs inscrits grâce à moi: <strong id="statsTotal">0</strong></li>
           <li>Dont avec Premium actif: <strong id="statsPremium" style="color: #B00000;">0</strong> / 3</li>
@@ -616,7 +619,7 @@
       case "auth/user-not-found":
         return "L’e-mail ou le mot de passe est incorrect.";
       case "auth/requires-recent-login":
-        return "Reconnecte-toi rapidement, puis réessaie.";
+        return "Reconnectez-vous rapidement, puis réessayez.";
       case "auth/network-request-failed":
         return "Erreur réseau. Veuillez réessayer plus tard.";
       default:
@@ -629,7 +632,7 @@
 
     switch (status.requiredAction) {
       case "leave_company":
-        return `Tu dois d’abord quitter ${companyName}.`;
+        return `Vous devez d’abord quitter ${companyName}.`;
       case "transfer_ownership_or_remove_members":
         return "Transfère d’abord les droits de propriétaire ou supprime tous les autres membres.";
       case "withdraw_invitations":
@@ -649,10 +652,10 @@
     const reason = error.details?.reason;
 
     if (reason === "recent_login_required") {
-      return "Confirme à nouveau ton mot de passe, puis réessaie.";
+      return "Confirmez à nouveau votre mot de passe, puis réessayez.";
     }
     if (reason === "leave_company_first") {
-      return "Tu dois d’abord quitter l’entreprise.";
+      return "Vous devez d’abord quitter l’entreprise.";
     }
     if (reason === "company_has_members") {
       return "Transfère d’abord les droits de propriétaire ou supprime tous les autres membres.";
@@ -661,7 +664,7 @@
       return "Retire d’abord toutes les invitations d’entreprise en attente.";
     }
     if (error.code === "functions/unauthenticated") {
-      return "Reconnecte-toi, puis réessaie.";
+      return "Reconnectez-vous, puis réessayez.";
     }
     if (error.code === "functions/unavailable") {
       return "Le service est momentanément indisponible. Réessaie plus tard.";
@@ -901,7 +904,7 @@
 
     if (!approvedDeletionStatus?.canDeleteAccount) {
       setStatus(
-        "Vérifie d’abord les conditions de suppression du compte.",
+        "Vérifiez d’abord les conditions de suppression du compte.",
         "error",
         4000
       );
@@ -909,8 +912,8 @@
     }
 
     const confirmationMessage = approvedDeletionStatus.willDissolveCompany
-      ? "Veux-tu vraiment supprimer définitivement ton compte et l’entreprise, y compris toutes les machines et listes d’outils de l’entreprise ?"
-      : "Veux-tu vraiment supprimer définitivement ton compte PolymApp ?";
+      ? "Voulez-vous vraiment supprimer définitivement votre compte et l’entreprise, y compris toutes les machines et listes d’outils de l’entreprise ?"
+      : "Voulez-vous vraiment supprimer définitivement votre compte PolymApp ?";
 
     if (!confirm(confirmationMessage)) {
       return;
@@ -928,7 +931,7 @@
 
       deleteForm.reset();
       approvedDeletionStatus = null;
-      setStatus("Ton compte a été supprimé avec succès.", "success", 4000);
+      setStatus("Votre compte a été supprimé avec succès.", "success", 4000);
     } catch (error) {
       setStatus(mapDeletionError(error), "error", 6000);
     }
@@ -937,7 +940,7 @@
   logoutBtn.addEventListener("click", async () => {
     try {
       await signOut(auth);
-      setStatus("Tu as été déconnecté.", "success", 3000);
+      setStatus("Vous avez été déconnecté.", "success", 3000);
     } catch (error) {
       setStatus(mapAuthError(error), "error", 3500);
     }
@@ -947,7 +950,7 @@
     const user = auth.currentUser;
 
     if (!user) {
-      setStatus("Reconnecte-toi, puis réessaie.", "error", 3500);
+      setStatus("Reconnectez-vous, puis réessayez.", "error", 3500);
       return;
     }
 
@@ -971,7 +974,7 @@
       approvedDeletionStatus = deletionStatus;
       deleteWarning.textContent = deletionStatus.willDissolveCompany
         ? `La suppression effacera définitivement ${deletionStatus.companyName || "l’entreprise"}, toutes les machines de l’entreprise et toutes les listes d’outils.`
-        : "La suppression effacera définitivement ton compte et tes données PolymApp privées.";
+        : "La suppression effacera définitivement votre compte et vos données PolymApp privées.";
 
       deleteInitialBox.classList.add("hidden");
       deleteForm.classList.remove("hidden");
