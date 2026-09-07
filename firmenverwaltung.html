@@ -607,6 +607,36 @@
         text-align: center;
     }
 }
+
+    /* Collapsible role overview: add permissions as <tr> rows in the table. */
+    .permissions-overview { margin: 12px 0 18px; }
+    .permissions-overview > summary {
+      cursor: pointer;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      font-weight: bold;
+    }
+    .permissions-overview > summary:focus-visible,
+    .permissions-scroll:focus-visible {
+      outline: 3px solid #1769aa;
+      outline-offset: 3px;
+    }
+    .permissions-overview[open] > summary { margin-bottom: 12px; }
+    .permissions-scroll { overflow-x: auto; max-width: 100%; }
+    .permissions-table { width: 100%; min-width: 600px; border-collapse: collapse; }
+    .permissions-table caption { text-align: left; font-weight: bold; padding: 8px 0; }
+    .permissions-table th, .permissions-table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      text-align: center;
+    }
+    .permissions-table thead { background: var(--surface); }
+    .permissions-table th:first-child { text-align: left; min-width: 200px; }
+    .permissions-table tbody th { font-weight: normal; }
+    .permission-yes { color: #176534; font-size: 1.2rem; font-weight: bold; }
+    .permission-no { color: #a51b1b; font-size: 1.2rem; font-weight: bold; }
   </style>
 </head>
 
@@ -787,6 +817,111 @@
 
         <div class="management-card" style="margin-top: 18px;">
           <h3>Mitglieder</h3>
+          <!-- Role overview: extend by adding a <tr> with one cell per role. -->
+          <details id="companyPermissionsOverview" class="permissions-overview">
+            <summary>Rollen und Berechtigungen anzeigen</summary>
+            <div class="permissions-scroll" role="region" aria-label="Berechtigungen in der Firma" tabindex="0">
+              <table class="permissions-table">
+                <caption>Berechtigungen in der Firma</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Funktion</th>
+                    <th scope="col"><span class="role-badge role-owner">Inhaber</span></th>
+                    <th scope="col"><span class="role-badge role-admin">Administrator</span></th>
+                    <th scope="col"><span class="role-badge role-editor">Bearbeiter</span></th>
+                    <th scope="col"><span class="role-badge role-viewer">Betrachter</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <th scope="row">Firmenmaschinen und Werkzeuge ansehen</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Firmenmaschinen erstellen, bearbeiten und löschen</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Werkzeuge erstellen, bearbeiten und löschen</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Private Maschinen in die Firma kopieren</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Mitgliederliste und administrative Mitgliederdaten ansehen</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Administrative Mitgliederdaten bearbeiten</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Bearbeiter und Betrachter einladen</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Administratoren einladen</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Rollen anderer Bearbeiter/Betrachter ändern oder diese entfernen</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Administratorrechte vergeben oder andere Administratoren entfernen</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Firmenname ändern</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Inhaberrechte übertragen</th>
+                  <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                  <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="notice">Administratorrechte vergibt nur der Inhaber. Administratoren können nur Bearbeiter und Betrachter verwalten, nicht andere Administratoren oder den Inhaber. Die eigene Rolle kann hier nicht geändert werden. Einladungen setzen freie Plätze voraus. Diese Übersicht beschreibt bestehende Rechte und erteilt keine zusätzlichen Berechtigungen.</p>
+          </details>
           <div id="memberList" class="member-list">
             <p class="empty-state">Mitglieder werden geladen …</p>
           </div>
