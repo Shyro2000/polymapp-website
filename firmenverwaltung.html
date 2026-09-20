@@ -637,6 +637,36 @@
     .permissions-table tbody th { font-weight: normal; }
     .permission-yes { color: #176534; font-size: 1.2rem; font-weight: bold; }
     .permission-no { color: #a51b1b; font-size: 1.2rem; font-weight: bold; }
+
+    /* Compact disclosure sections; existing actions and role checks are unchanged. */
+    .compact-disclosure { min-width: 0; }
+    .compact-disclosure > summary {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      list-style: none; min-height: 32px; font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+    .compact-disclosure > summary::-webkit-details-marker { display: none; }
+    .compact-disclosure > summary::before {
+      content: "▸"; flex: 0 0 14px; color: var(--muted);
+    }
+    .compact-disclosure[open] > summary::before { content: "▾"; }
+    .compact-disclosure > summary:focus-visible {
+      outline: 2px solid #8b0000; outline-offset: 4px; border-radius: 3px;
+    }
+    .compact-disclosure > summary .member-heading {
+      flex: 1; min-width: 0;
+    }
+    .compact-disclosure > summary .compact-title {
+      flex: 1; min-width: 0; margin: 0; font-size: 1rem;
+    }
+    .compact-disclosure > summary .role-badge,
+    .compact-disclosure > summary .invitation-state { flex-shrink: 0; margin-top: 0; }
+    .compact-disclosure > summary.compact-entry-summary { flex-wrap: wrap; }
+    .compact-disclosure[open] > summary { margin-bottom: 14px; }
+    .settings-grid > .compact-disclosure { align-self: start; }
+    .permissions-table .permission-section th {
+      text-align: left; background: var(--surface); font-weight: bold;
+    }
   </style>
 </head>
 
@@ -818,6 +848,7 @@
         <div class="management-card" style="margin-top: 18px;">
           <h3>Mitglieder</h3>
           <!-- Role overview: extend by adding a <tr> with one cell per role. -->
+          <p class="notice">Administratorrechte vergibt nur der Inhaber. Administratoren können nur Bearbeiter und Betrachter verwalten, nicht andere Administratoren oder den Inhaber. Die eigene Rolle kann hier nicht geändert werden. Einladungen setzen freie Plätze voraus. Diese Übersicht beschreibt bestehende Rechte und erteilt keine zusätzlichen Berechtigungen.</p>
           <details id="companyPermissionsOverview" class="permissions-overview">
             <summary>Rollen und Berechtigungen anzeigen</summary>
             <div class="permissions-scroll" role="region" aria-label="Berechtigungen in der Firma" tabindex="0">
@@ -832,107 +863,119 @@
                     <th scope="col"><span class="role-badge role-viewer">Betrachter</span></th>
                   </tr>
                 </thead>
-                <tbody>
-                <tr>
+                <tbody><tr class="permission-section"><th scope="rowgroup" colspan="5">Maschinendatenbank</th></tr>
+<tr>
                   <th scope="row">Firmenmaschinen und Werkzeuge ansehen</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Firmenmaschinen erstellen, bearbeiten und löschen</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Werkzeuge erstellen, bearbeiten und löschen</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Private Maschinen in die Firma kopieren</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr><th scope="row">Maschinen in der Maschinendatenbank aktiv/inaktiv setzen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td></tr>
+</tbody>
+<tbody><tr class="permission-section"><th scope="rowgroup" colspan="5">Wartungspläne</th></tr>
+<tr><th scope="row">Wartungspläne und Historie aktiver Maschinen ansehen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td></tr>
+<tr><th scope="row">Wartungen ausführen und bestätigen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td></tr>
+<tr><th scope="row">Wartungspläne erstellen, bearbeiten und löschen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td></tr>
+<tr><th scope="row">Intervalle und Fälligkeiten ändern</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td></tr>
+<tr><th scope="row">Eigene Bestätigungen innerhalb von 24 Stunden zurücknehmen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td></tr>
+<tr><th scope="row">Fremde Bestätigungen oder nach Ablauf von 24 Stunden zurücknehmen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td></tr>
+<tr><th scope="row">Maschinen in der Wartungsfunktion aktiv/inaktiv setzen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td></tr>
+</tbody>
+<tbody><tr class="permission-section"><th scope="rowgroup" colspan="5">Mitglieder und Firmenverwaltung</th></tr>
+<tr>
                   <th scope="row">Mitgliederliste und administrative Mitgliederdaten ansehen</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Administrative Mitgliederdaten bearbeiten</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Bearbeiter und Betrachter einladen</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Administratoren einladen</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Rollen anderer Bearbeiter/Betrachter ändern oder diese entfernen</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Administratorrechte vergeben oder andere Administratoren entfernen</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Firmenname ändern</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                <tr>
+<tr>
                   <th scope="row">Inhaberrechte übertragen</th>
                   <td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td>
                 </tr>
-                </tbody>
+</tbody>
               </table>
             </div>
-            <p class="notice">Administratorrechte vergibt nur der Inhaber. Administratoren können nur Bearbeiter und Betrachter verwalten, nicht andere Administratoren oder den Inhaber. Die eigene Rolle kann hier nicht geändert werden. Einladungen setzen freie Plätze voraus. Diese Übersicht beschreibt bestehende Rechte und erteilt keine zusätzlichen Berechtigungen.</p>
+            
           </details>
           <div id="memberList" class="member-list">
             <p class="empty-state">Mitglieder werden geladen …</p>
           </div>
         </div>
 
-        <div
+        <details
           id="machineImportSection"
-          class="management-card"
+          class="compact-disclosure management-card"
           style="margin-top: 18px;"
         >
-          <h3>Private Maschinen in die Firma kopieren</h3>
+          <summary>Private Maschinen in die Firma kopieren</summary>
           <p>
             Wählen Sie bis zu 20 private Maschinen aus. Die privaten Originale
             bleiben erhalten. Werkzeuglisten werden vollständig mitkopiert.
@@ -968,15 +1011,15 @@
               </div>
             </div>
           </div>
-        </div>
+        </details>
       </div>
 
       <div id="companySettingsPanel" class="settings-area">
         <h3>Firmeneinstellungen</h3>
 
         <div id="ownerSettings" class="settings-grid hidden">
-          <div class="management-card">
-            <h3>Firmenname ändern</h3>
+          <details class="compact-disclosure management-card">
+            <summary>Firmenname ändern</summary>
             <form id="updateCompanyNameForm">
               <div class="input-group">
                 <label for="companyNameSettingsInput">Firmenname</label>
@@ -994,10 +1037,10 @@
                 Firmennamen speichern
               </button>
             </form>
-          </div>
+          </details>
 
-<div class="management-card warning-card">
-  <h3>Firma löschen</h3>
+<details class="compact-disclosure management-card warning-card">
+  <summary>Firma löschen</summary>
 
   <p id="deleteCompanyDescription">
     Die Voraussetzungen für die Löschung werden geprüft.
@@ -1018,10 +1061,10 @@
     Ihr persönlicher Account und Ihre privaten Maschinen
     bleiben erhalten.
   </p>
-</div>
+</details>
 
-          <div class="management-card warning-card">
-            <h3>Inhaberrechte übertragen</h3>
+          <details class="compact-disclosure management-card warning-card">
+            <summary>Inhaberrechte übertragen</summary>
             <p>
               Der gewählte Benutzer wird neuer Inhaber. Ihre eigene Rolle wird
               danach automatisch zum Administrator geändert.
@@ -1037,7 +1080,7 @@
               Vor einer Account-Löschung müssen Sie die Inhaberrechte übertragen,
               wenn weitere Mitglieder vorhanden sind.
             </p>
-          </div>
+          </details>
         </div>
 
         <div id="memberExitPanel" class="management-card warning-card hidden">
@@ -2042,6 +2085,7 @@
         return;
       }
 
+      retainDisclosureStates(memberList);
       memberList.replaceChildren();
 
       const members = [...currentMembers.values()]
@@ -2072,15 +2116,35 @@
       }
     }
 
+    // Presentation state only; keyed by account, company and document identity.
+    const disclosureStates = new Map();
+    function rememberDisclosure(card, key, limitedContainer = null) {
+      const scopedKey = `${currentUser?.uid || "guest"}:${currentCompanyId || "none"}:${key}`;
+      card.dataset.disclosureKey = scopedKey;
+      card.open = disclosureStates.get(scopedKey) === true;
+      card.addEventListener("toggle", () => {
+        if (!card.isConnected) return;
+        disclosureStates.set(scopedKey, card.open);
+        if (limitedContainer) limitVisibleItems(limitedContainer, 3);
+      });
+    }
+    function retainDisclosureStates(container) {
+      container.querySelectorAll("details[data-disclosure-key]").forEach((card) => {
+        disclosureStates.set(card.dataset.disclosureKey, card.open);
+      });
+    }
+
     function createMemberCard(member) {
       const profile = currentMemberProfiles.get(member.id) || {};
-      const card = document.createElement("article");
-      card.className = "member-card";
+      const card = document.createElement("details");
+      card.className = "member-card compact-disclosure";
+      rememberDisclosure(card, `member:${member.id}`);
 
-      const heading = document.createElement("div");
+      const heading = document.createElement("span");
       heading.className = "member-heading";
 
-      const name = document.createElement("h4");
+      const name = document.createElement("span");
+      name.className = "compact-title";
       name.textContent = memberDisplayName(profile);
 
       const role = document.createElement("span");
@@ -2100,7 +2164,9 @@
         ? detailParts.join(" · ")
         : "Noch keine Anstellungs- oder Abteilungsangaben";
 
-      card.append(heading, email, details);
+      const cardSummary = document.createElement("summary");
+      cardSummary.append(heading);
+      card.append(cardSummary, email, details);
 
       if (canChangeMemberRole(member)) {
         const actions = document.createElement("div");
@@ -2140,6 +2206,7 @@
 
       const profileDetails = document.createElement("details");
       profileDetails.className = "profile-details";
+      rememberDisclosure(profileDetails, `member-profile:${member.id}`);
 
       const summary = document.createElement("summary");
       summary.textContent = "Administrative Mitgliederdaten bearbeiten";
@@ -2467,8 +2534,16 @@ deleteCompanyButton.addEventListener(
       }
     });
 
+    machineImportSection.addEventListener("toggle", () => {
+      if (machineImportSection.open) {
+        limitVisibleItems(privateMachineList, 4);
+        limitVisibleItems(companyMachineList, 4);
+      }
+    });
+
     showMachineImportButton.addEventListener("click", () => {
       dismissMachineImportNotice();
+      machineImportSection.open = true;
       machineImportSection.scrollIntoView({behavior: "smooth", block: "start"});
     });
 
@@ -2560,6 +2635,7 @@ deleteCompanyButton.addEventListener(
 }
 
     function renderInvitationGroup(container, invitations, emptyText) {
+      retainDisclosureStates(container);
       container.replaceChildren();
 
       if (invitations.length === 0) {
@@ -2572,10 +2648,11 @@ deleteCompanyButton.addEventListener(
 
       for (const item of invitations) {
         const {invitation, data, effectiveStatus} = item;
-        const card = document.createElement("article");
-        card.className = "invitation-card";
+        const card = document.createElement("details");
+        card.className = "invitation-card compact-disclosure";
+        rememberDisclosure(card, `sent-invitation:${invitation.id}`, container);
 
-        const title = document.createElement("h3");
+        const title = document.createElement("span");
         title.textContent = data.invitedEmail || "Unbekannte E-Mail-Adresse";
 
         const role = document.createElement("p");
@@ -2590,7 +2667,11 @@ deleteCompanyButton.addEventListener(
         status.className = `invitation-state ${effectiveStatus || "unknown"}`;
         status.textContent = invitationStatusLabel(effectiveStatus);
 
-        card.append(title, role, expiry, status);
+        const summary = document.createElement("summary");
+        summary.className = "compact-entry-summary";
+        title.classList.add("compact-title");
+        summary.append(title, status);
+        card.append(summary, role, expiry);
 
         if (effectiveStatus === "pending") {
           const withdrawButton = document.createElement("button");
@@ -2672,6 +2753,7 @@ deleteCompanyButton.addEventListener(
     }
 
     function renderInvitations(documents) {
+      retainDisclosureStates(invitationList);
       invitationList.replaceChildren();
 
       const now = Date.now();
@@ -2691,10 +2773,11 @@ deleteCompanyButton.addEventListener(
 
       for (const invitation of activeInvitations) {
         const data = invitation.data();
-        const card = document.createElement("article");
-        card.className = "invitation-card";
+        const card = document.createElement("details");
+        card.className = "invitation-card compact-disclosure";
+        rememberDisclosure(card, `incoming-invitation:${invitation.id}`);
 
-        const title = document.createElement("h3");
+        const title = document.createElement("span");
         title.textContent = data.companyName || "Firmeneinladung";
 
         const role = document.createElement("p");
@@ -2724,7 +2807,14 @@ deleteCompanyButton.addEventListener(
         });
 
         buttons.append(acceptButton, declineButton);
-        card.append(title, role, expiry, buttons);
+        const summary = document.createElement("summary");
+        summary.className = "compact-entry-summary";
+        title.classList.add("compact-title");
+        const roleBadge = document.createElement("span");
+        roleBadge.className = "role-badge";
+        roleBadge.textContent = roleLabel(data.role);
+        summary.append(title, roleBadge);
+        card.append(summary, role, expiry, buttons);
         invitationList.append(card);
       }
     }
