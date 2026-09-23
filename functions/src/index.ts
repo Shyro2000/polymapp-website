@@ -44,4 +44,4 @@ export {
 export {
   deleteCompany,
 } from "./company/deleteCompany";
-
+export {getMaintenanceActor} from "./maintenanceActor";
