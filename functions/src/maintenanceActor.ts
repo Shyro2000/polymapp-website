@@ -74,7 +74,11 @@ export const getMaintenanceActor = onCall(
         profile.firstName : "";
       const lastName = typeof profile.lastName === "string" ?
         profile.lastName : "";
-      if (email.length > 320 || firstName.length > 200 || lastName.length > 200) {
+      if (
+        email.length > 320 ||
+        firstName.length > 200 ||
+        lastName.length > 200
+      ) {
         throw new HttpsError(
           "failed-precondition",
           "Die gespeicherten Namens- oder E-Mail-Felder sind zu lang."
@@ -83,7 +87,7 @@ export const getMaintenanceActor = onCall(
 
       // Nur die eigene Identität, keine internen Notizen oder Personaldaten.
       // Diese Funktion liest nur. Die App speichert die Rückgabe direkt im
-      // Wartungsereignis; spätere Profiländerungen ändern alte Ereignisse nicht.
+      // Wartungsereignis; spätere Profiländerungen ändern es nicht.
       return {uid, email, firstName, lastName, nameSource: "company"};
     });
   }
