@@ -977,7 +977,8 @@
           <summary>Copy private machines to the company</summary>
           <p>
             Select up to 20 private machines. The private originals will remain
-            unchanged. Tool lists are copied in full.
+            unchanged. Tool lists, maintenance plans and the full maintenance
+            history are copied as well.
           </p>
 
           <div class="management-grid">
@@ -1070,9 +1071,10 @@
               Permanently delete company
             </button>
             <p class="notice notice-warning">
-              All company machines, tool lists, member data and invitations
-              will be permanently deleted. Your personal account and private
-              machines will remain unchanged.
+              All company machines, tool lists, maintenance plans and history,
+              member data and invitations will be permanently deleted. Your
+              personal account, private machines and their maintenance data
+              will remain unchanged.
             </p>
           </details>
         </div>
@@ -1084,8 +1086,9 @@
             Leave company
           </button>
           <p class="notice notice-warning">
-            Your private machines will remain unchanged. After leaving, you will no
-            longer have access to company machines or company tools.
+            Your private machines and their maintenance data will remain unchanged.
+            After leaving, you will no longer have access to company machines,
+            tools or their maintenance data.
           </p>
         </div>
       </div>
@@ -1221,7 +1224,8 @@
     const deleteCompanyCall = httpsCallable(functions, "deleteCompany");
     const importPrivateMachinesCall = httpsCallable(
       functions,
-      "importPrivateMachinesToCompany"
+      "importPrivateMachinesToCompany",
+      {timeout: 210000}
     );
 
     const loadingPanel = document.getElementById("loadingPanel");
@@ -1407,6 +1411,11 @@
       }
       if (reason === "recent_login_required") {
         return "Please sign in again.";
+      }
+      if (reason === "machine_import_too_many_documents") {
+        return "The selection contains too many tools or maintenance records. " +
+          "Select fewer machines. A single machine that exceeds the limit " +
+          "cannot currently be copied.";
       }
       if (error?.code === "functions/already-exists") {
         if (serverMessage.includes("Mitglied dieser Firma")) {
@@ -2367,8 +2376,9 @@
     leaveCompanyButton.addEventListener("click", async () => {
       const confirmed = window.confirm(
         "Really leave the company?\n\n" +
-        "You will lose access to all company machines and company tools. " +
-        "Your private machines will remain unchanged."
+        "You will lose access to company machines, tools and their " +
+        "maintenance data. Your private machines and their maintenance " +
+        "data will remain unchanged."
       );
 
       if (!confirmed) {
@@ -2407,7 +2417,7 @@
       const companyName = String(currentCompany.name || "").trim();
       const confirmed = window.confirm(
         `Really delete company “${companyName}”?\n\n` +
-        "All company machines, tool lists, member data and invitations will be permanently deleted.\n\nYour personal account and private machines will remain unchanged."
+        "All company machines, tool lists, maintenance plans and history, member data and invitations will be permanently deleted.\n\nYour personal account, private machines and their maintenance data will remain unchanged."
       );
 
       if (!confirmed) {
@@ -2453,8 +2463,9 @@
       }
 
       const confirmed = window.confirm(
-        `${machineIds.length} machine(s), including tool lists, ` +
-        "copy to the company?\n\nThe private originals will remain unchanged."
+        `Copy ${machineIds.length} machine(s), including their tool lists, ` +
+        "maintenance plans and history, to the company?\n\n" +
+        "The private originals will remain unchanged."
       );
 
       if (!confirmed) {

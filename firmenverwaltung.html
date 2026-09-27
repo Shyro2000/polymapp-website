@@ -978,7 +978,8 @@
           <summary>Private Maschinen in die Firma kopieren</summary>
           <p>
             Wählen Sie bis zu 20 private Maschinen aus. Die privaten Originale
-            bleiben erhalten. Werkzeuglisten werden vollständig mitkopiert.
+            bleiben erhalten. Werkzeuglisten, Wartungspläne und die gesamte
+            Wartungshistorie werden mitkopiert.
           </p>
 
           <div class="management-grid">
@@ -1057,9 +1058,9 @@
 
   <p class="notice notice-warning">
     Dabei werden alle Firmenmaschinen, Werkzeuglisten,
-    Mitgliederdaten und Einladungen unwiderruflich gelöscht.
-    Ihr persönlicher Account und Ihre privaten Maschinen
-    bleiben erhalten.
+    Wartungspläne und Wartungshistorien sowie Mitgliederdaten und
+    Einladungen unwiderruflich gelöscht. Ihr persönlicher Account,
+    Ihre privaten Maschinen und deren Wartungsdaten bleiben erhalten.
   </p>
 </details>
 
@@ -1090,8 +1091,9 @@
             Firma verlassen
           </button>
           <p class="notice notice-warning">
-            Ihre privaten Maschinen bleiben erhalten. Nach dem Austritt haben Sie
-            keinen Zugriff mehr auf Firmenmaschinen und Firmenwerkzeuge.
+            Ihre privaten Maschinen samt Wartungsdaten bleiben erhalten. Nach dem
+            Austritt haben Sie keinen Zugriff mehr auf Firmenmaschinen,
+            Firmenwerkzeuge und deren Wartungsdaten.
           </p>
         </div>
       </div>
@@ -1227,7 +1229,8 @@
     const deleteCompanyCall = httpsCallable(functions,"deleteCompany");
     const importPrivateMachinesCall = httpsCallable(
       functions,
-      "importPrivateMachinesToCompany"
+      "importPrivateMachinesToCompany",
+      {timeout: 210000}
     );
 
     const loadingPanel = document.getElementById("loadingPanel");
@@ -1408,6 +1411,11 @@
       }
       if (reason === "recent_login_required") {
         return "Bitte melden Sie sich erneut an.";
+      }
+      if (reason === "machine_import_too_many_documents") {
+        return "Die Auswahl enthält zu viele Werkzeuge oder Wartungsdaten. " +
+          "Wählen Sie weniger Maschinen aus. Überschreitet bereits eine " +
+          "einzelne Maschine die Grenze, kann sie derzeit nicht kopiert werden.";
       }
       if (error?.code === "functions/already-exists") {
         return error.message || "Der Eintrag besteht bereits.";
@@ -2381,8 +2389,9 @@
     leaveCompanyButton.addEventListener("click", async () => {
       const confirmed = window.confirm(
         "Firma wirklich verlassen?\n\n" +
-        "Sie verlieren den Zugriff auf alle Firmenmaschinen und Firmenwerkzeuge. " +
-        "Ihre privaten Maschinen bleiben erhalten."
+        "Sie verlieren den Zugriff auf Firmenmaschinen, Firmenwerkzeuge " +
+        "und deren Wartungsdaten. Ihre privaten Maschinen samt " +
+        "Wartungsdaten bleiben erhalten."
       );
 
       if (!confirmed) {
@@ -2436,11 +2445,11 @@ deleteCompanyButton.addEventListener(
 
     const confirmed = window.confirm(
       `Firma „${companyName}“ wirklich löschen?\n\n` +
-      "Alle Firmenmaschinen, Werkzeuglisten, " +
-      "Mitgliederdaten und Einladungen werden " +
+      "Alle Firmenmaschinen, Werkzeuglisten, Wartungspläne, " +
+      "Wartungshistorien, Mitgliederdaten und Einladungen werden " +
       "unwiderruflich gelöscht.\n\n" +
-      "Ihr persönlicher Account und Ihre privaten " +
-      "Maschinen bleiben erhalten.",
+      "Ihr persönlicher Account, Ihre privaten Maschinen " +
+      "und deren Wartungsdaten bleiben erhalten.",
     );
 
     if (!confirmed) {
@@ -2499,8 +2508,9 @@ deleteCompanyButton.addEventListener(
       }
 
       const confirmed = window.confirm(
-        `${machineIds.length} Maschine(n) inklusive Werkzeuglisten ` +
-        "in die Firma kopieren?\n\nDie privaten Originale bleiben erhalten."
+        `${machineIds.length} Maschine(n) inklusive Werkzeuglisten, ` +
+        "Wartungsplänen und Historie in die Firma kopieren?\n\n" +
+        "Die privaten Originale bleiben erhalten."
       );
 
       if (!confirmed) {

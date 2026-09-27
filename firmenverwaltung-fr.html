@@ -978,7 +978,8 @@
           <summary>Copier des machines privées dans l’entreprise</summary>
           <p>
             Sélectionnez jusqu’à 20 machines privées. Les originaux privés restent
-            inchangés. Les listes d’outils sont entièrement copiées.
+            inchangés. Les listes d’outils, les plans de maintenance et tout
+            l’historique des interventions sont également copiés.
           </p>
 
           <div class="management-grid">
@@ -1072,9 +1073,10 @@
               Supprimer définitivement l’entreprise
             </button>
             <p class="notice notice-warning">
-              Toutes les machines de l’entreprise, les listes d’outils,
-              les données des membres et les invitations seront définitivement
-              supprimées. Votre compte personnel et vos machines privées
+              Toutes les machines de l’entreprise, les listes d’outils, les plans
+              et historiques de maintenance, les données des membres et les
+              invitations seront définitivement supprimés. Votre compte
+              personnel, vos machines privées et leurs données de maintenance
               restent inchangés.
             </p>
           </details>
@@ -1087,8 +1089,9 @@
             Quitter l’entreprise
           </button>
           <p class="notice notice-warning">
-            Vos machines privées restent inchangées. Après votre départ, vous n’avez
-            plus accès aux machines et aux outils de l’entreprise.
+            Vos machines privées et leurs données de maintenance restent inchangées.
+            Après votre départ, vous n’avez plus accès aux machines, aux outils
+            ni aux données de maintenance de l’entreprise.
           </p>
         </div>
       </div>
@@ -1224,7 +1227,8 @@
     const deleteCompanyCall = httpsCallable(functions, "deleteCompany");
     const importPrivateMachinesCall = httpsCallable(
       functions,
-      "importPrivateMachinesToCompany"
+      "importPrivateMachinesToCompany",
+      {timeout: 210000}
     );
 
     const loadingPanel = document.getElementById("loadingPanel");
@@ -1410,6 +1414,11 @@
       }
       if (reason === "recent_login_required") {
         return "Veuillez vous reconnecter.";
+      }
+      if (reason === "machine_import_too_many_documents") {
+        return "La sélection contient trop d’outils ou de données de maintenance. " +
+          "Sélectionnez moins de machines. Une machine qui dépasse seule la " +
+          "limite ne peut pas être copiée pour le moment.";
       }
       if (error?.code === "functions/already-exists") {
         if (serverMessage.includes("Mitglied dieser Firma")) {
@@ -2370,8 +2379,9 @@
     leaveCompanyButton.addEventListener("click", async () => {
       const confirmed = window.confirm(
         "Voulez-vous vraiment quitter l’entreprise ?\n\n" +
-        "Vous perdrez l’accès à toutes les machines et à tous les outils de l’entreprise. " +
-        "Vos machines privées restent inchangées."
+        "Vous perdrez l’accès aux machines, aux outils et aux données de " +
+        "maintenance de l’entreprise. Vos machines privées et leurs " +
+        "données de maintenance restent inchangées."
       );
 
       if (!confirmed) {
@@ -2410,7 +2420,7 @@
       const companyName = String(currentCompany.name || "").trim();
       const confirmed = window.confirm(
         `Voulez-vous vraiment supprimer l’entreprise « ${companyName} » ?\n\n` +
-        "Toutes les machines de l’entreprise, les listes d’outils, les données des membres et les invitations seront définitivement supprimées.\n\nVotre compte personnel et vos machines privées restent inchangés."
+        "Toutes les machines de l’entreprise, les listes d’outils, les plans et historiques de maintenance, les données des membres et les invitations seront définitivement supprimés.\n\nVotre compte personnel, vos machines privées et leurs données de maintenance restent inchangés."
       );
 
       if (!confirmed) {
@@ -2456,8 +2466,9 @@
       }
 
       const confirmed = window.confirm(
-        `${machineIds.length} machine(s), listes d’outils comprises, ` +
-        "copier dans l’entreprise ?\n\nLes originaux privés restent inchangés."
+        `Copier ${machineIds.length} machine(s), avec les listes d’outils, ` +
+        "les plans et historiques de maintenance, dans l’entreprise ?\n\n" +
+        "Les originaux privés restent inchangés."
       );
 
       if (!confirmed) {
