@@ -45,3 +45,5 @@ export {
   deleteCompany,
 } from "./company/deleteCompany";
 export {getMaintenanceActor} from "./maintenanceActor";
+export {getAdminCompanies} from "./admin/getAdminCompanies";
+

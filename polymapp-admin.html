@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    name="description"
+    content="Interne PolymApp Administration für Firmenaccounts und Abrechnung."
+  >
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>PolymApp Administration</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" href="favicon.ico">
+
+  <style>
+    :root {
+      --red: #f60100;
+      --dark-red: #b80000;
+      --text: #222;
+      --muted: #5f6368;
+      --border: #ddd;
+      --surface: #f5f5f5;
+      --success: #1f6b2b;
+      --warning: #8a4b00;
+      --danger: #a00000;
+      --info: #1769aa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+      background: #fff;
+    }
+
+    header {
+      position: relative;
+      background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .header-logo {
+      max-width: 400px;
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    header h2 {
+      margin: 0;
+      color: #fff;
+    }
+
+    .admin-label {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      padding: 5px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: 999px;
+      color: white;
+      font-size: 0.85rem;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.14);
+    }
+
+    nav {
+      padding: 10px;
+      text-align: center;
+      background: #222;
+    }
+
+    nav a {
+      display: inline-block;
+      margin: 0 10px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    nav a:not(:last-child)::after {
+      content: " |";
+      color: white;
+      margin-left: 10px;
+    }
+
+    nav a.active {
+      font-weight: bold;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: #b00000;
+    }
+
+    .lead {
+      max-width: 850px;
+      color: var(--muted);
+    }
+
+    .panel {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin-top: 0;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .summary-item {
+      padding: 14px;
+      border: 1px solid #e1e1e1;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .summary-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-value {
+      display: block;
+      margin-top: 4px;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 220px auto;
+      gap: 12px;
+      align-items: end;
+      margin-top: 18px;
+    }
+
+    .input-group {
+      margin: 0;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      font: inherit;
+      background: #fff;
+    }
+
+    button,
+    .button-link {
+      display: inline-block;
+      padding: 10px 18px;
+      border: 0;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      cursor: pointer;
+      background: var(--red);
+    }
+
+    button:hover,
+    .button-link:hover {
+      background: var(--dark-red);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.6;
+    }
+
+    .button-secondary {
+      background: #656565;
+    }
+
+    .button-secondary:hover {
+      background: #444;
+    }
+
+    .table-wrap {
+      margin-top: 18px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      min-width: 920px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5e5e5;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: #333;
+      font-size: 0.9rem;
+      background: #f3f3f3;
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover {
+      background: #fffafa;
+    }
+
+    .company-name {
+      font-weight: bold;
+    }
+
+    .company-id {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      overflow-wrap: anywhere;
+    }
+
+    .member-count {
+      display: inline-flex;
+      align-items: center;
+      min-width: 62px;
+      justify-content: center;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-weight: bold;
+      background: #eef1f4;
+    }
+
+    .member-count.full {
+      color: #7a0000;
+      background: #ffe1e1;
+    }
+
+    .member-count.over {
+      color: #fff;
+      background: #a00000;
+    }
+
+    .price-main {
+      display: block;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .price-sub {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: bold;
+      white-space: nowrap;
+      background: #666;
+    }
+
+    .status-active {
+      background: #287437;
+    }
+
+    .status-pending {
+      background: #1769aa;
+    }
+
+    .status-overdue {
+      background: #9c4f00;
+    }
+
+    .status-suspended {
+      background: #8b0000;
+    }
+
+    .status-none {
+      background: #686868;
+    }
+
+    .status-deleting {
+      background: #686868;
+    }
+
+    .status {
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      max-height: 0;
+      padding: 0 20px;
+      overflow: hidden;
+      opacity: 0;
+      text-align: center;
+      font-weight: bold;
+      pointer-events: none;
+      transition: opacity 0.35s ease, max-height 0.35s ease, padding 0.35s ease;
+    }
+
+    .status.visible {
+      max-height: 120px;
+      padding: 14px 20px;
+      opacity: 1;
+    }
+
+    .status.success {
+      color: var(--success);
+      border-bottom: 2px solid #b9e3c2;
+      background: #e9f7ee;
+    }
+
+    .status.error {
+      color: var(--danger);
+      border-bottom: 2px solid #f1b5b5;
+      background: #fdecec;
+    }
+
+    .empty-state {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .notice {
+      margin-top: 16px;
+      padding: 13px;
+      border-radius: 5px;
+      color: #174c24;
+      background: #e9f7ee;
+    }
+
+    .notice-warning {
+      color: #714000;
+      background: #fff5df;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .tariff-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .tariff-card {
+      padding: 12px;
+      border: 1px solid #dedede;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .tariff-card strong {
+      display: block;
+    }
+
+    .tariff-card span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .loading-line {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+      border: 2px solid #ccc;
+      border-top-color: var(--red);
+      border-radius: 50%;
+      vertical-align: -3px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      text-align: center;
+      background: #f2f2f2;
+    }
+
+    footer a {
+      color: #8b0000;
+    }
+
+    @media (max-width: 900px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tariff-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .toolbar button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 700px) {
+      nav a {
+        margin: 5px 8px;
+      }
+
+      .summary-grid,
+      .tariff-grid,
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-label {
+        position: static;
+        display: inline-block;
+        margin-top: 10px;
+      }
+
+      .toolbar button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
+    <h2>Administration</h2>
+    <span class="admin-label">Interner Bereich</span>
+  </header>
+
+  <nav>
+    <a href="index.html">Startseite</a>
+    <a href="accountverwaltung.html">Accountverwaltung</a>
+    <a href="firmenverwaltung.html">Firmenverwaltung</a>
+    <a href="polymapp-admin.html" class="active">Administration</a>
+  </nav>
+
+  <div id="status" class="status" aria-live="polite"></div>
+
+  <main class="container">
+    <h1>Firmenaccounts</h1>
+    <p class="lead">
+      Interne Übersicht aller PolymApp-Firmenaccounts für Tarif- und Abrechnungskontrolle.
+      Rechnungen und Zahlungseingänge werden später auf einer separaten Seite verwaltet.
+    </p>
+
+    <section id="loadingPanel" class="panel">
+      <h2>Daten werden geladen</h2>
+      <p class="empty-state">
+        <span class="loading-line" aria-hidden="true"></span>
+        Firmenaccounts werden geprüft …
+      </p>
+    </section>
+
+    <section id="loginPanel" class="panel hidden">
+      <h2>Anmeldung erforderlich</h2>
+      <p>
+        Melde dich zuerst mit deinem PolymApp-Account an.
+      </p>
+      <a class="button-link" href="accountverwaltung.html">Zur Anmeldung</a>
+    </section>
+
+    <section id="accessDeniedPanel" class="panel hidden">
+      <h2>Zugriff verweigert</h2>
+      <p>
+        Dieser Bereich ist ausschließlich für den internen PolymApp-Systemadministrator vorgesehen.
+      </p>
+      <a class="button-link button-secondary" href="index.html">Zur Startseite</a>
+    </section>
+
+    <section id="backendMissingPanel" class="panel hidden">
+      <h2>Admin-Backend noch nicht eingerichtet</h2>
+      <p>
+        Die Seite ist bereit. Zum sicheren Laden aller Firmen wird noch die geschützte
+        Cloud Function <strong>getAdminCompanies</strong> benötigt.
+      </p>
+      <p class="notice notice-warning">
+        Die globale Firmenliste wird absichtlich nicht direkt aus dem Browser aus Firestore gelesen.
+      </p>
+    </section>
+
+    <section id="adminPanel" class="hidden">
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Firmen</span>
+          <span id="companyCount" class="summary-value">0</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Aktive Mitglieder</span>
+          <span id="memberCount" class="summary-value">0</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Gebuchte Plätze</span>
+          <span id="seatCount" class="summary-value">0</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Jahreswert laut Tarifen</span>
+          <span id="annualValue" class="summary-value">CHF 0.00</span>
+        </div>
+      </div>
+
+      <section class="panel">
+        <h2>Firmenübersicht</h2>
+
+        <div class="toolbar">
+          <div class="input-group">
+            <label for="companySearch">Firma suchen</label>
+            <input
+              id="companySearch"
+              type="search"
+              placeholder="Firmenname oder Firmen-ID"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="input-group">
+            <label for="billingFilter">Abo-Status</label>
+            <select id="billingFilter">
+              <option value="all">Alle</option>
+              <option value="active">Aktiv</option>
+              <option value="payment_pending">Zahlung offen</option>
+              <option value="overdue">Überfällig</option>
+              <option value="suspended">Gesperrt</option>
+              <option value="not_configured">Noch kein Abo</option>
+            </select>
+          </div>
+
+          <button id="refreshButton" type="button" class="button-secondary">
+            Aktualisieren
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table aria-label="PolymApp Firmenaccounts">
+            <thead>
+              <tr>
+                <th>Firma</th>
+                <th>Mitglieder</th>
+                <th>Tarif</th>
+                <th>Preis / Mitglied / Monat</th>
+                <th>Fixpreis / Jahr</th>
+                <th>Abo-Status</th>
+              </tr>
+            </thead>
+            <tbody id="companyTableBody">
+              <tr>
+                <td colspan="6" class="empty-state">Keine Firmendaten geladen.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p id="resultCount" class="empty-state" style="margin-top: 12px;"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Preisstaffel</h2>
+        <p class="empty-state">
+          Der Jahrespreis wird immer anhand der maximal gebuchten Mitgliederzahl berechnet.
+        </p>
+        <div id="tariffGrid" class="tariff-grid"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>PolymApp</strong> – Interne Administration</p>
+    <p>
+      <a href="index.html">Startseite</a> ·
+      <a href="accountverwaltung.html">Accountverwaltung</a> ·
+      <a href="firmenverwaltung.html">Firmenverwaltung</a>
+    </p>
+    <p>© 2024–<span id="year"></span> PolymApp</p>
+  </footer>
+
+  <script type="module">
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+    import {
+      getAuth,
+      connectAuthEmulator,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import {
+      initializeAppCheck,
+      ReCaptchaV3Provider
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
+
+    import {
+      getFunctions,
+      connectFunctionsEmulator,
+      httpsCallable
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
+      authDomain: "twyt-80c82.firebaseapp.com",
+      projectId: "twyt-80c82",
+      storageBucket: "twyt-80c82.firebasestorage.app",
+      messagingSenderId: "64966382407",
+      appId: "1:64966382407:web:6739c6a7afa83eb7877262",
+      measurementId: "G-0QQYN8BKQD"
+    };
+
+    const PRICE_TIERS = Object.freeze({
+      10: 1.5,
+      20: 1.475,
+      30: 1.45,
+      50: 1.43,
+      75: 1.4,
+      100: 1.4,
+      150: 1.4,
+      200: 1.4,
+      300: 1.4,
+      500: 1.4
+    });
+
+    const ALLOWED_SEAT_LIMITS = Object.freeze([
+      10,
+      20,
+      30,
+      50,
+      75,
+      100,
+      150,
+      200,
+      300,
+      500
+    ]);
+
+    const app = initializeApp(firebaseConfig);
+
+    const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(
+      window.location.hostname
+    );
+
+    if (!isLocalDevelopment) {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(
+          "6LcZLfYsAAAAACkYf08UWZp0KLBcfm9Lt820StlF"
+        ),
+        isTokenAutoRefreshEnabled: true
+      });
+    }
+
+    const auth = getAuth(app);
+    const functions = getFunctions(app, "europe-west1");
+
+    if (isLocalDevelopment) {
+      connectAuthEmulator(auth, "http://127.0.0.1:9099", {
+        disableWarnings: true
+      });
+      connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+    }
+
+    const getAdminCompaniesCall = httpsCallable(
+      functions,
+      "getAdminCompanies"
+    );
+
+    const loadingPanel = document.getElementById("loadingPanel");
+    const loginPanel = document.getElementById("loginPanel");
+    const accessDeniedPanel = document.getElementById("accessDeniedPanel");
+    const backendMissingPanel = document.getElementById("backendMissingPanel");
+    const adminPanel = document.getElementById("adminPanel");
+
+    const companyCount = document.getElementById("companyCount");
+    const memberCount = document.getElementById("memberCount");
+    const seatCount = document.getElementById("seatCount");
+    const annualValue = document.getElementById("annualValue");
+
+    const companySearch = document.getElementById("companySearch");
+    const billingFilter = document.getElementById("billingFilter");
+    const refreshButton = document.getElementById("refreshButton");
+    const companyTableBody = document.getElementById("companyTableBody");
+    const resultCount = document.getElementById("resultCount");
+    const tariffGrid = document.getElementById("tariffGrid");
+    const statusBox = document.getElementById("status");
+
+    let companies = [];
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    function getMonthlyRate(seatLimit) {
+      return PRICE_TIERS[seatLimit] ?? null;
+    }
+
+    function getAnnualPrice(seatLimit) {
+      const monthlyRate = getMonthlyRate(seatLimit);
+
+      if (monthlyRate === null) {
+        return null;
+      }
+
+      return seatLimit * monthlyRate * 12;
+    }
+
+    function formatCurrency(value) {
+      if (!Number.isFinite(value)) {
+        return "–";
+      }
+
+      return new Intl.NumberFormat("de-CH", {
+        style: "currency",
+        currency: "CHF",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(value);
+    }
+
+    function formatRate(value) {
+      if (!Number.isFinite(value)) {
+        return "–";
+      }
+
+      return new Intl.NumberFormat("de-CH", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 3
+      }).format(value) + " CHF";
+    }
+
+    function normalizeBillingStatus(value) {
+      switch (value) {
+        case "active":
+        case "payment_pending":
+        case "overdue":
+        case "suspended":
+          return value;
+        default:
+          return "not_configured";
+      }
+    }
+
+    function billingStatusLabel(value) {
+      switch (normalizeBillingStatus(value)) {
+        case "active":
+          return "Aktiv";
+        case "payment_pending":
+          return "Zahlung offen";
+        case "overdue":
+          return "Überfällig";
+        case "suspended":
+          return "Gesperrt";
+        default:
+          return "Noch kein Abo";
+      }
+    }
+
+    function billingStatusClass(value) {
+      switch (normalizeBillingStatus(value)) {
+        case "active":
+          return "status-active";
+        case "payment_pending":
+          return "status-pending";
+        case "overdue":
+          return "status-overdue";
+        case "suspended":
+          return "status-suspended";
+        default:
+          return "status-none";
+      }
+    }
+
+    function setStatus(message, type = "success", duration = 3500) {
+      statusBox.textContent = message;
+      statusBox.className = `status visible ${type}`;
+
+      window.clearTimeout(setStatus.timeoutId);
+      setStatus.timeoutId = window.setTimeout(() => {
+        statusBox.className = "status";
+      }, duration);
+    }
+
+    function showOnly(panel) {
+      loadingPanel.classList.add("hidden");
+      loginPanel.classList.add("hidden");
+      accessDeniedPanel.classList.add("hidden");
+      backendMissingPanel.classList.add("hidden");
+      adminPanel.classList.add("hidden");
+
+      if (panel) {
+        panel.classList.remove("hidden");
+      }
+    }
+
+    function renderTariffs() {
+      tariffGrid.replaceChildren();
+
+      for (const seatLimit of ALLOWED_SEAT_LIMITS) {
+        const monthlyRate = getMonthlyRate(seatLimit);
+        const annualPrice = getAnnualPrice(seatLimit);
+
+        const card = document.createElement("div");
+        card.className = "tariff-card";
+
+        const title = document.createElement("strong");
+        title.textContent = `Bis ${seatLimit} Mitglieder`;
+
+        const rate = document.createElement("span");
+        rate.textContent =
+          `${formatRate(monthlyRate)} / Mitglied / Monat`;
+
+        const annual = document.createElement("span");
+        annual.textContent =
+          `${formatCurrency(annualPrice)} / Jahr`;
+
+        card.append(title, rate, annual);
+        tariffGrid.append(card);
+      }
+    }
+
+    function normalizedCompany(rawCompany) {
+      const seatLimit = Number(rawCompany?.seatLimit || 0);
+      const activeMemberCount = Number(rawCompany?.activeMemberCount || 0);
+
+      return {
+        id: typeof rawCompany?.id === "string" ? rawCompany.id : "",
+        name:
+          typeof rawCompany?.name === "string" && rawCompany.name.trim()
+            ? rawCompany.name.trim()
+            : "Unbenannte Firma",
+        status:
+          typeof rawCompany?.status === "string"
+            ? rawCompany.status
+            : "unknown",
+        seatLimit,
+        activeMemberCount,
+        billingStatus: normalizeBillingStatus(rawCompany?.billingStatus)
+      };
+    }
+
+    function updateSummary() {
+      const totalCompanies = companies.length;
+
+      const totalMembers = companies.reduce(
+        (sum, company) => sum + company.activeMemberCount,
+        0
+      );
+
+      const totalSeats = companies.reduce(
+        (sum, company) => sum + company.seatLimit,
+        0
+      );
+
+      const totalAnnualValue = companies.reduce((sum, company) => {
+        const price = getAnnualPrice(company.seatLimit);
+        return sum + (price ?? 0);
+      }, 0);
+
+      companyCount.textContent = String(totalCompanies);
+      memberCount.textContent = String(totalMembers);
+      seatCount.textContent = String(totalSeats);
+      annualValue.textContent = formatCurrency(totalAnnualValue);
+    }
+
+    function memberCountClass(activeMembers, maxMembers) {
+      if (maxMembers > 0 && activeMembers > maxMembers) {
+        return "member-count over";
+      }
+
+      if (maxMembers > 0 && activeMembers === maxMembers) {
+        return "member-count full";
+      }
+
+      return "member-count";
+    }
+
+    function renderCompanies() {
+      const searchValue = companySearch.value.trim().toLowerCase();
+      const statusValue = billingFilter.value;
+
+      const filteredCompanies = companies
+        .filter((company) => {
+          if (!searchValue) {
+            return true;
+          }
+
+          return (
+            company.name.toLowerCase().includes(searchValue) ||
+            company.id.toLowerCase().includes(searchValue)
+          );
+        })
+        .filter((company) => {
+          if (statusValue === "all") {
+            return true;
+          }
+
+          return company.billingStatus === statusValue;
+        })
+        .sort((a, b) =>
+          a.name.localeCompare(b.name, "de", {sensitivity: "base"})
+        );
+
+      companyTableBody.replaceChildren();
+
+      if (filteredCompanies.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 6;
+        cell.className = "empty-state";
+        cell.textContent = companies.length === 0
+          ? "Es sind noch keine Firmen vorhanden."
+          : "Keine Firma entspricht dem aktuellen Filter.";
+        row.append(cell);
+        companyTableBody.append(row);
+
+        resultCount.textContent = "";
+        return;
+      }
+
+      for (const company of filteredCompanies) {
+        const row = document.createElement("tr");
+
+        const companyCell = document.createElement("td");
+        const companyName = document.createElement("span");
+        companyName.className = "company-name";
+        companyName.textContent = company.name;
+
+        const companyId = document.createElement("span");
+        companyId.className = "company-id";
+        companyId.textContent = company.id;
+
+        companyCell.append(companyName, companyId);
+
+        const membersCell = document.createElement("td");
+        const membersBadge = document.createElement("span");
+        membersBadge.className = memberCountClass(
+          company.activeMemberCount,
+          company.seatLimit
+        );
+        membersBadge.textContent =
+          `${company.activeMemberCount}/${company.seatLimit || "–"}`;
+        membersCell.append(membersBadge);
+
+        const tariffCell = document.createElement("td");
+        tariffCell.textContent = ALLOWED_SEAT_LIMITS.includes(company.seatLimit)
+          ? `Bis ${company.seatLimit}`
+          : company.seatLimit > 0
+            ? `Individuell (${company.seatLimit})`
+            : "Nicht festgelegt";
+
+        const monthlyRate = getMonthlyRate(company.seatLimit);
+        const rateCell = document.createElement("td");
+        rateCell.textContent = monthlyRate === null
+          ? "–"
+          : formatRate(monthlyRate);
+
+        const annualPrice = getAnnualPrice(company.seatLimit);
+        const annualCell = document.createElement("td");
+
+        const annualMain = document.createElement("span");
+        annualMain.className = "price-main";
+        annualMain.textContent = formatCurrency(annualPrice);
+
+        const annualSub = document.createElement("span");
+        annualSub.className = "price-sub";
+        annualSub.textContent = annualPrice === null
+          ? "Unbekannte Tarifstufe"
+          : "fix pro Jahr";
+
+        annualCell.append(annualMain, annualSub);
+
+        const statusCell = document.createElement("td");
+        const statusBadge = document.createElement("span");
+        statusBadge.className =
+          `status-badge ${billingStatusClass(company.billingStatus)}`;
+        statusBadge.textContent = billingStatusLabel(company.billingStatus);
+        statusCell.append(statusBadge);
+
+        row.append(
+          companyCell,
+          membersCell,
+          tariffCell,
+          rateCell,
+          annualCell,
+          statusCell
+        );
+
+        companyTableBody.append(row);
+      }
+
+      resultCount.textContent =
+        `${filteredCompanies.length} von ${companies.length} Firmen angezeigt.`;
+    }
+
+    async function loadCompanies() {
+      refreshButton.disabled = true;
+
+      try {
+        const result = await getAdminCompaniesCall();
+
+        const rawCompanies = Array.isArray(result?.data?.companies)
+          ? result.data.companies
+          : [];
+
+        companies = rawCompanies.map(normalizedCompany);
+
+        updateSummary();
+        renderCompanies();
+        showOnly(adminPanel);
+      } catch (error) {
+        console.error("Admin-Firmen konnten nicht geladen werden:", error);
+
+        if (
+          error?.code === "functions/permission-denied" ||
+          error?.code === "functions/unauthenticated"
+        ) {
+          showOnly(accessDeniedPanel);
+          return;
+        }
+
+        if (error?.code === "functions/not-found") {
+          showOnly(backendMissingPanel);
+          return;
+        }
+
+        showOnly(backendMissingPanel);
+        setStatus(
+          error?.message || "Die Firmenübersicht konnte nicht geladen werden.",
+          "error",
+          7000
+        );
+      } finally {
+        refreshButton.disabled = false;
+      }
+    }
+
+    companySearch.addEventListener("input", renderCompanies);
+    billingFilter.addEventListener("change", renderCompanies);
+
+    refreshButton.addEventListener("click", async () => {
+      await loadCompanies();
+
+      if (!adminPanel.classList.contains("hidden")) {
+        setStatus("Firmenübersicht wurde aktualisiert.");
+      }
+    });
+
+    renderTariffs();
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showOnly(loginPanel);
+        return;
+      }
+
+      loadingPanel.classList.remove("hidden");
+      loginPanel.classList.add("hidden");
+      accessDeniedPanel.classList.add("hidden");
+      backendMissingPanel.classList.add("hidden");
+      adminPanel.classList.add("hidden");
+
+      await loadCompanies();
+    });
+  </script>
+</body>
+</html>

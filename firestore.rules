@@ -40,7 +40,8 @@ service cloud.firestore {
   "companyFeatureAccess",
   "accountDeletionStatus",
   "accountDeletionCompanyId",
-  "accountDeletionStartedAt"
+  "accountDeletionStartedAt",
+  "systemAdmin"
 ]);
     }
 
@@ -52,7 +53,8 @@ service cloud.firestore {
   "companyFeatureAccess",
   "accountDeletionStatus",
   "accountDeletionCompanyId",
-  "accountDeletionStartedAt"
+  "accountDeletionStartedAt",
+  "systemAdmin"
 ]);
     }
 
