@@ -7,19 +7,15 @@ import {
   onCall,
 } from "firebase-functions/https";
 import {db} from "../firebase";
-
-const PRICE_TIERS = new Map<number, number>([
-  [10, 1.5],
-  [20, 1.475],
-  [30, 1.45],
-  [50, 1.43],
-  [75, 1.4],
-  [100, 1.4],
-  [150, 1.4],
-  [200, 1.4],
-  [300, 1.4],
-  [500, 1.4],
-]);
+import {
+  DEFAULT_ISSUER_SETTINGS,
+  InvoiceIssuerSettings,
+  normalizeCompanyBillingDetails,
+  normalizeIssuerSettings,
+  normalizeText,
+  PRICE_TIERS,
+} from "./billingConfig";
+import {buildInvoicePdf} from "./invoicePdf";
 
 /**
  * Verifies that the caller is a PolymApp system admin.
@@ -65,10 +61,11 @@ function parseDate(
     );
   }
 
-  const time = endOfDay ?
-    "23:59:59.999" :
-    "00:00:00.000";
-  const date = new Date(`${value}T${time}Z`);
+  const date = new Date(`${value}T00:00:00.000Z`);
+
+  if (endOfDay) {
+    date.setUTCDate(date.getUTCDate() + 1);
+  }
 
   if (Number.isNaN(date.getTime())) {
     throw new HttpsError(
@@ -90,6 +87,18 @@ function annualPeriodEnd(startAt: Timestamp): Timestamp {
   date.setUTCFullYear(date.getUTCFullYear() + 1);
   date.setUTCDate(date.getUTCDate() - 1);
   date.setUTCHours(23, 59, 59, 999);
+  return Timestamp.fromDate(date);
+}
+
+/**
+ * Returns the day after a timestamp.
+ * @param {Timestamp} value Source timestamp.
+ * @return {Timestamp} Next day at midnight UTC.
+ */
+function nextDay(value: Timestamp): Timestamp {
+  const date = value.toDate();
+  date.setUTCDate(date.getUTCDate() + 1);
+  date.setUTCHours(0, 0, 0, 0);
   return Timestamp.fromDate(date);
 }
 
@@ -123,23 +132,6 @@ function pricingForSeatLimit(
 }
 
 /**
- * Reads and trims an optional short text value.
- * @param {unknown} value Raw value.
- * @param {number} maxLength Maximum allowed length.
- * @return {string} Sanitized string.
- */
-function optionalText(
-  value: unknown,
-  maxLength: number,
-): string {
-  if (typeof value !== "string") {
-    return "";
-  }
-
-  return value.trim().slice(0, maxLength);
-}
-
-/**
  * Checks whether two invoice periods overlap.
  * @param {Timestamp} firstStart First start.
  * @param {Timestamp} firstEnd First end.
@@ -159,6 +151,46 @@ function periodsOverlap(
   );
 }
 
+/**
+ * Validates optional email values.
+ * @param {string} value Email value.
+ * @param {string} fieldName Field label.
+ */
+function validateOptionalEmail(
+  value: string,
+  fieldName: string,
+): void {
+  if (
+    value &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  ) {
+    throw new HttpsError(
+      "invalid-argument",
+      `${fieldName} ist ungültig.`,
+    );
+  }
+}
+
+/**
+ * Sanitizes admin invoice issuer settings.
+ * @param {unknown} value Raw settings.
+ * @return {InvoiceIssuerSettings} Validated settings.
+ */
+function validatedIssuerSettings(
+  value: unknown,
+): InvoiceIssuerSettings {
+  const settings = normalizeIssuerSettings(value);
+  validateOptionalEmail(
+    settings.email,
+    "Die Absender-E-Mail-Adresse",
+  );
+
+  return settings;
+}
+
+/**
+ * Creates an annual company invoice.
+ */
 export const createCompanyInvoice = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError(
@@ -170,8 +202,9 @@ export const createCompanyInvoice = onCall(async (request) => {
   const adminUid = request.auth.uid;
   await requireSystemAdmin(adminUid);
 
-  const companyId = optionalText(
+  const companyId = normalizeText(
     request.data?.companyId,
+    "",
     200,
   );
 
@@ -182,18 +215,19 @@ export const createCompanyInvoice = onCall(async (request) => {
     );
   }
 
-  const periodStartAt = parseDate(
-    request.data?.periodStart,
-    "Der Leistungsbeginn",
+  const dueDate = normalizeText(
+    request.data?.dueDate,
+    "",
+    10,
   );
   const dueAt = parseDate(
-    request.data?.dueDate,
+    dueDate,
     "Das Fälligkeitsdatum",
     true,
   );
-  const periodEndAt = annualPeriodEnd(periodStartAt);
-  const reference = optionalText(
+  const requestedReference = normalizeText(
     request.data?.reference,
+    "",
     120,
   );
 
@@ -210,6 +244,12 @@ export const createCompanyInvoice = onCall(async (request) => {
   const companyRef = db
     .collection("companies")
     .doc(companyId);
+  const billingDetailsRef = db
+    .collection("companyBillingDetails")
+    .doc(companyId);
+  const issuerSettingsRef = db
+    .collection("systemSettings")
+    .doc("invoicing");
   const invoiceRef = db
     .collection("companyInvoices")
     .doc();
@@ -217,19 +257,22 @@ export const createCompanyInvoice = onCall(async (request) => {
     .collection("companyInvoices")
     .where("companyId", "==", companyId);
 
-  const periodYear =
-    periodStartAt.toDate().getUTCFullYear();
+  const issueYear = new Date().getUTCFullYear();
   const counterRef = db
     .collection("systemCounters")
-    .doc(`companyInvoices-${periodYear}`);
+    .doc(`companyInvoices-${issueYear}`);
 
   return db.runTransaction(async (transaction) => {
     const [
       companySnapshot,
+      billingDetailsSnapshot,
+      issuerSettingsSnapshot,
       invoicesSnapshot,
       counterSnapshot,
     ] = await Promise.all([
       transaction.get(companyRef),
+      transaction.get(billingDetailsRef),
+      transaction.get(issuerSettingsRef),
       transaction.get(invoicesQuery),
       transaction.get(counterRef),
     ]);
@@ -248,15 +291,102 @@ export const createCompanyInvoice = onCall(async (request) => {
       );
     }
 
+    const companyName = normalizeText(
+      companySnapshot.get("name"),
+      "",
+      120,
+    );
+    const ownerUid = normalizeText(
+      companySnapshot.get("ownerUid"),
+      "",
+      200,
+    );
+    const customerBilling = normalizeCompanyBillingDetails(
+      billingDetailsSnapshot.exists ?
+        billingDetailsSnapshot.data() :
+        null,
+      companyName,
+      "",
+    );
+
+    if (
+      !ownerUid ||
+      customerBilling.reviewedByOwnerUid !== ownerUid
+    ) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Der Firmeninhaber muss die Rechnungsdaten zuerst " +
+          "prüfen und speichern.",
+      );
+    }
+
+    const issuerSettings = validatedIssuerSettings(
+      issuerSettingsSnapshot.exists ?
+        issuerSettingsSnapshot.data() :
+        DEFAULT_ISSUER_SETTINGS,
+    );
+
+    const seatLimit = companySnapshot.get("seatLimit");
+
+    if (
+      typeof seatLimit !== "number" ||
+      !Number.isFinite(seatLimit)
+    ) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Die Firma hat keinen gültigen Tarif.",
+      );
+    }
+
+    const pricing = pricingForSeatLimit(seatLimit);
+    const currentBillingValidUntil =
+      companySnapshot.get("billingValidUntil");
+    const nowMs = Timestamp.now().toMillis();
+    const gracePeriodMs = 10 * 24 * 60 * 60 * 1000;
+    const hasExistingSubscription =
+      currentBillingValidUntil instanceof Timestamp &&
+      currentBillingValidUntil.toMillis() >=
+        nowMs - gracePeriodMs;
+
+    const activationOnPayment = !hasExistingSubscription;
+    const periodStartAt =
+      hasExistingSubscription ?
+        nextDay(currentBillingValidUntil) :
+        null;
+    const periodEndAt =
+      periodStartAt instanceof Timestamp ?
+        annualPeriodEnd(periodStartAt) :
+        null;
+
     for (const existingInvoice of invoicesSnapshot.docs) {
       const status = existingInvoice.get("status");
+
+      if (status === "cancelled") {
+        continue;
+      }
+
+      const existingActivationOnPayment =
+        existingInvoice.get("activationOnPayment") === true;
+
+      if (
+        activationOnPayment &&
+        existingActivationOnPayment &&
+        status !== "paid"
+      ) {
+        throw new HttpsError(
+          "already-exists",
+          "Für die Erstaktivierung besteht bereits eine offene Rechnung.",
+        );
+      }
+
       const existingStart =
         existingInvoice.get("periodStartAt");
       const existingEnd =
         existingInvoice.get("periodEndAt");
 
       if (
-        status !== "cancelled" &&
+        periodStartAt instanceof Timestamp &&
+        periodEndAt instanceof Timestamp &&
         existingStart instanceof Timestamp &&
         existingEnd instanceof Timestamp &&
         periodsOverlap(
@@ -273,21 +403,6 @@ export const createCompanyInvoice = onCall(async (request) => {
       }
     }
 
-    const name = companySnapshot.get("name");
-    const seatLimit = companySnapshot.get("seatLimit");
-
-    if (
-      typeof seatLimit !== "number" ||
-      !Number.isFinite(seatLimit)
-    ) {
-      throw new HttpsError(
-        "failed-precondition",
-        "Die Firma hat keinen gültigen Tarif.",
-      );
-    }
-
-    const pricing = pricingForSeatLimit(seatLimit);
-
     const currentSequence =
       counterSnapshot.exists &&
       typeof counterSnapshot.get("sequence") === "number" ?
@@ -295,17 +410,18 @@ export const createCompanyInvoice = onCall(async (request) => {
         0;
     const nextSequence = currentSequence + 1;
     const invoiceNumber =
-      `PA-${periodYear}-${String(nextSequence).padStart(5, "0")}`;
+      `PA-${issueYear}-${String(nextSequence).padStart(5, "0")}`;
+    const reference =
+      requestedReference ||
+      customerBilling.customerReference ||
+      invoiceNumber;
 
     const currentBillingStatus =
       companySnapshot.get("billingStatus");
-    const billingValidUntil =
-      companySnapshot.get("billingValidUntil");
     const now = Timestamp.now();
-
     const currentlyActive =
-      billingValidUntil instanceof Timestamp &&
-      billingValidUntil.toMillis() >= now.toMillis();
+      currentBillingValidUntil instanceof Timestamp &&
+      currentBillingValidUntil.toMillis() >= now.toMillis();
 
     let nextBillingStatus =
       currentlyActive ? "active" : "payment_pending";
@@ -326,16 +442,19 @@ export const createCompanyInvoice = onCall(async (request) => {
     transaction.create(invoiceRef, {
       invoiceNumber,
       companyId,
-      companyName:
-        typeof name === "string" ? name : "",
+      companyName,
       seatLimit,
       monthlyRate: pricing.monthlyRate,
       annualAmount: pricing.annualAmount,
       currency: "CHF",
+      activationOnPayment,
       periodStartAt,
       periodEndAt,
       dueAt,
+      dueDate,
       reference,
+      customerBillingSnapshot: customerBilling,
+      issuerSnapshot: issuerSettings,
       status: "open",
       createdAt: FieldValue.serverTimestamp(),
       createdByUid: adminUid,
@@ -353,10 +472,22 @@ export const createCompanyInvoice = onCall(async (request) => {
       invoiceNumber,
       companyId,
       annualAmount: pricing.annualAmount,
+      activationOnPayment,
+      periodStartAtMs:
+        periodStartAt instanceof Timestamp ?
+          periodStartAt.toMillis() :
+          null,
+      periodEndAtMs:
+        periodEndAt instanceof Timestamp ?
+          periodEndAt.toMillis() :
+          null,
     };
   });
 });
 
+/**
+ * Marks an invoice as paid and activates or extends the subscription.
+ */
 export const markCompanyInvoicePaid = onCall(
   async (request) => {
     if (!request.auth) {
@@ -369,12 +500,14 @@ export const markCompanyInvoicePaid = onCall(
     const adminUid = request.auth.uid;
     await requireSystemAdmin(adminUid);
 
-    const invoiceId = optionalText(
+    const invoiceId = normalizeText(
       request.data?.invoiceId,
+      "",
       200,
     );
-    const paymentReference = optionalText(
+    const paymentReference = normalizeText(
       request.data?.paymentReference,
+      "",
       120,
     );
 
@@ -416,15 +549,13 @@ export const markCompanyInvoicePaid = onCall(
         );
       }
 
-      const companyId =
-        invoiceSnapshot.get("companyId");
-      const periodEndAt =
-        invoiceSnapshot.get("periodEndAt");
+      const companyId = normalizeText(
+        invoiceSnapshot.get("companyId"),
+        "",
+        200,
+      );
 
-      if (
-        typeof companyId !== "string" ||
-        !(periodEndAt instanceof Timestamp)
-      ) {
+      if (!companyId) {
         throw new HttpsError(
           "failed-precondition",
           "Die Rechnungsdaten sind unvollständig.",
@@ -437,11 +568,45 @@ export const markCompanyInvoicePaid = onCall(
       const companySnapshot =
         await transaction.get(companyRef);
 
+      const activationOnPayment =
+        invoiceSnapshot.get("activationOnPayment") === true;
+      const paidAt = Timestamp.now();
+
+      let invoicePeriodStart =
+        invoiceSnapshot.get("periodStartAt");
+      let invoicePeriodEnd =
+        invoiceSnapshot.get("periodEndAt");
+
+      if (activationOnPayment) {
+        invoicePeriodStart = Timestamp.fromDate(
+          new Date(Date.UTC(
+            paidAt.toDate().getUTCFullYear(),
+            paidAt.toDate().getUTCMonth(),
+            paidAt.toDate().getUTCDate(),
+          )),
+        );
+        invoicePeriodEnd = annualPeriodEnd(
+          invoicePeriodStart,
+        );
+      }
+
+      if (
+        !(invoicePeriodStart instanceof Timestamp) ||
+        !(invoicePeriodEnd instanceof Timestamp)
+      ) {
+        throw new HttpsError(
+          "failed-precondition",
+          "Der Leistungszeitraum der Rechnung ist ungültig.",
+        );
+      }
+
       transaction.update(invoiceRef, {
         status: "paid",
         paymentReference,
         paidAt: FieldValue.serverTimestamp(),
         paidByUid: adminUid,
+        activatedPeriodStartAt: invoicePeriodStart,
+        activatedPeriodEndAt: invoicePeriodEnd,
         updatedAt: FieldValue.serverTimestamp(),
       });
 
@@ -453,20 +618,21 @@ export const markCompanyInvoicePaid = onCall(
             currentValidUntil.toMillis() :
             0;
         const invoiceValidUntilMs =
-          periodEndAt.toMillis();
+          invoicePeriodEnd.toMillis();
 
         const effectiveValidUntil =
           invoiceValidUntilMs >= currentValidUntilMs ?
-            periodEndAt :
+            invoicePeriodEnd :
             currentValidUntil;
+        const effectiveValidFrom =
+          companySnapshot.get("billingValidFrom") instanceof Timestamp ?
+            companySnapshot.get("billingValidFrom") :
+            invoicePeriodStart;
 
         if (effectiveValidUntil instanceof Timestamp) {
           const companyUpdate: Record<string, unknown> = {
-            billingStatus:
-              effectiveValidUntil.toMillis() >=
-              Timestamp.now().toMillis() ?
-                "active" :
-                "not_configured",
+            billingStatus: "active",
+            billingValidFrom: effectiveValidFrom,
             billingValidUntil: effectiveValidUntil,
             billingLastPaidAt:
               FieldValue.serverTimestamp(),
@@ -492,11 +658,16 @@ export const markCompanyInvoicePaid = onCall(
       return {
         invoiceId,
         changed: true,
+        billingValidFromMs: invoicePeriodStart.toMillis(),
+        billingValidUntilMs: invoicePeriodEnd.toMillis(),
       };
     });
   },
 );
 
+/**
+ * Cancels an open invoice.
+ */
 export const cancelCompanyInvoice = onCall(
   async (request) => {
     if (!request.auth) {
@@ -509,8 +680,9 @@ export const cancelCompanyInvoice = onCall(
     const adminUid = request.auth.uid;
     await requireSystemAdmin(adminUid);
 
-    const invoiceId = optionalText(
+    const invoiceId = normalizeText(
       request.data?.invoiceId,
+      "",
       200,
     );
 
@@ -552,12 +724,14 @@ export const cancelCompanyInvoice = onCall(
         );
       }
 
-      const companyId =
-        invoiceSnapshot.get("companyId");
-      const companyRef =
-        typeof companyId === "string" ?
-          db.collection("companies").doc(companyId) :
-          null;
+      const companyId = normalizeText(
+        invoiceSnapshot.get("companyId"),
+        "",
+        200,
+      );
+      const companyRef = companyId ?
+        db.collection("companies").doc(companyId) :
+        null;
       const companySnapshot = companyRef ?
         await transaction.get(companyRef) :
         null;
@@ -601,5 +775,88 @@ export const cancelCompanyInvoice = onCall(
         changed: true,
       };
     });
+  },
+);
+
+/**
+ * Updates PolymApp invoice sender and payment settings.
+ */
+export const updateAdminBillingSettings = onCall(
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
+        "unauthenticated",
+        "Du musst angemeldet sein.",
+      );
+    }
+
+    const adminUid = request.auth.uid;
+    await requireSystemAdmin(adminUid);
+
+    const settings = validatedIssuerSettings(
+      request.data?.settings,
+    );
+
+    await db
+      .collection("systemSettings")
+      .doc("invoicing")
+      .set(
+        {
+          ...settings,
+          updatedAt: FieldValue.serverTimestamp(),
+          updatedByUid: adminUid,
+        },
+        {merge: true},
+      );
+
+    return {
+      settings,
+    };
+  },
+);
+
+/**
+ * Returns a generated invoice PDF for manual sending.
+ */
+export const getCompanyInvoicePdf = onCall(
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
+        "unauthenticated",
+        "Du musst angemeldet sein.",
+      );
+    }
+
+    await requireSystemAdmin(request.auth.uid);
+
+    const invoiceId = normalizeText(
+      request.data?.invoiceId,
+      "",
+      200,
+    );
+
+    if (!invoiceId) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Die Rechnung fehlt.",
+      );
+    }
+
+    const invoiceSnapshot = await db
+      .collection("companyInvoices")
+      .doc(invoiceId)
+      .get();
+
+    if (!invoiceSnapshot.exists) {
+      throw new HttpsError(
+        "not-found",
+        "Die Rechnung wurde nicht gefunden.",
+      );
+    }
+
+    return buildInvoicePdf(
+      invoiceSnapshot.id,
+      invoiceSnapshot.data() || {},
+    );
   },
 );

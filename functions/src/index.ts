@@ -50,4 +50,11 @@ export {
   createCompanyInvoice,
   markCompanyInvoicePaid,
   cancelCompanyInvoice,
+  updateAdminBillingSettings,
+  getCompanyInvoicePdf,
 } from "./admin/adminBilling";
+
+export {
+  getCompanyBillingDetails,
+  updateCompanyBillingDetails,
+} from "./company/companyBilling";

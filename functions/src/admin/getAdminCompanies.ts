@@ -1,6 +1,10 @@
 import {Timestamp} from "firebase-admin/firestore";
 import {HttpsError, onCall} from "firebase-functions/https";
 import {db} from "../firebase";
+import {
+  DEFAULT_ISSUER_SETTINGS,
+  normalizeIssuerSettings,
+} from "./billingConfig";
 
 /**
  * Converts an unknown value to a string.
@@ -82,11 +86,27 @@ export const getAdminCompanies = onCall(async (request) => {
     companiesSnapshot,
     archiveSnapshot,
     invoicesSnapshot,
+    billingDetailsSnapshot,
+    issuerSettingsSnapshot,
   ] = await Promise.all([
     db.collection("companies").get(),
     db.collection("companyArchive").get(),
     db.collection("companyInvoices").get(),
+    db.collection("companyBillingDetails").get(),
+    db.collection("systemSettings").doc("invoicing").get(),
   ]);
+
+  const billingDetailsByCompany = new Map<
+    string,
+    Record<string, unknown>
+  >();
+
+  for (const document of billingDetailsSnapshot.docs) {
+    billingDetailsByCompany.set(
+      document.id,
+      document.data(),
+    );
+  }
 
   const invoiceByCompany = new Map<
     string,
@@ -105,20 +125,28 @@ export const getAdminCompanies = onCall(async (request) => {
       data.dueAt,
     );
     const periodStartMs =
-      timestampToMillis(data.periodStartAt) || 0;
+      timestampToMillis(data.activatedPeriodStartAt) ||
+      timestampToMillis(data.periodStartAt) ||
+      0;
     const periodEndMs =
-      timestampToMillis(data.periodEndAt) || 0;
+      timestampToMillis(data.activatedPeriodEndAt) ||
+      timestampToMillis(data.periodEndAt) ||
+      0;
 
     if (companyId && status !== "cancelled") {
       const current = invoiceByCompany.get(companyId);
+      const sortDate =
+        periodStartMs ||
+        timestampToMillis(data.createdAt) ||
+        0;
 
       if (
         !current ||
-        periodStartMs > current.periodStartMs
+        sortDate > current.periodStartMs
       ) {
         invoiceByCompany.set(companyId, {
           status,
-          periodStartMs,
+          periodStartMs: sortDate,
           periodEndMs,
         });
       }
@@ -138,9 +166,12 @@ export const getAdminCompanies = onCall(async (request) => {
         data.paymentReference,
       ),
       status,
+      activationOnPayment:
+        data.activationOnPayment === true,
       periodStartMs,
       periodEndMs,
       dueAtMs: timestampToMillis(data.dueAt),
+      dueDate: readString(data.dueDate),
       paidAtMs: timestampToMillis(data.paidAt),
       createdAtMs: timestampToMillis(data.createdAt),
     };
@@ -171,14 +202,29 @@ export const getAdminCompanies = onCall(async (request) => {
       timestampToMillis(data.billingValidUntil) || 0;
     const latestInvoice =
       invoiceByCompany.get(document.id);
+    const ownerUid = readString(data.ownerUid);
+    const billingDetails =
+      billingDetailsByCompany.get(document.id);
+    const billingDetailsReady =
+      billingDetails?.reviewedByOwnerUid === ownerUid;
 
     let billingStatus = storedBillingStatus;
+    const graceUntilMs =
+      validUntilMs > 0 ?
+        validUntilMs + (10 * 24 * 60 * 60 * 1000) :
+        0;
 
     if (storedBillingStatus !== "suspended") {
-      if (validUntilMs >= nowMs) {
-        billingStatus = "active";
+      if (
+        validUntilMs > 0 &&
+        nowMs > graceUntilMs &&
+        latestInvoice?.status === "overdue"
+      ) {
+        billingStatus = "suspended";
       } else if (latestInvoice?.status === "overdue") {
         billingStatus = "overdue";
+      } else if (validUntilMs >= nowMs) {
+        billingStatus = "active";
       } else if (latestInvoice?.status === "open") {
         billingStatus = "payment_pending";
       } else if (
@@ -200,7 +246,12 @@ export const getAdminCompanies = onCall(async (request) => {
         data.activeMemberCount,
       ),
       billingStatus,
+      billingDetailsReady,
       billingValidUntilMs: validUntilMs || null,
+      renewalRecommendedAtMs:
+        validUntilMs > 0 ?
+          validUntilMs - (40 * 24 * 60 * 60 * 1000) :
+          null,
     };
   });
 
@@ -266,5 +317,10 @@ export const getAdminCompanies = onCall(async (request) => {
     companies,
     formerCompanies,
     invoices: normalizedInvoices,
+    billingSettings: normalizeIssuerSettings(
+      issuerSettingsSnapshot.exists ?
+        issuerSettingsSnapshot.data() :
+        DEFAULT_ISSUER_SETTINGS,
+    ),
   };
 });

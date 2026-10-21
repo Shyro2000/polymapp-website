@@ -544,6 +544,51 @@
       background: #fdecec;
     }
 
+    .billing-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .billing-form-grid .input-group {
+      margin: 0;
+    }
+
+    .billing-form-grid .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .billing-modal {
+      position: fixed;
+      z-index: 10000;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.58);
+    }
+
+    .billing-modal-card {
+      width: min(760px, 100%);
+      padding: 22px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+    }
+
+    .billing-modal-card h2 {
+      margin-top: 0;
+    }
+
+    .optional-label {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: normal;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -587,8 +632,13 @@
         grid-template-columns: 1fr;
     }
 
-    .profile-form .full-width {
+    .profile-form .full-width,
+    .billing-form-grid .full-width {
         grid-column: auto;
+    }
+
+    .billing-form-grid {
+        grid-template-columns: 1fr;
     }
 
     .member-actions,
@@ -1040,6 +1090,137 @@
             </form>
           </details>
 
+          <details class="compact-disclosure management-card">
+            <summary>Rechnungsdaten</summary>
+            <p class="empty-state">
+              Diese Angaben sind nur für den Inhaber sichtbar und werden für
+              zukünftige Firmenrechnungen verwendet.
+            </p>
+            <form
+              id="companyBillingSettingsForm"
+              class="billing-form-grid"
+            >
+              <div class="input-group full-width">
+                <label>
+                  Firma <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="invoiceCompanyName"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="organization"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Name / Ansprechpartner
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="recipientName"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="name"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Strasse / Hausnummer
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="street"
+                  type="text"
+                  maxlength="160"
+                  autocomplete="street-address"
+                >
+              </div>
+
+              <div class="input-group">
+                <label>
+                  PLZ <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="postalCode"
+                  type="text"
+                  maxlength="30"
+                  autocomplete="postal-code"
+                >
+              </div>
+
+              <div class="input-group">
+                <label>
+                  Ort <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="city"
+                  type="text"
+                  maxlength="100"
+                  autocomplete="address-level2"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Land <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="country"
+                  type="text"
+                  maxlength="100"
+                  autocomplete="country-name"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Rechnungs-E-Mail
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="billingEmail"
+                  type="email"
+                  maxlength="254"
+                  autocomplete="email"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  UID / MWST-Nr.
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="uidVat"
+                  type="text"
+                  maxlength="80"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Interne Bestell-/Referenznummer
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="customerReference"
+                  type="text"
+                  maxlength="120"
+                >
+              </div>
+              <div class="full-width">
+                <button
+                  id="saveCompanyBillingSettingsButton"
+                  type="submit"
+                >
+                  Rechnungsdaten speichern
+                </button>
+              </div>
+            </form>
+          </details>
+
 <details class="compact-disclosure management-card warning-card">
   <summary>Firma löschen</summary>
 
@@ -1108,6 +1289,145 @@
       </div>
     </section>
   </main>
+
+  <div
+    id="billingReviewModal"
+    class="billing-modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="billingReviewTitle"
+  >
+    <div class="billing-modal-card">
+      <h2 id="billingReviewTitle">Rechnungsdaten prüfen</h2>
+      <p>
+        Bitte prüfen Sie als Inhaber die Rechnungsadresse. Alle Angaben sind
+        optional. Der bei der Firmenerstellung gewählte Name wurde im Feld
+        „Firma“ vorbelegt und kann geändert oder vollständig gelöscht werden.
+      </p>
+      <p class="notice notice-warning">
+        Nach einer Übertragung der Inhaberrechte muss der neue Inhaber diese
+        Angaben einmal erneut prüfen und speichern.
+      </p>
+
+      <form id="billingReviewForm" class="billing-form-grid">
+              <div class="input-group full-width">
+                <label>
+                  Firma <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="invoiceCompanyName"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="organization"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Name / Ansprechpartner
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="recipientName"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="name"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Strasse / Hausnummer
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="street"
+                  type="text"
+                  maxlength="160"
+                  autocomplete="street-address"
+                >
+              </div>
+
+              <div class="input-group">
+                <label>
+                  PLZ <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="postalCode"
+                  type="text"
+                  maxlength="30"
+                  autocomplete="postal-code"
+                >
+              </div>
+
+              <div class="input-group">
+                <label>
+                  Ort <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="city"
+                  type="text"
+                  maxlength="100"
+                  autocomplete="address-level2"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Land <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="country"
+                  type="text"
+                  maxlength="100"
+                  autocomplete="country-name"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Rechnungs-E-Mail
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="billingEmail"
+                  type="email"
+                  maxlength="254"
+                  autocomplete="email"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  UID / MWST-Nr.
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="uidVat"
+                  type="text"
+                  maxlength="80"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Interne Bestell-/Referenznummer
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="customerReference"
+                  type="text"
+                  maxlength="120"
+                >
+              </div>
+        <div class="full-width">
+          <button id="saveBillingReviewButton" type="submit">
+            Angaben speichern und weiter
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <footer>
     <p><strong>PolymApp</strong> – Firmenverwaltung</p>
@@ -1221,6 +1541,14 @@
       functions,
       "updateCompanyName"
     );
+    const getCompanyBillingDetailsCall = httpsCallable(
+      functions,
+      "getCompanyBillingDetails"
+    );
+    const updateCompanyBillingDetailsCall = httpsCallable(
+      functions,
+      "updateCompanyBillingDetails"
+    );
     const transferOwnershipCall = httpsCallable(
       functions,
       "transferCompanyOwnership"
@@ -1285,6 +1613,21 @@
     const updateCompanyNameButton = document.getElementById(
       "updateCompanyNameButton"
     );
+    const companyBillingSettingsForm = document.getElementById(
+      "companyBillingSettingsForm"
+    );
+    const saveCompanyBillingSettingsButton = document.getElementById(
+      "saveCompanyBillingSettingsButton"
+    );
+    const billingReviewModal = document.getElementById(
+      "billingReviewModal"
+    );
+    const billingReviewForm = document.getElementById(
+      "billingReviewForm"
+    );
+    const saveBillingReviewButton = document.getElementById(
+      "saveBillingReviewButton"
+    );
     const ownershipTargetSelect = document.getElementById(
       "ownershipTargetSelect"
     );
@@ -1333,6 +1676,9 @@
     let currentActiveInvitationCount = null;
     let statusTimer = null;
     let verificationEmailSent = false;
+    let currentBillingDetails = null;
+    let billingDetailsLoadedKey = "";
+    let billingDetailsLoadingKey = "";
 
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -1344,6 +1690,162 @@
       statusTimer = window.setTimeout(() => {
         statusBox.classList.remove("visible");
       }, duration);
+    }
+
+    function billingDetailsFromForm(form) {
+      const formData = new FormData(form);
+
+      return {
+        invoiceCompanyName:
+          String(formData.get("invoiceCompanyName") || "").trim(),
+        recipientName:
+          String(formData.get("recipientName") || "").trim(),
+        street:
+          String(formData.get("street") || "").trim(),
+        postalCode:
+          String(formData.get("postalCode") || "").trim(),
+        city:
+          String(formData.get("city") || "").trim(),
+        country:
+          String(formData.get("country") || "").trim(),
+        billingEmail:
+          String(formData.get("billingEmail") || "").trim(),
+        uidVat:
+          String(formData.get("uidVat") || "").trim(),
+        customerReference:
+          String(formData.get("customerReference") || "").trim()
+      };
+    }
+
+    function fillBillingForm(form, details = {}) {
+      for (const name of [
+        "invoiceCompanyName",
+        "recipientName",
+        "street",
+        "postalCode",
+        "city",
+        "country",
+        "billingEmail",
+        "uidVat",
+        "customerReference"
+      ]) {
+        const field = form.elements.namedItem(name);
+
+        if (field) {
+          field.value =
+            typeof details?.[name] === "string"
+              ? details[name]
+              : "";
+        }
+      }
+    }
+
+    function clearBillingForms() {
+      companyBillingSettingsForm.reset();
+      billingReviewForm.reset();
+      currentBillingDetails = null;
+      billingDetailsLoadedKey = "";
+      billingDetailsLoadingKey = "";
+      billingReviewModal.classList.add("hidden");
+    }
+
+    async function ensureOwnerBillingDetails() {
+      if (
+        !currentUser ||
+        !currentCompanyId ||
+        !currentCompany ||
+        !currentMembership ||
+        currentMembership.role !== "owner" ||
+        currentCompany.ownerUid !== currentUser.uid
+      ) {
+        return;
+      }
+
+      const key = `${currentCompanyId}:${currentUser.uid}`;
+
+      if (
+        billingDetailsLoadedKey === key ||
+        billingDetailsLoadingKey === key
+      ) {
+        return;
+      }
+
+      billingDetailsLoadingKey = key;
+
+      try {
+        const result = await getCompanyBillingDetailsCall();
+
+        if (
+          !currentUser ||
+          `${currentCompanyId}:${currentUser.uid}` !== key
+        ) {
+          return;
+        }
+
+        currentBillingDetails = result?.data?.details || {};
+        billingDetailsLoadedKey = key;
+        fillBillingForm(
+          companyBillingSettingsForm,
+          currentBillingDetails
+        );
+        fillBillingForm(
+          billingReviewForm,
+          currentBillingDetails
+        );
+
+        if (result?.data?.needsReview === true) {
+          billingReviewModal.classList.remove("hidden");
+          billingReviewForm.elements
+            .namedItem("invoiceCompanyName")
+            ?.focus();
+        }
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        if (billingDetailsLoadingKey === key) {
+          billingDetailsLoadingKey = "";
+        }
+      }
+    }
+
+    async function saveCompanyBillingDetails(
+      form,
+      button,
+      closeReviewModal
+    ) {
+      button.disabled = true;
+
+      try {
+        const details = billingDetailsFromForm(form);
+        const result = await updateCompanyBillingDetailsCall({
+          details
+        });
+
+        currentBillingDetails = result?.data?.details || details;
+        fillBillingForm(
+          companyBillingSettingsForm,
+          currentBillingDetails
+        );
+        fillBillingForm(
+          billingReviewForm,
+          currentBillingDetails
+        );
+
+        if (currentUser && currentCompanyId) {
+          billingDetailsLoadedKey =
+            `${currentCompanyId}:${currentUser.uid}`;
+        }
+
+        if (closeReviewModal) {
+          billingReviewModal.classList.add("hidden");
+        }
+
+        setStatus("Die Rechnungsdaten wurden gespeichert.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        button.disabled = false;
+      }
     }
 
     async function ensureEmailVerifiedForCompanyAction() {
@@ -1503,6 +2005,7 @@
       currentActiveInvitationCount = null;
       currentCompany = null;
       currentMembership = null;
+      clearBillingForms();
       managementPanel.classList.add("hidden");
     }
 
@@ -1924,11 +2427,14 @@
   memberExitPanel.classList.toggle("hidden", isOwner);
 
   if (!isOwner) {
+    clearBillingForms();
     memberExitDescription.textContent =
       `Sie sind aktuell ${roleLabel(currentMembership.role)}. ` +
       "Sie können die Firma selbständig verlassen.";
     return;
   }
+
+  ensureOwnerBillingDetails();
 
   if (document.activeElement !== companyNameSettingsInput) {
     companyNameSettingsInput.value =
@@ -2323,6 +2829,30 @@
         button.disabled = false;
       }
     }
+
+    companyBillingSettingsForm.addEventListener(
+      "submit",
+      async (event) => {
+        event.preventDefault();
+        await saveCompanyBillingDetails(
+          companyBillingSettingsForm,
+          saveCompanyBillingSettingsButton,
+          false
+        );
+      }
+    );
+
+    billingReviewForm.addEventListener(
+      "submit",
+      async (event) => {
+        event.preventDefault();
+        await saveCompanyBillingDetails(
+          billingReviewForm,
+          saveBillingReviewButton,
+          true
+        );
+      }
+    );
 
     updateCompanyNameForm.addEventListener("submit", async (event) => {
       event.preventDefault();

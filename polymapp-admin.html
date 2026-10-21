@@ -204,6 +204,21 @@
       background: #fafafa;
     }
 
+    .billing-settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .billing-settings-grid .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .billing-settings-grid .input-group {
+      margin: 0;
+    }
+
     .invoice-actions {
       display: flex;
       flex-wrap: wrap;
@@ -228,8 +243,13 @@
     }
 
     @media (max-width: 600px) {
-      .billing-create-grid {
+      .billing-create-grid,
+      .billing-settings-grid {
         grid-template-columns: 1fr;
+      }
+
+      .billing-settings-grid .full-width {
+        grid-column: auto;
       }
     }
 
@@ -279,7 +299,8 @@
     }
 
     input,
-    select {
+    select,
+    textarea {
       width: 100%;
       padding: 11px 12px;
       border: 1px solid #bbb;
@@ -749,7 +770,7 @@
         </div>
       </details>
 
-      <details class="panel admin-section">
+      <details id="billingSection" class="panel admin-section">
         <summary id="paymentsSummary">Rechnungen & Zahlungen (0)</summary>
         <div class="admin-section-body">
           <div class="billing-create-grid">
@@ -758,11 +779,6 @@
               <select id="invoiceCompany">
                 <option value="">Firma wählen</option>
               </select>
-            </div>
-
-            <div class="input-group">
-              <label for="invoicePeriodStart">Leistungsbeginn</label>
-              <input id="invoicePeriodStart" type="date">
             </div>
 
             <div class="input-group">
@@ -794,8 +810,9 @@
 
           <p class="empty-state" style="margin-top: 12px;">
             Der Rechnungsbetrag wird serverseitig anhand der gebuchten
-            Sitzplatzstufe berechnet. Eine bezahlte Rechnung aktiviert das
-            Firmenabo bis zum Ende des Leistungszeitraums.
+            Sitzplatzstufe berechnet. Bei der ersten Rechnung beginnen die
+            zwölf Monate erst mit dem Zahlungseingang. Verlängerungen beginnen
+            direkt nach dem bereits bezahlten Zeitraum.
           </p>
 
           <div class="table-wrap" style="margin-top: 20px;">
@@ -819,6 +836,74 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </details>
+
+      <details class="panel admin-section">
+        <summary>Rechnungs-Absender</summary>
+        <div class="admin-section-body">
+          <p class="empty-state" style="margin-top: 18px;">
+            Diese Angaben werden beim Erstellen einer Rechnung als Snapshot
+            gespeichert. Spätere Änderungen verändern bestehende Rechnungen nicht.
+          </p>
+
+          <form id="billingSettingsForm" class="billing-settings-grid">
+            <div class="input-group">
+              <label for="issuerBusinessName">Firma / Marke</label>
+              <input id="issuerBusinessName" name="businessName" maxlength="120">
+            </div>
+            <div class="input-group">
+              <label for="issuerContactName">Name</label>
+              <input id="issuerContactName" name="contactName" maxlength="120">
+            </div>
+            <div class="input-group full-width">
+              <label for="issuerStreet">Strasse / Hausnummer</label>
+              <input id="issuerStreet" name="street" maxlength="160">
+            </div>
+            <div class="input-group">
+              <label for="issuerPostalCode">PLZ</label>
+              <input id="issuerPostalCode" name="postalCode" maxlength="30">
+            </div>
+            <div class="input-group">
+              <label for="issuerCity">Ort</label>
+              <input id="issuerCity" name="city" maxlength="100">
+            </div>
+            <div class="input-group full-width">
+              <label for="issuerCountry">Land</label>
+              <input id="issuerCountry" name="country" maxlength="100">
+            </div>
+            <div class="input-group full-width">
+              <label for="issuerEmail">E-Mail</label>
+              <input id="issuerEmail" name="email" type="email" maxlength="254">
+            </div>
+            <div class="input-group full-width">
+              <label for="issuerBankName">Bank</label>
+              <input id="issuerBankName" name="bankName" maxlength="160">
+            </div>
+            <div class="input-group full-width">
+              <label for="issuerIban">IBAN</label>
+              <input id="issuerIban" name="iban" maxlength="80">
+            </div>
+            <div class="input-group">
+              <label for="issuerUidVat">UID / MWST-Nr. (optional)</label>
+              <input id="issuerUidVat" name="uidVat" maxlength="80">
+            </div>
+            <div class="input-group">
+              <label for="issuerPaymentTerms">Zahlungsfrist in Tagen</label>
+              <input
+                id="issuerPaymentTerms"
+                name="paymentTermsDays"
+                type="number"
+                min="1"
+                max="90"
+              >
+            </div>
+            <div class="full-width">
+              <button id="saveBillingSettingsButton" type="submit">
+                Absenderdaten speichern
+              </button>
+            </div>
+          </form>
         </div>
       </details>
 
@@ -943,6 +1028,14 @@
       functions,
       "cancelCompanyInvoice"
     );
+    const updateAdminBillingSettingsCall = httpsCallable(
+      functions,
+      "updateAdminBillingSettings"
+    );
+    const getCompanyInvoicePdfCall = httpsCallable(
+      functions,
+      "getCompanyInvoicePdf"
+    );
 
     const loadingPanel = document.getElementById("loadingPanel");
     const loginPanel = document.getElementById("loginPanel");
@@ -968,8 +1061,6 @@
     const paymentsSummary = document.getElementById("paymentsSummary");
     const paymentTableBody = document.getElementById("paymentTableBody");
     const invoiceCompany = document.getElementById("invoiceCompany");
-    const invoicePeriodStart =
-      document.getElementById("invoicePeriodStart");
     const invoiceDueDate = document.getElementById("invoiceDueDate");
     const invoiceReference =
       document.getElementById("invoiceReference");
@@ -979,12 +1070,29 @@
       document.getElementById("invoicePreviewPrice");
     const createInvoiceButton =
       document.getElementById("createInvoiceButton");
+    const billingSettingsForm =
+      document.getElementById("billingSettingsForm");
+    const saveBillingSettingsButton =
+      document.getElementById("saveBillingSettingsButton");
     const tariffGrid = document.getElementById("tariffGrid");
     const statusBox = document.getElementById("status");
 
     let companies = [];
     let formerCompanies = [];
     let invoices = [];
+    let billingSettings = {
+      businessName: "PolymApp",
+      contactName: "Fabian Schatzmann",
+      street: "Solistr. 52",
+      postalCode: "8180",
+      city: "Bülach",
+      country: "Schweiz",
+      email: "info@polymapp.ch",
+      bankName: "Zürcher Kantonalbank",
+      iban: "CH47 0070 0110 0014 6863 6",
+      uidVat: "",
+      paymentTermsDays: 30
+    };
 
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -1149,7 +1257,12 @@
             : "unknown",
         seatLimit,
         activeMemberCount,
-        billingStatus: normalizeBillingStatus(rawCompany?.billingStatus)
+        billingStatus: normalizeBillingStatus(rawCompany?.billingStatus),
+        billingDetailsReady: rawCompany?.billingDetailsReady === true,
+        billingValidUntilMs:
+          Number(rawCompany?.billingValidUntilMs || 0),
+        renewalRecommendedAtMs:
+          Number(rawCompany?.renewalRecommendedAtMs || 0)
       };
     }
 
@@ -1206,9 +1319,15 @@
           typeof rawInvoice?.status === "string"
             ? rawInvoice.status
             : "open",
+        activationOnPayment:
+          rawInvoice?.activationOnPayment === true,
         periodStartMs: Number(rawInvoice?.periodStartMs || 0),
         periodEndMs: Number(rawInvoice?.periodEndMs || 0),
         dueAtMs: Number(rawInvoice?.dueAtMs || 0),
+        dueDate:
+          typeof rawInvoice?.dueDate === "string"
+            ? rawInvoice.dueDate
+            : "",
         paidAtMs: Number(rawInvoice?.paidAtMs || 0)
       };
     }
@@ -1223,6 +1342,15 @@
         month: "2-digit",
         year: "numeric"
       }).format(new Date(timestampMs));
+    }
+
+    function formatIsoDate(value) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) {
+        return "–";
+      }
+
+      const [year, month, day] = value.split("-");
+      return `${day}.${month}.${year}`;
     }
 
     function archiveStatusLabel(value) {
@@ -1262,6 +1390,88 @@
         default:
           return "payment-status-pending";
       }
+    }
+
+    function normalizeBillingSettings(rawSettings = {}) {
+      return {
+        businessName:
+          typeof rawSettings.businessName === "string"
+            ? rawSettings.businessName
+            : "PolymApp",
+        contactName:
+          typeof rawSettings.contactName === "string"
+            ? rawSettings.contactName
+            : "Fabian Schatzmann",
+        street:
+          typeof rawSettings.street === "string"
+            ? rawSettings.street
+            : "Solistr. 52",
+        postalCode:
+          typeof rawSettings.postalCode === "string"
+            ? rawSettings.postalCode
+            : "8180",
+        city:
+          typeof rawSettings.city === "string"
+            ? rawSettings.city
+            : "Bülach",
+        country:
+          typeof rawSettings.country === "string"
+            ? rawSettings.country
+            : "Schweiz",
+        email:
+          typeof rawSettings.email === "string"
+            ? rawSettings.email
+            : "info@polymapp.ch",
+        bankName:
+          typeof rawSettings.bankName === "string"
+            ? rawSettings.bankName
+            : "Zürcher Kantonalbank",
+        iban:
+          typeof rawSettings.iban === "string"
+            ? rawSettings.iban
+            : "CH47 0070 0110 0014 6863 6",
+        uidVat:
+          typeof rawSettings.uidVat === "string"
+            ? rawSettings.uidVat
+            : "",
+        paymentTermsDays:
+          Number(rawSettings.paymentTermsDays || 30)
+      };
+    }
+
+    function fillBillingSettingsForm() {
+      for (const [name, value] of Object.entries(billingSettings)) {
+        const field = billingSettingsForm.elements.namedItem(name);
+
+        if (field) {
+          field.value = String(value ?? "");
+        }
+      }
+    }
+
+    function billingSettingsFromForm() {
+      const formData = new FormData(billingSettingsForm);
+
+      return {
+        businessName: String(formData.get("businessName") || "").trim(),
+        contactName: String(formData.get("contactName") || "").trim(),
+        street: String(formData.get("street") || "").trim(),
+        postalCode: String(formData.get("postalCode") || "").trim(),
+        city: String(formData.get("city") || "").trim(),
+        country: String(formData.get("country") || "").trim(),
+        email: String(formData.get("email") || "").trim(),
+        bankName: String(formData.get("bankName") || "").trim(),
+        iban: String(formData.get("iban") || "").trim(),
+        uidVat: String(formData.get("uidVat") || "").trim(),
+        paymentTermsDays:
+          Number(formData.get("paymentTermsDays") || 30)
+      };
+    }
+
+    function setDefaultInvoiceDueDate() {
+      const days = Number(billingSettings.paymentTermsDays || 30);
+      invoiceDueDate.value =
+        toDateInputValue(addDays(new Date(), days));
     }
 
     function updateSummary() {
@@ -1406,8 +1616,15 @@
         const invoiceButton = document.createElement("button");
         invoiceButton.type = "button";
         invoiceButton.className = "secondary-action";
-        invoiceButton.textContent = "Rechnung erstellen";
-        invoiceButton.disabled = annualPrice === null;
+        invoiceButton.textContent = company.billingDetailsReady
+          ? "Rechnung erstellen"
+          : "Rechnungsdaten fehlen";
+        invoiceButton.disabled =
+          annualPrice === null ||
+          !company.billingDetailsReady;
+        invoiceButton.title = company.billingDetailsReady
+          ? "Jahresrechnung erstellen"
+          : "Der Firmeninhaber muss die Rechnungsdaten zuerst prüfen.";
         invoiceButton.addEventListener("click", () => {
           startInvoiceForCompany(company.id);
         });
@@ -1526,7 +1743,8 @@
         const option = document.createElement("option");
         option.value = company.id;
         option.textContent =
-          `${company.name} · ${company.activeMemberCount}/${company.seatLimit}`;
+          `${company.name} · ${company.activeMemberCount}/${company.seatLimit}` +
+          (company.billingDetailsReady ? "" : " · Rechnungsdaten fehlen");
         invoiceCompany.append(option);
       }
 
@@ -1551,16 +1769,36 @@
       }
 
       const annualPrice = getAnnualPrice(company.seatLimit);
-      invoicePreviewCompany.textContent =
-        `${company.name} · Tarif bis ${company.seatLimit}`;
+
+      if (!company.billingDetailsReady) {
+        invoicePreviewCompany.textContent =
+          `${company.name} · Rechnungsdaten noch nicht bestätigt`;
+        invoicePreviewPrice.textContent =
+          "Der Firmeninhaber muss die Rechnungsdaten zuerst speichern.";
+        createInvoiceButton.disabled = true;
+        return;
+      }
+
+      const hasPaidPeriod =
+        Number(company.billingValidUntilMs || 0) > 0;
+
+      const renewalHint =
+        hasPaidPeriod &&
+        company.renewalRecommendedAtMs > Date.now()
+          ? ` · empfohlen ab ${formatDate(company.renewalRecommendedAtMs)}`
+          : "";
+
+      invoicePreviewCompany.textContent = hasPaidPeriod
+        ? `${company.name} · Verlängerung nach ${formatDate(company.billingValidUntilMs)}${renewalHint}`
+        : `${company.name} · Erstaktivierung nach Zahlungseingang`;
+
       invoicePreviewPrice.textContent =
         annualPrice === null
           ? "Kein gültiger Tarif"
-          : `${formatCurrency(annualPrice)} / Jahr`;
+          : `${formatCurrency(annualPrice)} / 12 Monate`;
 
       createInvoiceButton.disabled =
         annualPrice === null ||
-        !invoicePeriodStart.value ||
         !invoiceDueDate.value;
     }
 
@@ -1579,11 +1817,10 @@
 
       if (
         !companyId ||
-        !invoicePeriodStart.value ||
         !invoiceDueDate.value
       ) {
         setStatus(
-          "Bitte Firma, Leistungsbeginn und Fälligkeit angeben.",
+          "Bitte Firma und Fälligkeit angeben.",
           "error"
         );
         return;
@@ -1594,7 +1831,6 @@
       try {
         const result = await createCompanyInvoiceCall({
           companyId,
-          periodStart: invoicePeriodStart.value,
           dueDate: invoiceDueDate.value,
           reference: invoiceReference.value.trim()
         });
@@ -1606,11 +1842,78 @@
             ? `Rechnung ${invoiceNumber} wurde angelegt.`
             : "Die Jahresrechnung wurde angelegt."
         );
+
+        if (result?.data?.invoiceId) {
+          await downloadInvoicePdf(result.data.invoiceId);
+        }
+
         await loadCompanies();
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
       } finally {
         updateInvoicePreview();
+      }
+    }
+
+    async function downloadInvoicePdf(invoiceId) {
+      try {
+        const result = await getCompanyInvoicePdfCall({
+          invoiceId
+        });
+        const base64 = result?.data?.base64;
+        const filename =
+          result?.data?.filename || "PolymApp-Rechnung.pdf";
+
+        if (typeof base64 !== "string" || !base64) {
+          throw new Error("Die PDF-Datei konnte nicht erzeugt werden.");
+        }
+
+        const binary = window.atob(base64);
+        const bytes = new Uint8Array(binary.length);
+
+        for (let index = 0; index < binary.length; index += 1) {
+          bytes[index] = binary.charCodeAt(index);
+        }
+
+        const blob = new Blob([bytes], {
+          type: "application/pdf"
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.append(link);
+        link.click();
+        link.remove();
+
+        window.setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 1000);
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      }
+    }
+
+    async function saveBillingSettings(event) {
+      event.preventDefault();
+      saveBillingSettingsButton.disabled = true;
+
+      try {
+        const settings = billingSettingsFromForm();
+        const result = await updateAdminBillingSettingsCall({
+          settings
+        });
+
+        billingSettings = normalizeBillingSettings(
+          result?.data?.settings || settings
+        );
+        fillBillingSettingsForm();
+        setDefaultInvoiceDueDate();
+        setStatus("Die Rechnungs-Absenderdaten wurden gespeichert.");
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        saveBillingSettingsButton.disabled = false;
       }
     }
 
@@ -1694,9 +1997,18 @@
         }
 
         const periodCell = document.createElement("td");
-        periodCell.textContent =
-          `${formatDate(invoice.periodStartMs)} – ` +
-          `${formatDate(invoice.periodEndMs)}`;
+
+        if (
+          invoice.activationOnPayment &&
+          !invoice.periodStartMs
+        ) {
+          periodCell.textContent =
+            "12 Monate ab Zahlungseingang";
+        } else {
+          periodCell.textContent =
+            `${formatDate(invoice.periodStartMs)} – ` +
+            `${formatDate(invoice.periodEndMs)}`;
+        }
 
         const amountCell = document.createElement("td");
         amountCell.textContent =
@@ -1705,7 +2017,9 @@
             : `${invoice.annualAmount.toFixed(2)} ${invoice.currency}`;
 
         const dueCell = document.createElement("td");
-        dueCell.textContent = formatDate(invoice.dueAtMs);
+        dueCell.textContent = invoice.dueDate
+          ? formatIsoDate(invoice.dueDate)
+          : formatDate(invoice.dueAtMs);
 
         const statusCell = document.createElement("td");
         const statusBadge = document.createElement("span");
@@ -1727,6 +2041,15 @@
         const actions = document.createElement("div");
         actions.className = "invoice-actions";
 
+        const pdfButton = document.createElement("button");
+        pdfButton.type = "button";
+        pdfButton.className = "secondary-action";
+        pdfButton.textContent = "PDF";
+        pdfButton.addEventListener("click", () => {
+          downloadInvoicePdf(invoice.id);
+        });
+        actions.append(pdfButton);
+
         if (
           invoice.status === "open" ||
           invoice.status === "overdue"
@@ -1747,11 +2070,6 @@
           );
 
           actions.append(paidButton, cancelButton);
-        } else {
-          const noAction = document.createElement("span");
-          noAction.className = "empty-state";
-          noAction.textContent = "–";
-          actions.append(noAction);
         }
 
         actionCell.append(actions);
@@ -1786,6 +2104,10 @@
           ? result.data.invoices
           : [];
 
+        billingSettings = normalizeBillingSettings(
+          result?.data?.billingSettings || {}
+        );
+
         companies = rawCompanies.map(normalizedCompany);
         formerCompanies =
           rawFormerCompanies.map(normalizeFormerCompany);
@@ -1795,6 +2117,8 @@
         renderCompanies();
         renderFormerCompanies();
         populateInvoiceCompanies();
+        fillBillingSettingsForm();
+        setDefaultInvoiceDueDate();
         updateInvoicePreview();
         renderPayments();
         showOnly(adminPanel);
@@ -1837,13 +2161,11 @@
     });
 
     invoiceCompany.addEventListener("change", updateInvoicePreview);
-    invoicePeriodStart.addEventListener("change", updateInvoicePreview);
     invoiceDueDate.addEventListener("change", updateInvoicePreview);
     createInvoiceButton.addEventListener("click", createInvoice);
+    billingSettingsForm.addEventListener("submit", saveBillingSettings);
 
-    const today = new Date();
-    invoicePeriodStart.value = toDateInputValue(today);
-    invoiceDueDate.value = toDateInputValue(addDays(today, 30));
+    setDefaultInvoiceDueDate();
 
     renderTariffs();
 

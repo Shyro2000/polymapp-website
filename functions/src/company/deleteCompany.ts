@@ -238,6 +238,9 @@ export const deleteCompany = onCall(
     const archiveRef = db
       .collection("companyArchive")
       .doc(preparation.companyId);
+    const billingDetailsRef = db
+      .collection("companyBillingDetails")
+      .doc(preparation.companyId);
 
     await archiveRef.set(
       {
@@ -272,6 +275,7 @@ export const deleteCompany = onCall(
       }
 
       await db.recursiveDelete(companyRef);
+      await billingDetailsRef.delete().catch(() => undefined);
 
       await archiveRef.set(
         {
