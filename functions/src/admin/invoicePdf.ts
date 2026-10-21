@@ -86,6 +86,18 @@ function formatCurrency(value: unknown): string {
 }
 
 /**
+ * Formats a monthly rate without unnecessary trailing zeros.
+ * @param {number} value Monthly rate.
+ * @return {string} Compact decimal value.
+ */
+function formatRate(value: number): string {
+  return value
+    .toFixed(3)
+    .replace(/0+$/, "")
+    .replace(/\.$/, "");
+}
+
+/**
  * Converts text to a safe WinAnsi-like character set.
  * @param {string} value Input text.
  * @return {string} PDF-safe text.
@@ -383,7 +395,7 @@ export function buildInvoicePdf(
       9,
       320,
       338,
-      `${seatLimit} x CHF ${monthlyRate.toFixed(3)} x 12`,
+      `${seatLimit} x CHF ${formatRate(monthlyRate)} x 12 Monate`,
     ),
     textCommand(
       "F2",
