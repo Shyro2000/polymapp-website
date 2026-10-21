@@ -589,6 +589,12 @@
       font-weight: normal;
     }
 
+    .billing-inline-error {
+      margin: 8px 0 12px;
+      color: #a00000;
+      font-weight: bold;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -1463,6 +1469,12 @@
                 >
               </div>
         <div class="full-width">
+          <p
+            id="billingReviewError"
+            class="billing-inline-error hidden"
+            role="alert"
+            aria-live="assertive"
+          ></p>
           <button id="saveBillingReviewButton" type="submit">
             Angaben speichern und weiter
           </button>
@@ -1670,6 +1682,9 @@
     const saveBillingReviewButton = document.getElementById(
       "saveBillingReviewButton"
     );
+    const billingReviewError = document.getElementById(
+      "billingReviewError"
+    );
     const ownershipTargetSelect = document.getElementById(
       "ownershipTargetSelect"
     );
@@ -1785,6 +1800,11 @@
       }
     }
 
+    function setBillingReviewError(message = "") {
+      billingReviewError.textContent = message;
+      billingReviewError.classList.toggle("hidden", !message);
+    }
+
     function clearBillingForms() {
       companyBillingSettingsForm.reset();
       billingReviewForm.reset();
@@ -1792,6 +1812,7 @@
       billingDetailsLoadedKey = "";
       billingDetailsLoadingKey = "";
       billingReviewModal.classList.add("hidden");
+      setBillingReviewError("");
     }
 
     async function ensureOwnerBillingDetails() {
@@ -1839,6 +1860,7 @@
         );
 
         if (result?.data?.needsReview === true) {
+          setBillingReviewError("");
           billingReviewModal.classList.remove("hidden");
           billingReviewForm.elements
             .namedItem("invoiceCompanyName")
@@ -1861,17 +1883,24 @@
       button.disabled = true;
 
       try {
+        if (closeReviewModal) {
+          setBillingReviewError("");
+        }
+
         const details = billingDetailsFromForm(form);
 
         if (
           !details.invoiceCompanyName &&
           !details.recipientName
         ) {
-          setStatus(
-            "Bitte Firma oder Name/Ansprechpartner angeben.",
-            "error",
-            7000
-          );
+          const message =
+            "Bitte Firma oder Name/Ansprechpartner angeben.";
+
+          if (closeReviewModal) {
+            setBillingReviewError(message);
+          } else {
+            setStatus(message, "error", 7000);
+          }
           return;
         }
 
@@ -1900,7 +1929,13 @@
 
         setStatus("Die Rechnungsdaten wurden gespeichert.");
       } catch (error) {
-        setStatus(mapFunctionError(error), "error", 7000);
+        const message = mapFunctionError(error);
+
+        if (closeReviewModal) {
+          setBillingReviewError(message);
+        } else {
+          setStatus(message, "error", 7000);
+        }
       } finally {
         button.disabled = false;
       }
