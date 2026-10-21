@@ -348,6 +348,17 @@
       background: #fff;
     }
 
+    .table-wrap.scroll-five {
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .table-wrap.scroll-five thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
     table {
       width: 100%;
       min-width: 920px;
@@ -745,7 +756,7 @@
 
           <details class="subsection">
             <summary id="formerCompaniesSummary">Ehemalige Firmen (0)</summary>
-            <div class="table-wrap">
+            <div class="table-wrap scroll-five">
               <table aria-label="Ehemalige PolymApp Firmenaccounts">
                 <thead>
                   <tr>
@@ -815,7 +826,10 @@
             direkt nach dem bereits bezahlten Zeitraum.
           </p>
 
-          <div class="table-wrap" style="margin-top: 20px;">
+          <div
+            class="table-wrap scroll-five"
+            style="margin-top: 20px;"
+          >
             <table aria-label="PolymApp Firmenrechnungen">
               <thead>
                 <tr>
