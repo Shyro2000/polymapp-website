@@ -1192,13 +1192,13 @@
                 <label>
                   Land *
                 </label>
-                <input
-                  name="country"
-                  type="text"
-                  maxlength="100"
-                  autocomplete="country-name"
+                <select
+                  name="countryCode"
+                  autocomplete="country"
                   required
                 >
+                  <option value="">Land auswählen</option>
+                </select>
               </div>
 
               <div class="input-group full-width">
@@ -1423,13 +1423,13 @@
                 <label>
                   Land *
                 </label>
-                <input
-                  name="country"
-                  type="text"
-                  maxlength="100"
-                  autocomplete="country-name"
+                <select
+                  name="countryCode"
+                  autocomplete="country"
                   required
                 >
+                  <option value="">Land auswählen</option>
+                </select>
               </div>
 
               <div class="input-group full-width">
@@ -1535,6 +1535,264 @@
       appId: "1:64966382407:web:6739c6a7afa83eb7877262",
       measurementId: "G-0QQYN8BKQD"
     };
+
+    const COUNTRY_OPTIONS = Object.freeze([
+      ["CH", "Schweiz"],
+      ["DE", "Deutschland"],
+      ["AT", "Österreich"],
+      ["AF", "Afghanistan"],
+      ["AL", "Albanien"],
+      ["DZ", "Algerien"],
+      ["AS", "Amerikanisch-Samoa"],
+      ["VI", "Amerikanische Jungferninseln"],
+      ["UM", "Amerikanische Überseeinseln"],
+      ["AD", "Andorra"],
+      ["AO", "Angola"],
+      ["AI", "Anguilla"],
+      ["AQ", "Antarktis"],
+      ["AG", "Antigua und Barbuda"],
+      ["AR", "Argentinien"],
+      ["AM", "Armenien"],
+      ["AW", "Aruba"],
+      ["AZ", "Aserbaidschan"],
+      ["AU", "Australien"],
+      ["BS", "Bahamas"],
+      ["BH", "Bahrain"],
+      ["BD", "Bangladesch"],
+      ["BB", "Barbados"],
+      ["BY", "Belarus"],
+      ["BE", "Belgien"],
+      ["BZ", "Belize"],
+      ["BJ", "Benin"],
+      ["BM", "Bermuda"],
+      ["BT", "Bhutan"],
+      ["BO", "Bolivien"],
+      ["BA", "Bosnien und Herzegowina"],
+      ["BW", "Botsuana"],
+      ["BV", "Bouvetinsel"],
+      ["BR", "Brasilien"],
+      ["VG", "Britische Jungferninseln"],
+      ["IO", "Britisches Territorium im Indischen Ozean"],
+      ["BN", "Brunei Darussalam"],
+      ["BG", "Bulgarien"],
+      ["BF", "Burkina Faso"],
+      ["BI", "Burundi"],
+      ["CV", "Cabo Verde"],
+      ["CL", "Chile"],
+      ["CN", "China"],
+      ["CK", "Cookinseln"],
+      ["CR", "Costa Rica"],
+      ["CW", "Curaçao"],
+      ["CI", "Côte d’Ivoire"],
+      ["DM", "Dominica"],
+      ["DO", "Dominikanische Republik"],
+      ["DJ", "Dschibuti"],
+      ["DK", "Dänemark"],
+      ["EC", "Ecuador"],
+      ["SV", "El Salvador"],
+      ["ER", "Eritrea"],
+      ["EE", "Estland"],
+      ["SZ", "Eswatini"],
+      ["FK", "Falklandinseln"],
+      ["FJ", "Fidschi"],
+      ["FI", "Finnland"],
+      ["FR", "Frankreich"],
+      ["GF", "Französisch-Guayana"],
+      ["PF", "Französisch-Polynesien"],
+      ["TF", "Französische Süd- und Antarktisgebiete"],
+      ["FO", "Färöer"],
+      ["GA", "Gabun"],
+      ["GM", "Gambia"],
+      ["GE", "Georgien"],
+      ["GH", "Ghana"],
+      ["GI", "Gibraltar"],
+      ["GD", "Grenada"],
+      ["GR", "Griechenland"],
+      ["GL", "Grönland"],
+      ["GP", "Guadeloupe"],
+      ["GU", "Guam"],
+      ["GT", "Guatemala"],
+      ["GG", "Guernsey"],
+      ["GN", "Guinea"],
+      ["GW", "Guinea-Bissau"],
+      ["GY", "Guyana"],
+      ["HT", "Haiti"],
+      ["HM", "Heard und McDonaldinseln"],
+      ["HN", "Honduras"],
+      ["IN", "Indien"],
+      ["ID", "Indonesien"],
+      ["IQ", "Irak"],
+      ["IR", "Iran"],
+      ["IE", "Irland"],
+      ["IS", "Island"],
+      ["IM", "Isle of Man"],
+      ["IL", "Israel"],
+      ["IT", "Italien"],
+      ["JM", "Jamaika"],
+      ["JP", "Japan"],
+      ["YE", "Jemen"],
+      ["JE", "Jersey"],
+      ["JO", "Jordanien"],
+      ["KY", "Kaimaninseln"],
+      ["KH", "Kambodscha"],
+      ["CM", "Kamerun"],
+      ["CA", "Kanada"],
+      ["BQ", "Karibische Niederlande"],
+      ["KZ", "Kasachstan"],
+      ["QA", "Katar"],
+      ["KE", "Kenia"],
+      ["KG", "Kirgisistan"],
+      ["KI", "Kiribati"],
+      ["CC", "Kokosinseln"],
+      ["CO", "Kolumbien"],
+      ["KM", "Komoren"],
+      ["CG", "Kongo-Brazzaville"],
+      ["CD", "Kongo-Kinshasa"],
+      ["HR", "Kroatien"],
+      ["CU", "Kuba"],
+      ["KW", "Kuwait"],
+      ["LA", "Laos"],
+      ["LS", "Lesotho"],
+      ["LV", "Lettland"],
+      ["LB", "Libanon"],
+      ["LR", "Liberia"],
+      ["LY", "Libyen"],
+      ["LI", "Liechtenstein"],
+      ["LT", "Litauen"],
+      ["LU", "Luxemburg"],
+      ["MG", "Madagaskar"],
+      ["MW", "Malawi"],
+      ["MY", "Malaysia"],
+      ["MV", "Malediven"],
+      ["ML", "Mali"],
+      ["MT", "Malta"],
+      ["MA", "Marokko"],
+      ["MH", "Marshallinseln"],
+      ["MQ", "Martinique"],
+      ["MR", "Mauretanien"],
+      ["MU", "Mauritius"],
+      ["YT", "Mayotte"],
+      ["MX", "Mexiko"],
+      ["FM", "Mikronesien"],
+      ["MC", "Monaco"],
+      ["MN", "Mongolei"],
+      ["ME", "Montenegro"],
+      ["MS", "Montserrat"],
+      ["MZ", "Mosambik"],
+      ["MM", "Myanmar"],
+      ["NA", "Namibia"],
+      ["NR", "Nauru"],
+      ["NP", "Nepal"],
+      ["NC", "Neukaledonien"],
+      ["NZ", "Neuseeland"],
+      ["NI", "Nicaragua"],
+      ["NL", "Niederlande"],
+      ["NE", "Niger"],
+      ["NG", "Nigeria"],
+      ["NU", "Niue"],
+      ["KP", "Nordkorea"],
+      ["MK", "Nordmazedonien"],
+      ["NF", "Norfolkinsel"],
+      ["NO", "Norwegen"],
+      ["MP", "Nördliche Marianen"],
+      ["OM", "Oman"],
+      ["PK", "Pakistan"],
+      ["PW", "Palau"],
+      ["PS", "Palästinensische Autonomiegebiete"],
+      ["PA", "Panama"],
+      ["PG", "Papua-Neuguinea"],
+      ["PY", "Paraguay"],
+      ["PE", "Peru"],
+      ["PH", "Philippinen"],
+      ["PN", "Pitcairninseln"],
+      ["PL", "Polen"],
+      ["PT", "Portugal"],
+      ["PR", "Puerto Rico"],
+      ["MD", "Republik Moldau"],
+      ["RW", "Ruanda"],
+      ["RO", "Rumänien"],
+      ["RU", "Russland"],
+      ["RE", "Réunion"],
+      ["SB", "Salomonen"],
+      ["ZM", "Sambia"],
+      ["WS", "Samoa"],
+      ["SM", "San Marino"],
+      ["SA", "Saudi-Arabien"],
+      ["SE", "Schweden"],
+      ["SN", "Senegal"],
+      ["RS", "Serbien"],
+      ["SC", "Seychellen"],
+      ["SL", "Sierra Leone"],
+      ["ZW", "Simbabwe"],
+      ["SG", "Singapur"],
+      ["SX", "Sint Maarten"],
+      ["SK", "Slowakei"],
+      ["SI", "Slowenien"],
+      ["SO", "Somalia"],
+      ["HK", "Sonderverwaltungsregion Hongkong"],
+      ["MO", "Sonderverwaltungsregion Macau"],
+      ["ES", "Spanien"],
+      ["SJ", "Spitzbergen und Jan Mayen"],
+      ["LK", "Sri Lanka"],
+      ["BL", "St. Barthélemy"],
+      ["SH", "St. Helena"],
+      ["KN", "St. Kitts und Nevis"],
+      ["LC", "St. Lucia"],
+      ["MF", "St. Martin"],
+      ["PM", "St. Pierre und Miquelon"],
+      ["VC", "St. Vincent und die Grenadinen"],
+      ["SD", "Sudan"],
+      ["SR", "Suriname"],
+      ["SY", "Syrien"],
+      ["ST", "São Tomé und Príncipe"],
+      ["ZA", "Südafrika"],
+      ["GS", "Südgeorgien und die Südlichen Sandwichinseln"],
+      ["KR", "Südkorea"],
+      ["SS", "Südsudan"],
+      ["TJ", "Tadschikistan"],
+      ["TW", "Taiwan"],
+      ["TZ", "Tansania"],
+      ["TH", "Thailand"],
+      ["TL", "Timor-Leste"],
+      ["TG", "Togo"],
+      ["TK", "Tokelau"],
+      ["TO", "Tonga"],
+      ["TT", "Trinidad und Tobago"],
+      ["TD", "Tschad"],
+      ["CZ", "Tschechien"],
+      ["TN", "Tunesien"],
+      ["TM", "Turkmenistan"],
+      ["TC", "Turks- und Caicosinseln"],
+      ["TV", "Tuvalu"],
+      ["TR", "Türkei"],
+      ["UG", "Uganda"],
+      ["UA", "Ukraine"],
+      ["HU", "Ungarn"],
+      ["UY", "Uruguay"],
+      ["UZ", "Usbekistan"],
+      ["VU", "Vanuatu"],
+      ["VA", "Vatikanstadt"],
+      ["VE", "Venezuela"],
+      ["AE", "Vereinigte Arabische Emirate"],
+      ["US", "Vereinigte Staaten"],
+      ["GB", "Vereinigtes Königreich"],
+      ["VN", "Vietnam"],
+      ["WF", "Wallis und Futuna"],
+      ["CX", "Weihnachtsinsel"],
+      ["EH", "Westsahara"],
+      ["CF", "Zentralafrikanische Republik"],
+      ["CY", "Zypern"],
+      ["EG", "Ägypten"],
+      ["GQ", "Äquatorialguinea"],
+      ["ET", "Äthiopien"],
+      ["AX", "Ålandinseln"]
+    ]);
+
+    const PRIORITY_COUNTRY_CODES = Object.freeze([
+      "CH",
+      "DE",
+      "AT"
+    ]);
 
     const app = initializeApp(firebaseConfig);
     const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(
@@ -1738,6 +1996,7 @@
     let billingDetailsLoadingKey = "";
 
     document.getElementById("year").textContent = new Date().getFullYear();
+    populateCountrySelects();
 
     function setStatus(message, type = "success", duration = 5000) {
       window.clearTimeout(statusTimer);
@@ -1765,8 +2024,16 @@
           String(formData.get("postalCode") || "").trim(),
         city:
           String(formData.get("city") || "").trim(),
+        countryCode:
+          String(formData.get("countryCode") || "")
+            .trim()
+            .toUpperCase(),
         country:
-          String(formData.get("country") || "").trim(),
+          countryNameFromCode(
+            String(formData.get("countryCode") || "")
+              .trim()
+              .toUpperCase()
+          ),
         billingEmail:
           String(formData.get("billingEmail") || "").trim(),
         uidVat:
@@ -1784,7 +2051,6 @@
         "addressSupplement",
         "postalCode",
         "city",
-        "country",
         "billingEmail",
         "uidVat",
         "customerReference"
@@ -1796,6 +2062,102 @@
             typeof details?.[name] === "string"
               ? details[name]
               : "";
+        }
+      }
+
+      const countrySelect = form.elements.namedItem(
+        "countryCode"
+      );
+
+      if (countrySelect) {
+        countrySelect.value =
+          typeof details?.countryCode === "string" &&
+          details.countryCode
+            ? details.countryCode
+            : countryCodeFromName(details?.country);
+      }
+    }
+
+    function countryNameFromCode(countryCode) {
+      const match = COUNTRY_OPTIONS.find(
+        ([code]) => code === countryCode
+      );
+
+      return match ? match[1] : "";
+    }
+
+    function countryCodeFromName(countryName) {
+      if (typeof countryName !== "string") {
+        return "";
+      }
+
+      const normalized = countryName.trim().toLocaleLowerCase("de-CH");
+      const direct = COUNTRY_OPTIONS.find(
+        ([, label]) =>
+          label.toLocaleLowerCase("de-CH") === normalized
+      );
+
+      if (direct) {
+        return direct[0];
+      }
+
+      if (
+        ["suisse", "svizzera", "switzerland"].includes(normalized)
+      ) {
+        return "CH";
+      }
+
+      if (
+        ["germany", "allemagne"].includes(normalized)
+      ) {
+        return "DE";
+      }
+
+      if (
+        ["oesterreich", "austria", "autriche"].includes(normalized)
+      ) {
+        return "AT";
+      }
+
+      return "";
+    }
+
+    function populateCountrySelects() {
+      const selects = [
+        companyBillingSettingsForm.elements.namedItem("countryCode"),
+        billingReviewForm.elements.namedItem("countryCode")
+      ].filter(Boolean);
+
+      for (const select of selects) {
+        select.replaceChildren();
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Land auswählen";
+        select.append(placeholder);
+
+        for (const code of PRIORITY_COUNTRY_CODES) {
+          const label = countryNameFromCode(code);
+          const option = document.createElement("option");
+          option.value = code;
+          option.textContent = label;
+          select.append(option);
+        }
+
+        const separator = document.createElement("option");
+        separator.disabled = true;
+        separator.textContent = "──────────";
+        select.append(separator);
+
+        for (const [code, label] of COUNTRY_OPTIONS) {
+          if (PRIORITY_COUNTRY_CODES.includes(code)) {
+            continue;
+          }
+
+          const option = document.createElement("option");
+          option.value = code;
+          option.textContent = label;
+          select.append(option);
         }
       }
     }

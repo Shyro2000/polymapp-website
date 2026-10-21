@@ -131,10 +131,13 @@ function validateBillingDetails(
     );
   }
 
-  if (!details.country) {
+  if (
+    !details.country ||
+    !/^[A-Z]{2}$/.test(details.countryCode)
+  ) {
     throw new HttpsError(
       "invalid-argument",
-      "Das Land ist erforderlich.",
+      "Bitte ein gültiges Land auswählen.",
     );
   }
 

@@ -6,6 +6,7 @@ export interface CompanyBillingDetails {
   postalCode: string;
   city: string;
   country: string;
+  countryCode: string;
   billingEmail: string;
   uidVat: string;
   customerReference: string;
@@ -73,6 +74,54 @@ export function normalizeText(
 }
 
 /**
+ * Infers a country code from older stored country names.
+ * @param {string} value Stored country name.
+ * @return {string} ISO alpha-2 country code or an empty string.
+ */
+function inferCountryCode(value: string): string {
+  const normalized = value
+    .trim()
+    .toLocaleLowerCase("de-CH");
+
+  switch (normalized) {
+  case "schweiz":
+  case "suisse":
+  case "svizzera":
+  case "switzerland":
+    return "CH";
+  case "deutschland":
+  case "germany":
+  case "allemagne":
+    return "DE";
+  case "österreich":
+  case "oesterreich":
+  case "austria":
+  case "autriche":
+    return "AT";
+  default:
+    return "";
+  }
+}
+
+/**
+ * Returns a readable fallback country name.
+ * @param {string} countryCode ISO alpha-2 country code.
+ * @return {string} Country name or code.
+ */
+function countryNameFromCode(countryCode: string): string {
+  switch (countryCode) {
+  case "CH":
+    return "Schweiz";
+  case "DE":
+    return "Deutschland";
+  case "AT":
+    return "Österreich";
+  default:
+    return countryCode;
+  }
+}
+
+/**
  * Normalizes company billing details.
  * @param {unknown} value Stored object.
  * @param {string} fallbackCompanyName Fallback company name.
@@ -88,6 +137,21 @@ export function normalizeCompanyBillingDetails(
     value && typeof value === "object" ?
       value as Record<string, unknown> :
       {};
+
+  const storedCountry = normalizeText(
+    data.country,
+    "",
+    100,
+  );
+  const rawCountryCode = normalizeText(
+    data.countryCode,
+    "",
+    2,
+  ).toUpperCase();
+  const countryCode =
+    /^[A-Z]{2}$/.test(rawCountryCode) ?
+      rawCountryCode :
+      inferCountryCode(storedCountry);
 
   return {
     invoiceCompanyName: normalizeText(
@@ -108,7 +172,10 @@ export function normalizeCompanyBillingDetails(
     ),
     postalCode: normalizeText(data.postalCode, "", 30),
     city: normalizeText(data.city, "", 100),
-    country: normalizeText(data.country, "", 100),
+    country:
+      storedCountry ||
+      countryNameFromCode(countryCode),
+    countryCode,
     billingEmail: normalizeText(
       data.billingEmail,
       fallbackEmail,
