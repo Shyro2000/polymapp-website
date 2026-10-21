@@ -128,6 +128,62 @@
       margin-top: 0;
     }
 
+    details.admin-section {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    details.admin-section > summary {
+      padding: 18px 20px;
+      color: #b00000;
+      font-size: 1.25rem;
+      font-weight: bold;
+      cursor: pointer;
+      list-style-position: inside;
+      user-select: none;
+    }
+
+    details.admin-section[open] > summary {
+      border-bottom: 1px solid var(--border);
+      background: #f1f1f1;
+    }
+
+    .admin-section-body {
+      padding: 0 20px 20px;
+    }
+
+    .subsection {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid #ddd;
+    }
+
+    .subsection > summary {
+      color: #555;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .muted-row {
+      color: var(--muted);
+    }
+
+    .payment-status-paid {
+      background: #287437;
+    }
+
+    .payment-status-pending {
+      background: #1769aa;
+    }
+
+    .payment-status-overdue {
+      background: #9c4f00;
+    }
+
+    .payment-status-cancelled {
+      background: #686868;
+    }
+
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -504,8 +560,7 @@
   <main class="container">
     <h1>Firmenaccounts</h1>
     <p class="lead">
-      Interne Übersicht aller PolymApp-Firmenaccounts für Tarif- und Abrechnungskontrolle.
-      Rechnungen und Zahlungseingänge werden später auf einer separaten Seite verwaltet.
+      Interne Übersicht aller PolymApp-Firmenaccounts für Tarif-, Zahlungs- und Abrechnungskontrolle.
     </p>
 
     <section id="loadingPanel" class="panel">
@@ -546,7 +601,7 @@
     <section id="adminPanel" class="hidden">
       <div class="summary-grid">
         <div class="summary-item">
-          <span class="summary-label">Firmen</span>
+          <span class="summary-label">Aktive Firmen</span>
           <span id="companyCount" class="summary-value">0</span>
         </div>
         <div class="summary-item">
@@ -563,67 +618,128 @@
         </div>
       </div>
 
-      <section class="panel">
-        <h2>Firmenübersicht</h2>
+      <details class="panel admin-section" open>
+        <summary>Firmenübersicht</summary>
+        <div class="admin-section-body">
+          <div class="toolbar">
+            <div class="input-group">
+              <label for="companySearch">Firma suchen</label>
+              <input
+                id="companySearch"
+                type="search"
+                placeholder="Firmenname oder Firmen-ID"
+                autocomplete="off"
+              >
+            </div>
 
-        <div class="toolbar">
-          <div class="input-group">
-            <label for="companySearch">Firma suchen</label>
-            <input
-              id="companySearch"
-              type="search"
-              placeholder="Firmenname oder Firmen-ID"
-              autocomplete="off"
-            >
+            <div class="input-group">
+              <label for="billingFilter">Abo-Status</label>
+              <select id="billingFilter">
+                <option value="all">Alle</option>
+                <option value="active">Aktiv</option>
+                <option value="payment_pending">Zahlung offen</option>
+                <option value="overdue">Überfällig</option>
+                <option value="suspended">Gesperrt</option>
+                <option value="not_configured">Noch kein Abo</option>
+              </select>
+            </div>
+
+            <button id="refreshButton" type="button" class="button-secondary">
+              Aktualisieren
+            </button>
           </div>
 
-          <div class="input-group">
-            <label for="billingFilter">Abo-Status</label>
-            <select id="billingFilter">
-              <option value="all">Alle</option>
-              <option value="active">Aktiv</option>
-              <option value="payment_pending">Zahlung offen</option>
-              <option value="overdue">Überfällig</option>
-              <option value="suspended">Gesperrt</option>
-              <option value="not_configured">Noch kein Abo</option>
-            </select>
+          <h3 style="margin-top: 22px;">Aktive Firmen</h3>
+          <div class="table-wrap">
+            <table aria-label="Aktive PolymApp Firmenaccounts">
+              <thead>
+                <tr>
+                  <th>Firma</th>
+                  <th>Mitglieder</th>
+                  <th>Tarif</th>
+                  <th>Preis / Mitglied / Monat</th>
+                  <th>Fixpreis / Jahr</th>
+                  <th>Abo-Status</th>
+                </tr>
+              </thead>
+              <tbody id="companyTableBody">
+                <tr>
+                  <td colspan="6" class="empty-state">Keine Firmendaten geladen.</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
-          <button id="refreshButton" type="button" class="button-secondary">
-            Aktualisieren
-          </button>
+          <p id="resultCount" class="empty-state" style="margin-top: 12px;"></p>
+
+          <details class="subsection">
+            <summary id="formerCompaniesSummary">Ehemalige Firmen (0)</summary>
+            <div class="table-wrap">
+              <table aria-label="Ehemalige PolymApp Firmenaccounts">
+                <thead>
+                  <tr>
+                    <th>Firma</th>
+                    <th>Letzte Mitglieder</th>
+                    <th>Letzter Tarif</th>
+                    <th>Letzter Abo-Status</th>
+                    <th>Gelöscht am</th>
+                    <th>Archivstatus</th>
+                  </tr>
+                </thead>
+                <tbody id="formerCompanyTableBody">
+                  <tr>
+                    <td colspan="6" class="empty-state">
+                      Noch keine ehemaligen Firmen archiviert.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
         </div>
+      </details>
 
-        <div class="table-wrap">
-          <table aria-label="PolymApp Firmenaccounts">
-            <thead>
-              <tr>
-                <th>Firma</th>
-                <th>Mitglieder</th>
-                <th>Tarif</th>
-                <th>Preis / Mitglied / Monat</th>
-                <th>Fixpreis / Jahr</th>
-                <th>Abo-Status</th>
-              </tr>
-            </thead>
-            <tbody id="companyTableBody">
-              <tr>
-                <td colspan="6" class="empty-state">Keine Firmendaten geladen.</td>
-              </tr>
-            </tbody>
-          </table>
+      <details class="panel admin-section">
+        <summary id="paymentsSummary">Zahlungen (0)</summary>
+        <div class="admin-section-body">
+          <p class="empty-state" style="margin-top: 18px;">
+            Übersicht der Firmenzahlungen. Die Erfassung und Bestätigung von
+            Zahlungseingängen ergänzen wir als nächsten Schritt.
+          </p>
+
+          <div class="table-wrap">
+            <table aria-label="PolymApp Firmenzahlungen">
+              <thead>
+                <tr>
+                  <th>Firma</th>
+                  <th>Betrag</th>
+                  <th>Referenz</th>
+                  <th>Fällig</th>
+                  <th>Bezahlt am</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="paymentTableBody">
+                <tr>
+                  <td colspan="6" class="empty-state">
+                    Noch keine Zahlungen vorhanden.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+      </details>
 
-        <p id="resultCount" class="empty-state" style="margin-top: 12px;"></p>
-      </section>
-
-      <section class="panel">
-        <h2>Preisstaffel</h2>
-        <p class="empty-state">
-          Der Jahrespreis wird immer anhand der maximal gebuchten Mitgliederzahl berechnet.
-        </p>
-        <div id="tariffGrid" class="tariff-grid"></div>
-      </section>
+      <details class="panel admin-section">
+        <summary>Preisstaffel</summary>
+        <div class="admin-section-body">
+          <p class="empty-state" style="margin-top: 18px;">
+            Der Jahrespreis wird immer anhand der maximal gebuchten Mitgliederzahl berechnet.
+          </p>
+          <div id="tariffGrid" class="tariff-grid"></div>
+        </div>
+      </details>
     </section>
   </main>
 
@@ -741,10 +857,18 @@
     const refreshButton = document.getElementById("refreshButton");
     const companyTableBody = document.getElementById("companyTableBody");
     const resultCount = document.getElementById("resultCount");
+    const formerCompaniesSummary =
+      document.getElementById("formerCompaniesSummary");
+    const formerCompanyTableBody =
+      document.getElementById("formerCompanyTableBody");
+    const paymentsSummary = document.getElementById("paymentsSummary");
+    const paymentTableBody = document.getElementById("paymentTableBody");
     const tariffGrid = document.getElementById("tariffGrid");
     const statusBox = document.getElementById("status");
 
     let companies = [];
+    let formerCompanies = [];
+    let payments = [];
 
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -894,6 +1018,103 @@
         activeMemberCount,
         billingStatus: normalizeBillingStatus(rawCompany?.billingStatus)
       };
+    }
+
+    function normalizeFormerCompany(rawCompany) {
+      return {
+        id: typeof rawCompany?.id === "string" ? rawCompany.id : "",
+        name:
+          typeof rawCompany?.name === "string" && rawCompany.name.trim()
+            ? rawCompany.name.trim()
+            : "Unbenannte Firma",
+        seatLimit: Number(rawCompany?.seatLimit || 0),
+        activeMemberCount: Number(rawCompany?.activeMemberCount || 0),
+        billingStatus: normalizeBillingStatus(rawCompany?.billingStatus),
+        archiveStatus:
+          typeof rawCompany?.archiveStatus === "string"
+            ? rawCompany.archiveStatus
+            : "deleted",
+        deletedAtMs: Number(rawCompany?.deletedAtMs || 0)
+      };
+    }
+
+    function normalizePayment(rawPayment) {
+      return {
+        id: typeof rawPayment?.id === "string" ? rawPayment.id : "",
+        companyId:
+          typeof rawPayment?.companyId === "string"
+            ? rawPayment.companyId
+            : "",
+        companyName:
+          typeof rawPayment?.companyName === "string" &&
+          rawPayment.companyName.trim()
+            ? rawPayment.companyName.trim()
+            : "Unbekannte Firma",
+        amount: Number(rawPayment?.amount || 0),
+        currency:
+          typeof rawPayment?.currency === "string"
+            ? rawPayment.currency
+            : "CHF",
+        reference:
+          typeof rawPayment?.reference === "string"
+            ? rawPayment.reference
+            : "",
+        status:
+          typeof rawPayment?.status === "string"
+            ? rawPayment.status
+            : "pending",
+        dueAtMs: Number(rawPayment?.dueAtMs || 0),
+        paidAtMs: Number(rawPayment?.paidAtMs || 0)
+      };
+    }
+
+    function formatDate(timestampMs) {
+      if (!Number.isFinite(timestampMs) || timestampMs <= 0) {
+        return "–";
+      }
+
+      return new Intl.DateTimeFormat("de-CH", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      }).format(new Date(timestampMs));
+    }
+
+    function archiveStatusLabel(value) {
+      switch (value) {
+        case "deletion_pending":
+          return "Löschung läuft";
+        case "deletion_failed":
+          return "Löschung fehlgeschlagen";
+        default:
+          return "Gelöscht";
+      }
+    }
+
+    function paymentStatusLabel(value) {
+      switch (value) {
+        case "paid":
+          return "Bezahlt";
+        case "overdue":
+          return "Überfällig";
+        case "cancelled":
+          return "Storniert";
+        default:
+          return "Offen";
+      }
+    }
+
+    function paymentStatusClass(value) {
+      switch (value) {
+        case "paid":
+          return "payment-status-paid";
+        case "overdue":
+          return "payment-status-overdue";
+        case "cancelled":
+          return "payment-status-cancelled";
+        default:
+          return "payment-status-pending";
+      }
     }
 
     function updateSummary() {
@@ -1050,6 +1271,133 @@
         `${filteredCompanies.length} von ${companies.length} Firmen angezeigt.`;
     }
 
+    function renderFormerCompanies() {
+      formerCompaniesSummary.textContent =
+        `Ehemalige Firmen (${formerCompanies.length})`;
+      formerCompanyTableBody.replaceChildren();
+
+      if (formerCompanies.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 6;
+        cell.className = "empty-state";
+        cell.textContent =
+          "Noch keine ehemaligen Firmen archiviert.";
+        row.append(cell);
+        formerCompanyTableBody.append(row);
+        return;
+      }
+
+      for (const company of formerCompanies) {
+        const row = document.createElement("tr");
+        row.className = "muted-row";
+
+        const companyCell = document.createElement("td");
+        const companyName = document.createElement("span");
+        companyName.className = "company-name";
+        companyName.textContent = company.name;
+
+        const companyId = document.createElement("span");
+        companyId.className = "company-id";
+        companyId.textContent = company.id;
+        companyCell.append(companyName, companyId);
+
+        const membersCell = document.createElement("td");
+        membersCell.textContent =
+          `${company.activeMemberCount}/${company.seatLimit || "–"}`;
+
+        const tariffCell = document.createElement("td");
+        tariffCell.textContent = company.seatLimit > 0
+          ? `Bis ${company.seatLimit}`
+          : "Nicht festgelegt";
+
+        const billingCell = document.createElement("td");
+        billingCell.textContent =
+          billingStatusLabel(company.billingStatus);
+
+        const deletedCell = document.createElement("td");
+        deletedCell.textContent = formatDate(company.deletedAtMs);
+
+        const archiveCell = document.createElement("td");
+        archiveCell.textContent =
+          archiveStatusLabel(company.archiveStatus);
+
+        row.append(
+          companyCell,
+          membersCell,
+          tariffCell,
+          billingCell,
+          deletedCell,
+          archiveCell
+        );
+
+        formerCompanyTableBody.append(row);
+      }
+    }
+
+    function renderPayments() {
+      paymentsSummary.textContent = `Zahlungen (${payments.length})`;
+      paymentTableBody.replaceChildren();
+
+      if (payments.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 6;
+        cell.className = "empty-state";
+        cell.textContent = "Noch keine Zahlungen vorhanden.";
+        row.append(cell);
+        paymentTableBody.append(row);
+        return;
+      }
+
+      for (const payment of payments) {
+        const row = document.createElement("tr");
+
+        const companyCell = document.createElement("td");
+        const companyName = document.createElement("span");
+        companyName.className = "company-name";
+        companyName.textContent = payment.companyName;
+
+        const companyId = document.createElement("span");
+        companyId.className = "company-id";
+        companyId.textContent = payment.companyId;
+        companyCell.append(companyName, companyId);
+
+        const amountCell = document.createElement("td");
+        amountCell.textContent = payment.currency === "CHF"
+          ? formatCurrency(payment.amount)
+          : `${payment.amount.toFixed(2)} ${payment.currency}`;
+
+        const referenceCell = document.createElement("td");
+        referenceCell.textContent = payment.reference || "–";
+
+        const dueCell = document.createElement("td");
+        dueCell.textContent = formatDate(payment.dueAtMs);
+
+        const paidCell = document.createElement("td");
+        paidCell.textContent = formatDate(payment.paidAtMs);
+
+        const statusCell = document.createElement("td");
+        const statusBadge = document.createElement("span");
+        statusBadge.className =
+          `status-badge ${paymentStatusClass(payment.status)}`;
+        statusBadge.textContent =
+          paymentStatusLabel(payment.status);
+        statusCell.append(statusBadge);
+
+        row.append(
+          companyCell,
+          amountCell,
+          referenceCell,
+          dueCell,
+          paidCell,
+          statusCell
+        );
+
+        paymentTableBody.append(row);
+      }
+    }
+
     async function loadCompanies() {
       refreshButton.disabled = true;
 
@@ -1059,11 +1407,23 @@
         const rawCompanies = Array.isArray(result?.data?.companies)
           ? result.data.companies
           : [];
+        const rawFormerCompanies =
+          Array.isArray(result?.data?.formerCompanies)
+            ? result.data.formerCompanies
+            : [];
+        const rawPayments = Array.isArray(result?.data?.payments)
+          ? result.data.payments
+          : [];
 
         companies = rawCompanies.map(normalizedCompany);
+        formerCompanies =
+          rawFormerCompanies.map(normalizeFormerCompany);
+        payments = rawPayments.map(normalizePayment);
 
         updateSummary();
         renderCompanies();
+        renderFormerCompanies();
+        renderPayments();
         showOnly(adminPanel);
       } catch (error) {
         console.error("Admin-Firmen konnten nicht geladen werden:", error);

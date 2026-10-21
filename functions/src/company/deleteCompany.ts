@@ -79,6 +79,7 @@ export const deleteCompany = onCall(
           return {
             companyId,
             alreadyDeleted: true,
+            archiveData: null,
           };
         }
 
@@ -169,6 +170,44 @@ export const deleteCompany = onCall(
           );
         }
 
+        const rawName = companySnapshot.get("name");
+        const rawSeatLimit = companySnapshot.get("seatLimit");
+        const rawActiveMemberCount =
+          companySnapshot.get("activeMemberCount");
+        const rawPendingInvitationCount =
+          companySnapshot.get("pendingInvitationCount");
+        const rawBillingStatus =
+          companySnapshot.get("billingStatus");
+        const rawCreatedAt =
+          companySnapshot.get("createdAt");
+
+        const archiveData = {
+          name:
+            typeof rawName === "string" ?
+              rawName :
+              "",
+          seatLimit:
+            typeof rawSeatLimit === "number" ?
+              rawSeatLimit :
+              0,
+          activeMemberCount:
+            typeof rawActiveMemberCount === "number" ?
+              rawActiveMemberCount :
+              activeMembersSnapshot.size,
+          pendingInvitationCount:
+            typeof rawPendingInvitationCount === "number" ?
+              rawPendingInvitationCount :
+              pendingInvitationsSnapshot.size,
+          billingStatus:
+            typeof rawBillingStatus === "string" ?
+              rawBillingStatus :
+              "not_configured",
+          createdAt:
+            rawCreatedAt instanceof Timestamp ?
+              rawCreatedAt :
+              null,
+        };
+
         transaction.update(companyRef, {
           status: "deleting",
           updatedAt: FieldValue.serverTimestamp(),
@@ -177,11 +216,15 @@ export const deleteCompany = onCall(
         return {
           companyId,
           alreadyDeleted: false,
+          archiveData,
         };
       },
     );
 
-    if (preparation.alreadyDeleted) {
+    if (
+      preparation.alreadyDeleted ||
+      preparation.archiveData === null
+    ) {
       return {
         companyId: preparation.companyId,
         status: "deleted",
@@ -192,26 +235,63 @@ export const deleteCompany = onCall(
       .collection("companies")
       .doc(preparation.companyId);
 
-    const invitationsSnapshot = await db
-      .collection("companyInvitations")
-      .where(
-        "companyId",
-        "==",
-        preparation.companyId,
-      )
-      .get();
+    const archiveRef = db
+      .collection("companyArchive")
+      .doc(preparation.companyId);
 
-    if (!invitationsSnapshot.empty) {
-      const bulkWriter = db.bulkWriter();
+    await archiveRef.set(
+      {
+        companyId: preparation.companyId,
+        ...preparation.archiveData,
+        archiveStatus: "deletion_pending",
+        deletionStartedAt:
+          FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      {merge: true},
+    );
 
-      for (const invitation of invitationsSnapshot.docs) {
-        bulkWriter.delete(invitation.ref);
+    try {
+      const invitationsSnapshot = await db
+        .collection("companyInvitations")
+        .where(
+          "companyId",
+          "==",
+          preparation.companyId,
+        )
+        .get();
+
+      if (!invitationsSnapshot.empty) {
+        const bulkWriter = db.bulkWriter();
+
+        for (const invitation of invitationsSnapshot.docs) {
+          bulkWriter.delete(invitation.ref);
+        }
+
+        await bulkWriter.close();
       }
 
-      await bulkWriter.close();
-    }
+      await db.recursiveDelete(companyRef);
 
-    await db.recursiveDelete(companyRef);
+      await archiveRef.set(
+        {
+          archiveStatus: "deleted",
+          deletedAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {merge: true},
+      );
+    } catch (error) {
+      await archiveRef.set(
+        {
+          archiveStatus: "deletion_failed",
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {merge: true},
+      ).catch(() => undefined);
+
+      throw error;
+    }
 
     await userRef.update({
       companyId: FieldValue.delete(),
