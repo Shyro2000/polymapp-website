@@ -2,6 +2,7 @@ export interface CompanyBillingDetails {
   invoiceCompanyName: string;
   recipientName: string;
   street: string;
+  addressSupplement: string;
   postalCode: string;
   city: string;
   country: string;
@@ -100,6 +101,11 @@ export function normalizeCompanyBillingDetails(
       120,
     ),
     street: normalizeText(data.street, "", 160),
+    addressSupplement: normalizeText(
+      data.addressSupplement,
+      "",
+      160,
+    ),
     postalCode: normalizeText(data.postalCode, "", 30),
     city: normalizeText(data.city, "", 100),
     country: normalizeText(data.country, "", 100),

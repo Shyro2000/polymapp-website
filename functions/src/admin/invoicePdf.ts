@@ -327,6 +327,7 @@ export function buildInvoicePdf(
     customer.invoiceCompanyName || companyName,
     customer.recipientName,
     customer.street,
+    customer.addressSupplement,
     [customer.postalCode, customer.city]
       .filter(Boolean)
       .join(" "),

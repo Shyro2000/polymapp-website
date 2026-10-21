@@ -95,12 +95,60 @@ async function getOwnerContext(
 
 /**
  * Validates an optional email address.
- * @param {string} value Email value.
+ * @param {CompanyBillingDetails} details Rechnungsdaten.
  */
-function validateOptionalEmail(value: string): void {
+function validateBillingDetails(
+  details: CompanyBillingDetails,
+): void {
   if (
-    value &&
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    !details.invoiceCompanyName &&
+    !details.recipientName
+  ) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Bitte Firma oder Name/Ansprechpartner angeben.",
+    );
+  }
+
+  if (!details.street) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Strasse und Hausnummer sind erforderlich.",
+    );
+  }
+
+  if (!details.postalCode) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Die PLZ ist erforderlich.",
+    );
+  }
+
+  if (!details.city) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Der Ort ist erforderlich.",
+    );
+  }
+
+  if (!details.country) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Das Land ist erforderlich.",
+    );
+  }
+
+  if (!details.billingEmail) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Die Rechnungs-E-Mail-Adresse ist erforderlich.",
+    );
+  }
+
+  if (
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      details.billingEmail,
+    )
   ) {
     throw new HttpsError(
       "invalid-argument",
@@ -172,7 +220,7 @@ export const updateCompanyBillingDetails = onCall(
       "",
       "",
     );
-    validateOptionalEmail(details.billingEmail);
+    validateBillingDetails(details);
 
     const savedDetails: CompanyBillingDetails = {
       ...details,

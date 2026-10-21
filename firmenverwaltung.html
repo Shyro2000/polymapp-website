@@ -1100,9 +1100,15 @@
               id="companyBillingSettingsForm"
               class="billing-form-grid"
             >
+              <p class="notice notice-warning full-width">
+                Mit * markierte Felder sind obligatorisch.
+                Bei Firma und Name/Ansprechpartner muss mindestens eines
+                der beiden Felder ausgefüllt sein.
+              </p>
+
               <div class="input-group full-width">
                 <label>
-                  Firma <span class="optional-label">(optional)</span>
+                  Firma *
                 </label>
                 <input
                   name="invoiceCompanyName"
@@ -1114,8 +1120,7 @@
 
               <div class="input-group full-width">
                 <label>
-                  Name / Ansprechpartner
-                  <span class="optional-label">(optional)</span>
+                  Name / Ansprechpartner *
                 </label>
                 <input
                   name="recipientName"
@@ -1127,63 +1132,79 @@
 
               <div class="input-group full-width">
                 <label>
-                  Strasse / Hausnummer
-                  <span class="optional-label">(optional)</span>
+                  Strasse / Hausnummer *
                 </label>
                 <input
                   name="street"
                   type="text"
                   maxlength="160"
                   autocomplete="street-address"
+                  required
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Adresszusatz
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="addressSupplement"
+                  type="text"
+                  maxlength="160"
+                  autocomplete="address-line2"
                 >
               </div>
 
               <div class="input-group">
                 <label>
-                  PLZ <span class="optional-label">(optional)</span>
+                  PLZ *
                 </label>
                 <input
                   name="postalCode"
                   type="text"
                   maxlength="30"
                   autocomplete="postal-code"
+                  required
                 >
               </div>
 
               <div class="input-group">
                 <label>
-                  Ort <span class="optional-label">(optional)</span>
+                  Ort *
                 </label>
                 <input
                   name="city"
                   type="text"
                   maxlength="100"
                   autocomplete="address-level2"
+                  required
                 >
               </div>
 
               <div class="input-group full-width">
                 <label>
-                  Land <span class="optional-label">(optional)</span>
+                  Land *
                 </label>
                 <input
                   name="country"
                   type="text"
                   maxlength="100"
                   autocomplete="country-name"
+                  required
                 >
               </div>
 
               <div class="input-group full-width">
                 <label>
-                  Rechnungs-E-Mail
-                  <span class="optional-label">(optional)</span>
+                  Rechnungs-E-Mail *
                 </label>
                 <input
                   name="billingEmail"
                   type="email"
                   maxlength="254"
                   autocomplete="email"
+                  required
                 >
               </div>
 
@@ -1310,9 +1331,15 @@
       </p>
 
       <form id="billingReviewForm" class="billing-form-grid">
+              <p class="notice notice-warning full-width">
+                Mit * markierte Felder sind obligatorisch.
+                Bei Firma und Name/Ansprechpartner muss mindestens eines
+                der beiden Felder ausgefüllt sein.
+              </p>
+
               <div class="input-group full-width">
                 <label>
-                  Firma <span class="optional-label">(optional)</span>
+                  Firma *
                 </label>
                 <input
                   name="invoiceCompanyName"
@@ -1324,8 +1351,7 @@
 
               <div class="input-group full-width">
                 <label>
-                  Name / Ansprechpartner
-                  <span class="optional-label">(optional)</span>
+                  Name / Ansprechpartner *
                 </label>
                 <input
                   name="recipientName"
@@ -1337,63 +1363,79 @@
 
               <div class="input-group full-width">
                 <label>
-                  Strasse / Hausnummer
-                  <span class="optional-label">(optional)</span>
+                  Strasse / Hausnummer *
                 </label>
                 <input
                   name="street"
                   type="text"
                   maxlength="160"
                   autocomplete="street-address"
+                  required
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Adresszusatz
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="addressSupplement"
+                  type="text"
+                  maxlength="160"
+                  autocomplete="address-line2"
                 >
               </div>
 
               <div class="input-group">
                 <label>
-                  PLZ <span class="optional-label">(optional)</span>
+                  PLZ *
                 </label>
                 <input
                   name="postalCode"
                   type="text"
                   maxlength="30"
                   autocomplete="postal-code"
+                  required
                 >
               </div>
 
               <div class="input-group">
                 <label>
-                  Ort <span class="optional-label">(optional)</span>
+                  Ort *
                 </label>
                 <input
                   name="city"
                   type="text"
                   maxlength="100"
                   autocomplete="address-level2"
+                  required
                 >
               </div>
 
               <div class="input-group full-width">
                 <label>
-                  Land <span class="optional-label">(optional)</span>
+                  Land *
                 </label>
                 <input
                   name="country"
                   type="text"
                   maxlength="100"
                   autocomplete="country-name"
+                  required
                 >
               </div>
 
               <div class="input-group full-width">
                 <label>
-                  Rechnungs-E-Mail
-                  <span class="optional-label">(optional)</span>
+                  Rechnungs-E-Mail *
                 </label>
                 <input
                   name="billingEmail"
                   type="email"
                   maxlength="254"
                   autocomplete="email"
+                  required
                 >
               </div>
 
@@ -1702,6 +1744,8 @@
           String(formData.get("recipientName") || "").trim(),
         street:
           String(formData.get("street") || "").trim(),
+        addressSupplement:
+          String(formData.get("addressSupplement") || "").trim(),
         postalCode:
           String(formData.get("postalCode") || "").trim(),
         city:
@@ -1722,6 +1766,7 @@
         "invoiceCompanyName",
         "recipientName",
         "street",
+        "addressSupplement",
         "postalCode",
         "city",
         "country",
@@ -1817,6 +1862,19 @@
 
       try {
         const details = billingDetailsFromForm(form);
+
+        if (
+          !details.invoiceCompanyName &&
+          !details.recipientName
+        ) {
+          setStatus(
+            "Bitte Firma oder Name/Ansprechpartner angeben.",
+            "error",
+            7000
+          );
+          return;
+        }
+
         const result = await updateCompanyBillingDetailsCall({
           details
         });

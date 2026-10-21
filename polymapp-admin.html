@@ -1612,6 +1612,17 @@
         statusBadge.textContent = billingStatusLabel(company.billingStatus);
         statusCell.append(statusBadge);
 
+        if (
+          company.billingStatus === "active" &&
+          company.billingValidUntilMs > 0
+        ) {
+          const expiry = document.createElement("span");
+          expiry.className = "price-sub";
+          expiry.textContent =
+            `Ablauf: ${formatDate(company.billingValidUntilMs)}`;
+          statusCell.append(expiry);
+        }
+
         const actionCell = document.createElement("td");
         const invoiceButton = document.createElement("button");
         invoiceButton.type = "button";
