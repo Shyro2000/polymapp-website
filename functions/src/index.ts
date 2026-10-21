@@ -46,4 +46,8 @@ export {
 } from "./company/deleteCompany";
 export {getMaintenanceActor} from "./maintenanceActor";
 export {getAdminCompanies} from "./admin/getAdminCompanies";
-
+export {
+  createCompanyInvoice,
+  markCompanyInvoicePaid,
+  cancelCompanyInvoice,
+} from "./admin/adminBilling";

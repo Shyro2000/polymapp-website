@@ -184,6 +184,55 @@
       background: #686868;
     }
 
+    .billing-create-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+      margin-bottom: 14px;
+    }
+
+    .invoice-preview {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 10px 0 14px;
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    .invoice-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .invoice-actions button {
+      width: auto;
+      margin: 0;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+    }
+
+    .invoice-actions .secondary-action {
+      background: #666;
+    }
+
+    @media (max-width: 900px) {
+      .billing-create-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .billing-create-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -660,11 +709,12 @@
                   <th>Preis / Mitglied / Monat</th>
                   <th>Fixpreis / Jahr</th>
                   <th>Abo-Status</th>
+                  <th>Aktion</th>
                 </tr>
               </thead>
               <tbody id="companyTableBody">
                 <tr>
-                  <td colspan="6" class="empty-state">Keine Firmendaten geladen.</td>
+                  <td colspan="7" class="empty-state">Keine Firmendaten geladen.</td>
                 </tr>
               </tbody>
             </table>
@@ -700,29 +750,70 @@
       </details>
 
       <details class="panel admin-section">
-        <summary id="paymentsSummary">Zahlungen (0)</summary>
+        <summary id="paymentsSummary">Rechnungen & Zahlungen (0)</summary>
         <div class="admin-section-body">
-          <p class="empty-state" style="margin-top: 18px;">
-            Übersicht der Firmenzahlungen. Die Erfassung und Bestätigung von
-            Zahlungseingängen ergänzen wir als nächsten Schritt.
+          <div class="billing-create-grid">
+            <div class="input-group">
+              <label for="invoiceCompany">Firma</label>
+              <select id="invoiceCompany">
+                <option value="">Firma wählen</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="invoicePeriodStart">Leistungsbeginn</label>
+              <input id="invoicePeriodStart" type="date">
+            </div>
+
+            <div class="input-group">
+              <label for="invoiceDueDate">Fällig am</label>
+              <input id="invoiceDueDate" type="date">
+            </div>
+
+            <div class="input-group">
+              <label for="invoiceReference">Referenz</label>
+              <input
+                id="invoiceReference"
+                type="text"
+                maxlength="120"
+                placeholder="optional"
+              >
+            </div>
+          </div>
+
+          <div class="invoice-preview">
+            <strong id="invoicePreviewCompany">
+              Bitte zuerst eine Firma wählen.
+            </strong>
+            <span id="invoicePreviewPrice"></span>
+          </div>
+
+          <button id="createInvoiceButton" type="button" disabled>
+            Jahresrechnung anlegen
+          </button>
+
+          <p class="empty-state" style="margin-top: 12px;">
+            Der Rechnungsbetrag wird serverseitig anhand der gebuchten
+            Sitzplatzstufe berechnet. Eine bezahlte Rechnung aktiviert das
+            Firmenabo bis zum Ende des Leistungszeitraums.
           </p>
 
-          <div class="table-wrap">
-            <table aria-label="PolymApp Firmenzahlungen">
+          <div class="table-wrap" style="margin-top: 20px;">
+            <table aria-label="PolymApp Firmenrechnungen">
               <thead>
                 <tr>
                   <th>Firma</th>
+                  <th>Leistungszeitraum</th>
                   <th>Betrag</th>
-                  <th>Referenz</th>
                   <th>Fällig</th>
-                  <th>Bezahlt am</th>
                   <th>Status</th>
+                  <th>Aktion</th>
                 </tr>
               </thead>
               <tbody id="paymentTableBody">
                 <tr>
                   <td colspan="6" class="empty-state">
-                    Noch keine Zahlungen vorhanden.
+                    Noch keine Rechnungen vorhanden.
                   </td>
                 </tr>
               </tbody>
@@ -840,6 +931,18 @@
       functions,
       "getAdminCompanies"
     );
+    const createCompanyInvoiceCall = httpsCallable(
+      functions,
+      "createCompanyInvoice"
+    );
+    const markCompanyInvoicePaidCall = httpsCallable(
+      functions,
+      "markCompanyInvoicePaid"
+    );
+    const cancelCompanyInvoiceCall = httpsCallable(
+      functions,
+      "cancelCompanyInvoice"
+    );
 
     const loadingPanel = document.getElementById("loadingPanel");
     const loginPanel = document.getElementById("loginPanel");
@@ -861,14 +964,27 @@
       document.getElementById("formerCompaniesSummary");
     const formerCompanyTableBody =
       document.getElementById("formerCompanyTableBody");
+    const billingSection = document.getElementById("billingSection");
     const paymentsSummary = document.getElementById("paymentsSummary");
     const paymentTableBody = document.getElementById("paymentTableBody");
+    const invoiceCompany = document.getElementById("invoiceCompany");
+    const invoicePeriodStart =
+      document.getElementById("invoicePeriodStart");
+    const invoiceDueDate = document.getElementById("invoiceDueDate");
+    const invoiceReference =
+      document.getElementById("invoiceReference");
+    const invoicePreviewCompany =
+      document.getElementById("invoicePreviewCompany");
+    const invoicePreviewPrice =
+      document.getElementById("invoicePreviewPrice");
+    const createInvoiceButton =
+      document.getElementById("createInvoiceButton");
     const tariffGrid = document.getElementById("tariffGrid");
     const statusBox = document.getElementById("status");
 
     let companies = [];
     let formerCompanies = [];
-    let payments = [];
+    let invoices = [];
 
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -962,6 +1078,23 @@
       }, duration);
     }
 
+    function mapFunctionError(error) {
+      switch (error?.code) {
+        case "functions/already-exists":
+        case "functions/failed-precondition":
+        case "functions/invalid-argument":
+        case "functions/not-found":
+        case "functions/permission-denied":
+          return error?.message || "Die Aktion konnte nicht ausgeführt werden.";
+        case "functions/unauthenticated":
+          return "Bitte melden Sie sich erneut an.";
+        case "functions/unavailable":
+          return "Der Dienst ist momentan nicht erreichbar.";
+        default:
+          return error?.message || "Die Aktion konnte nicht ausgeführt werden.";
+      }
+    }
+
     function showOnly(panel) {
       loadingPanel.classList.add("hidden");
       loginPanel.classList.add("hidden");
@@ -1038,33 +1171,45 @@
       };
     }
 
-    function normalizePayment(rawPayment) {
+    function normalizeInvoice(rawInvoice) {
       return {
-        id: typeof rawPayment?.id === "string" ? rawPayment.id : "",
+        id: typeof rawInvoice?.id === "string" ? rawInvoice.id : "",
+        invoiceNumber:
+          typeof rawInvoice?.invoiceNumber === "string"
+            ? rawInvoice.invoiceNumber
+            : "",
         companyId:
-          typeof rawPayment?.companyId === "string"
-            ? rawPayment.companyId
+          typeof rawInvoice?.companyId === "string"
+            ? rawInvoice.companyId
             : "",
         companyName:
-          typeof rawPayment?.companyName === "string" &&
-          rawPayment.companyName.trim()
-            ? rawPayment.companyName.trim()
+          typeof rawInvoice?.companyName === "string" &&
+          rawInvoice.companyName.trim()
+            ? rawInvoice.companyName.trim()
             : "Unbekannte Firma",
-        amount: Number(rawPayment?.amount || 0),
+        seatLimit: Number(rawInvoice?.seatLimit || 0),
+        monthlyRate: Number(rawInvoice?.monthlyRate || 0),
+        annualAmount: Number(rawInvoice?.annualAmount || 0),
         currency:
-          typeof rawPayment?.currency === "string"
-            ? rawPayment.currency
+          typeof rawInvoice?.currency === "string"
+            ? rawInvoice.currency
             : "CHF",
         reference:
-          typeof rawPayment?.reference === "string"
-            ? rawPayment.reference
+          typeof rawInvoice?.reference === "string"
+            ? rawInvoice.reference
+            : "",
+        paymentReference:
+          typeof rawInvoice?.paymentReference === "string"
+            ? rawInvoice.paymentReference
             : "",
         status:
-          typeof rawPayment?.status === "string"
-            ? rawPayment.status
-            : "pending",
-        dueAtMs: Number(rawPayment?.dueAtMs || 0),
-        paidAtMs: Number(rawPayment?.paidAtMs || 0)
+          typeof rawInvoice?.status === "string"
+            ? rawInvoice.status
+            : "open",
+        periodStartMs: Number(rawInvoice?.periodStartMs || 0),
+        periodEndMs: Number(rawInvoice?.periodEndMs || 0),
+        dueAtMs: Number(rawInvoice?.dueAtMs || 0),
+        paidAtMs: Number(rawInvoice?.paidAtMs || 0)
       };
     }
 
@@ -1099,8 +1244,10 @@
           return "Überfällig";
         case "cancelled":
           return "Storniert";
-        default:
+        case "open":
           return "Offen";
+        default:
+          return "Unbekannt";
       }
     }
 
@@ -1184,7 +1331,7 @@
       if (filteredCompanies.length === 0) {
         const row = document.createElement("tr");
         const cell = document.createElement("td");
-        cell.colSpan = 6;
+        cell.colSpan = 7;
         cell.className = "empty-state";
         cell.textContent = companies.length === 0
           ? "Es sind noch keine Firmen vorhanden."
@@ -1255,13 +1402,25 @@
         statusBadge.textContent = billingStatusLabel(company.billingStatus);
         statusCell.append(statusBadge);
 
+        const actionCell = document.createElement("td");
+        const invoiceButton = document.createElement("button");
+        invoiceButton.type = "button";
+        invoiceButton.className = "secondary-action";
+        invoiceButton.textContent = "Rechnung erstellen";
+        invoiceButton.disabled = annualPrice === null;
+        invoiceButton.addEventListener("click", () => {
+          startInvoiceForCompany(company.id);
+        });
+        actionCell.append(invoiceButton);
+
         row.append(
           companyCell,
           membersCell,
           tariffCell,
           rateCell,
           annualCell,
-          statusCell
+          statusCell,
+          actionCell
         );
 
         companyTableBody.append(row);
@@ -1335,63 +1494,275 @@
       }
     }
 
+    function toDateInputValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function addDays(date, days) {
+      const result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    }
+
+    function populateInvoiceCompanies() {
+      const selectedValue = invoiceCompany.value;
+      invoiceCompany.replaceChildren();
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Firma wählen";
+      invoiceCompany.append(placeholder);
+
+      for (const company of [...companies].sort((a, b) =>
+        a.name.localeCompare(b.name, "de", {sensitivity: "base"})
+      )) {
+        if (getMonthlyRate(company.seatLimit) === null) {
+          continue;
+        }
+
+        const option = document.createElement("option");
+        option.value = company.id;
+        option.textContent =
+          `${company.name} · ${company.activeMemberCount}/${company.seatLimit}`;
+        invoiceCompany.append(option);
+      }
+
+      if ([...invoiceCompany.options].some(
+        (option) => option.value === selectedValue
+      )) {
+        invoiceCompany.value = selectedValue;
+      }
+    }
+
+    function updateInvoicePreview() {
+      const company = companies.find(
+        (item) => item.id === invoiceCompany.value
+      );
+
+      if (!company) {
+        invoicePreviewCompany.textContent =
+          "Bitte zuerst eine Firma wählen.";
+        invoicePreviewPrice.textContent = "";
+        createInvoiceButton.disabled = true;
+        return;
+      }
+
+      const annualPrice = getAnnualPrice(company.seatLimit);
+      invoicePreviewCompany.textContent =
+        `${company.name} · Tarif bis ${company.seatLimit}`;
+      invoicePreviewPrice.textContent =
+        annualPrice === null
+          ? "Kein gültiger Tarif"
+          : `${formatCurrency(annualPrice)} / Jahr`;
+
+      createInvoiceButton.disabled =
+        annualPrice === null ||
+        !invoicePeriodStart.value ||
+        !invoiceDueDate.value;
+    }
+
+    function startInvoiceForCompany(companyId) {
+      billingSection.open = true;
+      invoiceCompany.value = companyId;
+      updateInvoicePreview();
+      billingSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    async function createInvoice() {
+      const companyId = invoiceCompany.value;
+
+      if (
+        !companyId ||
+        !invoicePeriodStart.value ||
+        !invoiceDueDate.value
+      ) {
+        setStatus(
+          "Bitte Firma, Leistungsbeginn und Fälligkeit angeben.",
+          "error"
+        );
+        return;
+      }
+
+      createInvoiceButton.disabled = true;
+
+      try {
+        const result = await createCompanyInvoiceCall({
+          companyId,
+          periodStart: invoicePeriodStart.value,
+          dueDate: invoiceDueDate.value,
+          reference: invoiceReference.value.trim()
+        });
+
+        invoiceReference.value = "";
+        const invoiceNumber = result?.data?.invoiceNumber || "";
+        setStatus(
+          invoiceNumber
+            ? `Rechnung ${invoiceNumber} wurde angelegt.`
+            : "Die Jahresrechnung wurde angelegt."
+        );
+        await loadCompanies();
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        updateInvoicePreview();
+      }
+    }
+
+    async function markInvoicePaid(invoice) {
+      const paymentReference = window.prompt(
+        "Zahlungsreferenz oder interne Notiz (optional):",
+        invoice.paymentReference || invoice.reference || ""
+      );
+
+      if (paymentReference === null) {
+        return;
+      }
+
+      try {
+        await markCompanyInvoicePaidCall({
+          invoiceId: invoice.id,
+          paymentReference
+        });
+        setStatus("Die Rechnung wurde als bezahlt markiert.");
+        await loadCompanies();
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      }
+    }
+
+    async function cancelInvoice(invoice) {
+      const confirmed = window.confirm(
+        `Rechnung für „${invoice.companyName}“ wirklich stornieren?`
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await cancelCompanyInvoiceCall({
+          invoiceId: invoice.id
+        });
+        setStatus("Die Rechnung wurde storniert.");
+        await loadCompanies();
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      }
+    }
+
     function renderPayments() {
-      paymentsSummary.textContent = `Zahlungen (${payments.length})`;
+      paymentsSummary.textContent =
+        `Rechnungen & Zahlungen (${invoices.length})`;
       paymentTableBody.replaceChildren();
 
-      if (payments.length === 0) {
+      if (invoices.length === 0) {
         const row = document.createElement("tr");
         const cell = document.createElement("td");
         cell.colSpan = 6;
         cell.className = "empty-state";
-        cell.textContent = "Noch keine Zahlungen vorhanden.";
+        cell.textContent = "Noch keine Rechnungen vorhanden.";
         row.append(cell);
         paymentTableBody.append(row);
         return;
       }
 
-      for (const payment of payments) {
+      for (const invoice of invoices) {
         const row = document.createElement("tr");
 
         const companyCell = document.createElement("td");
         const companyName = document.createElement("span");
         companyName.className = "company-name";
-        companyName.textContent = payment.companyName;
+        companyName.textContent = invoice.companyName;
 
-        const companyId = document.createElement("span");
-        companyId.className = "company-id";
-        companyId.textContent = payment.companyId;
-        companyCell.append(companyName, companyId);
+        const invoiceMeta = document.createElement("span");
+        invoiceMeta.className = "company-id";
+        invoiceMeta.textContent =
+          invoice.invoiceNumber || invoice.id;
+        companyCell.append(companyName, invoiceMeta);
+
+        if (invoice.reference) {
+          const referenceMeta = document.createElement("span");
+          referenceMeta.className = "company-id";
+          referenceMeta.textContent = `Ref: ${invoice.reference}`;
+          companyCell.append(referenceMeta);
+        }
+
+        const periodCell = document.createElement("td");
+        periodCell.textContent =
+          `${formatDate(invoice.periodStartMs)} – ` +
+          `${formatDate(invoice.periodEndMs)}`;
 
         const amountCell = document.createElement("td");
-        amountCell.textContent = payment.currency === "CHF"
-          ? formatCurrency(payment.amount)
-          : `${payment.amount.toFixed(2)} ${payment.currency}`;
-
-        const referenceCell = document.createElement("td");
-        referenceCell.textContent = payment.reference || "–";
+        amountCell.textContent =
+          invoice.currency === "CHF"
+            ? formatCurrency(invoice.annualAmount)
+            : `${invoice.annualAmount.toFixed(2)} ${invoice.currency}`;
 
         const dueCell = document.createElement("td");
-        dueCell.textContent = formatDate(payment.dueAtMs);
-
-        const paidCell = document.createElement("td");
-        paidCell.textContent = formatDate(payment.paidAtMs);
+        dueCell.textContent = formatDate(invoice.dueAtMs);
 
         const statusCell = document.createElement("td");
         const statusBadge = document.createElement("span");
         statusBadge.className =
-          `status-badge ${paymentStatusClass(payment.status)}`;
+          `status-badge ${paymentStatusClass(invoice.status)}`;
         statusBadge.textContent =
-          paymentStatusLabel(payment.status);
+          paymentStatusLabel(invoice.status);
         statusCell.append(statusBadge);
+
+        if (invoice.status === "paid" && invoice.paidAtMs) {
+          const paidDate = document.createElement("span");
+          paidDate.className = "company-id";
+          paidDate.textContent =
+            `Bezahlt am ${formatDate(invoice.paidAtMs)}`;
+          statusCell.append(paidDate);
+        }
+
+        const actionCell = document.createElement("td");
+        const actions = document.createElement("div");
+        actions.className = "invoice-actions";
+
+        if (
+          invoice.status === "open" ||
+          invoice.status === "overdue"
+        ) {
+          const paidButton = document.createElement("button");
+          paidButton.type = "button";
+          paidButton.textContent = "Bezahlt";
+          paidButton.addEventListener("click", () =>
+            markInvoicePaid(invoice)
+          );
+
+          const cancelButton = document.createElement("button");
+          cancelButton.type = "button";
+          cancelButton.className = "secondary-action";
+          cancelButton.textContent = "Stornieren";
+          cancelButton.addEventListener("click", () =>
+            cancelInvoice(invoice)
+          );
+
+          actions.append(paidButton, cancelButton);
+        } else {
+          const noAction = document.createElement("span");
+          noAction.className = "empty-state";
+          noAction.textContent = "–";
+          actions.append(noAction);
+        }
+
+        actionCell.append(actions);
 
         row.append(
           companyCell,
+          periodCell,
           amountCell,
-          referenceCell,
           dueCell,
-          paidCell,
-          statusCell
+          statusCell,
+          actionCell
         );
 
         paymentTableBody.append(row);
@@ -1411,18 +1782,20 @@
           Array.isArray(result?.data?.formerCompanies)
             ? result.data.formerCompanies
             : [];
-        const rawPayments = Array.isArray(result?.data?.payments)
-          ? result.data.payments
+        const rawInvoices = Array.isArray(result?.data?.invoices)
+          ? result.data.invoices
           : [];
 
         companies = rawCompanies.map(normalizedCompany);
         formerCompanies =
           rawFormerCompanies.map(normalizeFormerCompany);
-        payments = rawPayments.map(normalizePayment);
+        invoices = rawInvoices.map(normalizeInvoice);
 
         updateSummary();
         renderCompanies();
         renderFormerCompanies();
+        populateInvoiceCompanies();
+        updateInvoicePreview();
         renderPayments();
         showOnly(adminPanel);
       } catch (error) {
@@ -1462,6 +1835,15 @@
         setStatus("Firmenübersicht wurde aktualisiert.");
       }
     });
+
+    invoiceCompany.addEventListener("change", updateInvoicePreview);
+    invoicePeriodStart.addEventListener("change", updateInvoicePreview);
+    invoiceDueDate.addEventListener("change", updateInvoicePreview);
+    createInvoiceButton.addEventListener("click", createInvoice);
+
+    const today = new Date();
+    invoicePeriodStart.value = toDateInputValue(today);
+    invoiceDueDate.value = toDateInputValue(addDays(today, 30));
 
     renderTariffs();
 

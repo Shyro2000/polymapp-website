@@ -18,7 +18,10 @@ function readString(value: unknown, fallback = ""): string {
  * @return {number} Normalized number.
  */
 function readNumber(value: unknown): number {
-  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+  return typeof value === "number" &&
+    Number.isFinite(value) ?
+    value :
+    0;
 }
 
 /**
@@ -30,6 +33,27 @@ function timestampToMillis(value: unknown): number | null {
   return value instanceof Timestamp ? value.toMillis() : null;
 }
 
+/**
+ * Returns the effective invoice status.
+ * @param {string} status Stored invoice status.
+ * @param {unknown} dueAt Invoice due timestamp.
+ * @return {string} Effective status.
+ */
+function effectiveInvoiceStatus(
+  status: string,
+  dueAt: unknown,
+): string {
+  if (
+    status === "open" &&
+    dueAt instanceof Timestamp &&
+    dueAt.toMillis() < Timestamp.now().toMillis()
+  ) {
+    return "overdue";
+  }
+
+  return status;
+}
+
 export const getAdminCompanies = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError(
@@ -39,7 +63,10 @@ export const getAdminCompanies = onCall(async (request) => {
   }
 
   const uid = request.auth.uid;
-  const userSnapshot = await db.collection("users").doc(uid).get();
+  const userSnapshot = await db
+    .collection("users")
+    .doc(uid)
+    .get();
 
   if (
     !userSnapshot.exists ||
@@ -54,26 +81,126 @@ export const getAdminCompanies = onCall(async (request) => {
   const [
     companiesSnapshot,
     archiveSnapshot,
-    paymentsSnapshot,
+    invoicesSnapshot,
   ] = await Promise.all([
     db.collection("companies").get(),
     db.collection("companyArchive").get(),
-    db.collection("companyPayments").get(),
+    db.collection("companyInvoices").get(),
   ]);
+
+  const invoiceByCompany = new Map<
+    string,
+    {
+      status: string;
+      periodStartMs: number;
+      periodEndMs: number;
+    }
+  >();
+
+  const invoices = invoicesSnapshot.docs.map((document) => {
+    const data = document.data();
+    const companyId = readString(data.companyId);
+    const status = effectiveInvoiceStatus(
+      readString(data.status, "open"),
+      data.dueAt,
+    );
+    const periodStartMs =
+      timestampToMillis(data.periodStartAt) || 0;
+    const periodEndMs =
+      timestampToMillis(data.periodEndAt) || 0;
+
+    if (companyId && status !== "cancelled") {
+      const current = invoiceByCompany.get(companyId);
+
+      if (
+        !current ||
+        periodStartMs > current.periodStartMs
+      ) {
+        invoiceByCompany.set(companyId, {
+          status,
+          periodStartMs,
+          periodEndMs,
+        });
+      }
+    }
+
+    return {
+      id: document.id,
+      invoiceNumber: readString(data.invoiceNumber),
+      companyId,
+      companyName: readString(data.companyName),
+      seatLimit: readNumber(data.seatLimit),
+      monthlyRate: readNumber(data.monthlyRate),
+      annualAmount: readNumber(data.annualAmount),
+      currency: readString(data.currency, "CHF"),
+      reference: readString(data.reference),
+      paymentReference: readString(
+        data.paymentReference,
+      ),
+      status,
+      periodStartMs,
+      periodEndMs,
+      dueAtMs: timestampToMillis(data.dueAt),
+      paidAtMs: timestampToMillis(data.paidAt),
+      createdAtMs: timestampToMillis(data.createdAt),
+    };
+  });
+
+  invoices.sort((first, second) => {
+    const firstDate =
+      first.createdAtMs ||
+      first.periodStartMs ||
+      0;
+    const secondDate =
+      second.createdAtMs ||
+      second.periodStartMs ||
+      0;
+
+    return secondDate - firstDate;
+  });
+
+  const nowMs = Timestamp.now().toMillis();
 
   const companies = companiesSnapshot.docs.map((document) => {
     const data = document.data();
+    const storedBillingStatus = readString(
+      data.billingStatus,
+      "not_configured",
+    );
+    const validUntilMs =
+      timestampToMillis(data.billingValidUntil) || 0;
+    const latestInvoice =
+      invoiceByCompany.get(document.id);
+
+    let billingStatus = storedBillingStatus;
+
+    if (storedBillingStatus !== "suspended") {
+      if (validUntilMs >= nowMs) {
+        billingStatus = "active";
+      } else if (latestInvoice?.status === "overdue") {
+        billingStatus = "overdue";
+      } else if (latestInvoice?.status === "open") {
+        billingStatus = "payment_pending";
+      } else if (
+        latestInvoice?.status === "paid" &&
+        latestInvoice.periodEndMs >= nowMs
+      ) {
+        billingStatus = "active";
+      } else {
+        billingStatus = "not_configured";
+      }
+    }
 
     return {
       id: document.id,
       name: readString(data.name),
       status: readString(data.status, "unknown"),
       seatLimit: readNumber(data.seatLimit),
-      activeMemberCount: readNumber(data.activeMemberCount),
-      billingStatus: readString(
-        data.billingStatus,
-        "not_configured",
+      activeMemberCount: readNumber(
+        data.activeMemberCount,
       ),
+      billingStatus,
+      billingValidUntilMs: validUntilMs || null,
     };
   });
 
@@ -85,25 +212,29 @@ export const getAdminCompanies = onCall(async (request) => {
     ),
   );
 
-  const formerCompanies = archiveSnapshot.docs.map((document) => {
-    const data = document.data();
+  const formerCompanies = archiveSnapshot.docs.map(
+    (document) => {
+      const data = document.data();
 
-    return {
-      id: document.id,
-      name: readString(data.name),
-      seatLimit: readNumber(data.seatLimit),
-      activeMemberCount: readNumber(data.activeMemberCount),
-      billingStatus: readString(
-        data.billingStatus,
-        "not_configured",
-      ),
-      archiveStatus: readString(
-        data.archiveStatus,
-        "deleted",
-      ),
-      deletedAtMs: timestampToMillis(data.deletedAt),
-    };
-  });
+      return {
+        id: document.id,
+        name: readString(data.name),
+        seatLimit: readNumber(data.seatLimit),
+        activeMemberCount: readNumber(
+          data.activeMemberCount,
+        ),
+        billingStatus: readString(
+          data.billingStatus,
+          "not_configured",
+        ),
+        archiveStatus: readString(
+          data.archiveStatus,
+          "deleted",
+        ),
+        deletedAtMs: timestampToMillis(data.deletedAt),
+      };
+    },
+  );
 
   formerCompanies.sort((first, second) => {
     const firstDeletedAt = first.deletedAtMs || 0;
@@ -123,37 +254,17 @@ export const getAdminCompanies = onCall(async (request) => {
     }
   }
 
-  const payments = paymentsSnapshot.docs.map((document) => {
-    const data = document.data();
-    const companyId = readString(data.companyId);
-    const storedCompanyName = readString(data.companyName);
-
-    return {
-      id: document.id,
-      companyId,
-      companyName:
-        storedCompanyName ||
-        companyNameById.get(companyId) ||
-        "Unbekannte Firma",
-      amount: readNumber(data.amount),
-      currency: readString(data.currency, "CHF"),
-      reference: readString(data.reference),
-      status: readString(data.status, "pending"),
-      dueAtMs: timestampToMillis(data.dueAt),
-      paidAtMs: timestampToMillis(data.paidAt),
-      createdAtMs: timestampToMillis(data.createdAt),
-    };
-  });
-
-  payments.sort((first, second) => {
-    const firstDate = first.dueAtMs || first.createdAtMs || 0;
-    const secondDate = second.dueAtMs || second.createdAtMs || 0;
-    return secondDate - firstDate;
-  });
+  const normalizedInvoices = invoices.map((invoice) => ({
+    ...invoice,
+    companyName:
+      invoice.companyName ||
+      companyNameById.get(invoice.companyId) ||
+      "Unbekannte Firma",
+  }));
 
   return {
     companies,
     formerCompanies,
-    payments,
+    invoices: normalizedInvoices,
   };
 });
