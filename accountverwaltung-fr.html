@@ -255,6 +255,26 @@
           display: block;
         }
       }
+      .company-management-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        padding: 10px 20px;
+        border-radius: 4px;
+        background-color: #F60100;
+        color: white;
+        font-size: 16px;
+        text-decoration: none;
+      }
+
+      .company-management-link:hover {
+        background-color: #B80000;
+      }
+
+      .company-management-link:focus-visible {
+        outline: 3px solid #222;
+        outline-offset: 3px;
+      }
+
     </style>
 </head>
 <body>
@@ -345,6 +365,8 @@
 
   <div class="auth-box hidden" id="accountBox">
     <h2>Mon compte</h2>
+
+    <a id="companyManagementLink" class="company-management-link" href="firmenverwaltung-fr.html">Accéder à la gestion d’entreprise</a>
 
     <div class="account-info">
       <p><strong>Enregistré comme:</strong> <span id="userEmail"></span></p>

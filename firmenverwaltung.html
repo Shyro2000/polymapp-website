@@ -740,7 +740,6 @@
   <nav>
     <a href="index.html">Startseite</a>
     <a href="accountverwaltung.html">Accountverwaltung</a>
-    <a href="firmenverwaltung.html" class="active">Firmenverwaltung</a>
     <a href="datenschutz.html">Datenschutzerklärung</a>
     <a href="about.html">Über mich</a>
     <a href="kontakt.html">Kontakt</a>
@@ -749,6 +748,8 @@
   <div id="status" class="status" aria-live="polite"></div>
 
   <main class="container">
+    <a id="accountReturnLink" class="button-link button-secondary" href="accountverwaltung.html">Zum Account</a>
+
     <h1>Firmenverwaltung</h1>
     <p class="lead">
       Erstellen Sie eine Firma, nehmen Sie Einladungen an und verwalten Sie später Mitglieder,
@@ -1306,14 +1307,6 @@
         </div>
       </div>
 
-      <div class="button-row">
-        <button id="refreshButton" type="button" class="button-secondary">
-          Ansicht aktualisieren
-        </button>
-        <a class="button-link button-secondary" href="accountverwaltung.html">
-          Zum Account
-        </a>
-      </div>
     </section>
   </main>
 
@@ -1887,7 +1880,6 @@
     const roleDescription = document.getElementById("roleDescription");
     const memberCountValue = document.getElementById("memberCountValue");
     const seatValue = document.getElementById("seatValue");
-    const refreshButton = document.getElementById("refreshButton");
     const statusBox = document.getElementById("status");
     const managementPanel = document.getElementById("managementPanel");
     const managementDescription = document.getElementById(
@@ -3942,13 +3934,6 @@ deleteCompanyButton.addEventListener(
         if (activeMemberCount + pendingCount < seatLimit) {
           inviteMemberButton.disabled = false;
         }
-      }
-    });
-
-    refreshButton.addEventListener("click", () => {
-      if (currentCompanyId) {
-        startCompanyListeners(currentCompanyId);
-        setStatus("Die Firmenansicht wurde aktualisiert.");
       }
     });
 
