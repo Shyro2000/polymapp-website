@@ -1,252 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="description" content="PolymApp - Account management for user accounts in the app.">
+    <meta name="description" content="PolymApp - Account management for user accounts in the app.">
 
-  <link rel="alternate" hreflang="de" href="https://polymapp.ch/accountverwaltung.html">
-  <link rel="alternate" hreflang="en" href="https://polymapp.ch/accountverwaltung-en.html">
-  <link rel="alternate" hreflang="fr" href="https://polymapp.ch/accountverwaltung-fr.html">
+    <link rel="alternate" hreflang="de" href="https://polymapp.ch/accountverwaltung.html">
+    <link rel="alternate" hreflang="en" href="https://polymapp.ch/accountverwaltung-en.html">
+    <link rel="alternate" hreflang="fr" href="https://polymapp.ch/accountverwaltung-fr.html">
 
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" href="favicon.ico">
 
-  <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
-  <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
+    <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
 
-  <meta charset="UTF-8">
-  <title>Account Management - PolymApp</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>Account Management - PolymApp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { 
+        font-family: Arial, sans-serif; 
+        margin: 0; 
+        line-height: 1.5; 
+      }
+      header {
+        background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+      }
+      .header-logo {
+        max-width: 400px;
+        width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+      }
+      nav {
+        background: #222;
+        padding: 10px;
+        text-align: center;
+      }
+      nav a {
+        color: white;
+        margin: 0 10px;
+        text-decoration: none;
+      }
+      .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+      }
+      h2 {
+        color: #B00000;
+      }
 
-  <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      margin: 0; 
-      line-height: 1.5; 
-    }
-    header {
-      background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
-      color: white;
-      padding: 40px 20px;
-      text-align: center;
-    }
-    .header-logo {
-      max-width: 400px;
-      width: 100%;
-      height: auto;
-      margin-bottom: 10px;
-    }
-    nav {
-      background: #222;
-      padding: 10px;
-      text-align: center;
-    }
-    nav a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-    }
-    h2 {
-      color: #B00000;
-    }
+      header h2 {
+        color: white;
+      }    
+      button {
+        background-color: #F60100;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 4px;
+      }
+      button:hover {
+        background-color: #B80000;
+      }
+      footer {
+        text-align: center;
+        padding: 20px;
+        background: #f2f2f2;
+        margin-top: 40px;
+      }
 
-    header h2 {
-      color: white;
-    }    
-    button {
-      background-color: #F60100;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 4px;
-    }
-    button:hover {
-      background-color: #B80000;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: #f2f2f2;
-      margin-top: 40px;
-    }
+      .language-switch {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 0.9em;
+      }
 
-    .language-switch {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 0.9em;
-    }
+      .language-switch a {
+        color: white;
+        text-decoration: none;
+        margin: 0 5px;
+      }
 
-    .language-switch a {
-      color: white;
-      text-decoration: none;
-      margin: 0 5px;
-    }
+      .language-switch a:hover {
+        text-decoration: underline;
+      }
 
-    .language-switch a:hover {
-      text-decoration: underline;
-    }
+      /* Trenner automatisch nach jedem Link – außer dem letzten */
+      nav a:not(:last-child)::after {
+        content: " |";
+        color: white;
+        margin-left: 10px;
+      }
 
-    nav a:not(:last-child)::after {
-      content: " |";
-      color: white;
-      margin-left: 10px;
-    }
+      nav a.active {
+        font-weight: bold;
+      }
 
-    nav a.active {
-      font-weight: bold;
-    }
+      form {
+        margin: 0;
+      }
 
-    form {
-      margin: 0;
-    }
+      .auth-box {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 18px;
+        margin-top: 20px;
+        background: #f2f2f2;
+      }
 
-    .auth-box {
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 18px;
-      margin-top: 20px;
-      background: #f2f2f2;
-    }
+      .auth-box h2 {
+        margin-top: 0;
+      }
 
-    .auth-box h2 {
-      margin-top: 0;
-    }
+      .input-group {
+        margin-bottom: 12px;
+      }
 
-    .input-group {
-      margin-bottom: 12px;
-    }
+      .input-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+        color: #333;
+      }
 
-    .input-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: bold;
-      color: #333;
-    }
+      .input-group input[type="email"],
+      .input-group input[type="password"],
+      .password-wrap input[type="text"] {
+        width: 100%;
+        padding: 12px 48px 12px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
 
-    .input-group input[type="email"],
-    .input-group input[type="password"],
-    .password-wrap input[type="text"] {
-      width: 100%;
-      padding: 12px 48px 12px 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+      .password-wrap {
+        position: relative;
+        width: 100%;
+      }
 
-    .password-wrap {
-      position: relative;
-      width: 100%;
-    }
+      .password-wrap input {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+      }
 
-    .password-wrap input {
-      display: block;
-      width: 100%;
-      box-sizing: border-box;
-    }
+      .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        margin: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 0;
+        z-index: 2;
+      }
 
-    .password-toggle {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      margin: 0;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 0;
-      z-index: 2;
-    }
+      .password-toggle:hover {
+        background: transparent;
+      }
 
-    .password-toggle:hover {
-      background: transparent;
-    }
+      .password-toggle img {
+        width: 20px;
+        height: 20px;
+        display: block;
+        pointer-events: none;
+      }
 
-    .password-toggle img {
-      width: 20px;
-      height: 20px;
-      display: block;
-      pointer-events: none;
-    }
+      .small-text {
+        font-size: 0.95em;
+        color: #555;
+        margin-top: -6px;
+      }
 
-    .small-text {
-      font-size: 0.95em;
-      color: #555;
-      margin-top: -6px;
-    }
+      .status {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 9999;
+        margin: 0;
+        padding: 0 20px;
+        text-align: center;
+        font-weight: bold;
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease;
+        box-sizing: border-box;
+      }
 
-    .status {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 9999;
-      margin: 0;
-      padding: 0 20px;
-      text-align: center;
-      font-weight: bold;
-      opacity: 0;
-      max-height: 0;
-      overflow: hidden;
-      pointer-events: none;
-      transition: opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease;
-      box-sizing: border-box;
-    }
+      .status.visible {
+        padding: 14px 20px;
+        max-height: 100px;
+        opacity: 1;
+        pointer-events: auto;
+      }
 
-    .status.visible {
-      padding: 14px 20px;
-      max-height: 100px;
-      opacity: 1;
-      pointer-events: auto;
-    }
+      .status.success {
+        background: #e9f7ee;
+        color: #1f6b2b;
+        border-bottom: 2px solid #b9e3c2;
+      }
 
-    .status.success {
-      background: #e9f7ee;
-      color: #1f6b2b;
-      border-bottom: 2px solid #b9e3c2;
-    }
+      .status.error {
+        background: #fdecec;
+        color: #a00000;
+        border-bottom: 2px solid #f1b5b5;
+      }
 
-    .status.error {
-      background: #fdecec;
-      color: #a00000;
-      border-bottom: 2px solid #f1b5b5;
-    }
+      .account-info {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 12px 0 16px 0;
+      }
 
-    .account-info {
-      background: #fff;
-      border: 1px solid #e5e5e5;
-      padding: 12px;
-      border-radius: 4px;
-      margin: 12px 0 16px 0;
-    }
+      .actions {
+        margin-top: 12px;
+      }
 
-    .actions {
-      margin-top: 12px;
-    }
+      .actions button {
+        margin-top: 8px;
+      }
 
-    .actions button {
-      margin-top: 8px;
-    }
-
-    .hidden {
-      display: none;
-    }
-        .mobile-app-download {
+      .hidden {
+        display: none;
+      }
+          .mobile-app-download {
         display: none;
       }
 
@@ -299,10 +299,10 @@
           <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required>
           <button type="button" class="password-toggle" data-target="registerPassword" aria-label="Show password">
             <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-          </button>
+          </button>  
         </div>
       </div>
-
+      
       <div class="input-group">
         <label for="registerPassword2">Confirm password</label>
         <div class="password-wrap">
@@ -333,7 +333,7 @@
           <input type="password" id="loginPassword" autocomplete="current-password" minlength="6" required>
           <button type="button" class="password-toggle" data-target="loginPassword" aria-label="Show password">
             <img src="images/ic_eye_open.PNG" alt="" aria-hidden="true">
-          </button>
+          </button>  
         </div>
       </div>
 
@@ -357,7 +357,7 @@
       </p>
     </div>
 
-    <div class="mobile-app-download" style="margin-top: 20px; text-align: center;">
+      <div class="mobile-app-download" style="margin-top: 20px; text-align: center;">
   <a 
     href="https://www.polymapp.ch/link"
     target="_blank"
@@ -378,10 +378,11 @@
 
     <div class="account-info" style="border-top: 2px solid #B00000; margin-top: 20px;">
       <h3 style="margin-top: 0; color: #B00000;">Invite colleagues & get free Premium</h3>
-<p class="small-text">
+      <p class="small-text">
   Share your personal link: If 3 of your colleagues register and purchase a Premium subscription – or refer 3 colleagues of their own – you will receive PolymApp Premium completely free of charge.
   The referral bonus is only available to private users who purchase their own Premium subscription. Users whose PolymApp access is covered by a company or its owner are not eligible for the referral bonus.
 </p>
+        
       <div class="input-group" style="margin-top: 15px;">
         <label for="referralLinkInput">My referral link:</label>
         <div style="display: flex; gap: 10px;">
@@ -484,7 +485,7 @@
     measurementId: "G-0QQYN8BKQD"
   };
 
-  const app = initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
   const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(
     window.location.hostname
   );
@@ -546,6 +547,7 @@
   const userEmail = document.getElementById("userEmail");
   let approvedDeletionStatus = null;
 
+  // HIER HINZUGEFÜGT: Neue UI-Elemente referenzieren
   const referralLinkInput = document.getElementById("referralLinkInput");
   const copyLinkBtn = document.getElementById("copyLinkBtn");
   const statsTotal = document.getElementById("statsTotal");
@@ -553,16 +555,18 @@
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
+  // HIER HINZUGEFÜGT: Event-Listener für den Link-Kopieren Button
   copyLinkBtn.addEventListener("click", () => {
     referralLinkInput.select();
     navigator.clipboard.writeText(referralLinkInput.value);
     setStatus("Referral link copied to clipboard!", "success", 2500);
   });
 
+  // HIER HINZUGEFÜGT: Empfehlungscode aus URL auslesen und im Session-Speicher behalten
   const urlParams = new URLSearchParams(window.location.search);
-  const refCode = urlParams.get("ref");
+  const refCode = urlParams.get('ref');
   if (refCode) {
-    sessionStorage.setItem("pending_referral", refCode);
+    sessionStorage.setItem('pending_referral', refCode);
   }
 
   document.querySelectorAll(".password-toggle").forEach((button) => {
@@ -691,7 +695,7 @@
         return;
       }
 
-      // Step 1: Check if the user is listed in the beta_testers collection
+      // Schritt 1: Prüfen, ob der User in der Beta-Tester-Liste steht
       const testerRef = doc(db, "beta_testers", user.email.toLowerCase());
       const testerSnap = await getDoc(testerRef);
 
@@ -699,10 +703,10 @@
         premiumBadge.textContent = "⭐ Free Premium active.";
         premiumBadge.style.color = "#B00000";
         premiumBadge.style.display = "block";
-        return; // Match found -> exit function
+        return; // Gefunden -> Abbrechen
       }
 
-      // Step 2: If not a beta tester, check their own user profile document (important for the 3-friends reward)
+      // Schritt 2: Wenn kein Beta-Tester, prüfe sein eigenes User-Profil (wichtig für das 3-Freunde-Abo)
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -710,12 +714,12 @@
         const userData = userSnap.data();
         
         if (userData.is_premium === true) {
-          // User successfully referred 3 friends!
+          // Er hat die 3 Freunde geschafft!
           premiumBadge.textContent = "⭐ Free Premium active.";
           premiumBadge.style.color = "#B00000";
           premiumBadge.style.display = "block";
         } else if (userData.has_regular_premium === true) { 
-          // Preparation for a regular paid subscription (no star, standard text color)
+          // Vorbereitung für regulär bezahltes Premium (ohne Stern und nicht rot)
           premiumBadge.textContent = "Premium active.";
           premiumBadge.style.color = "#333333";
           premiumBadge.style.display = "block";
@@ -730,22 +734,23 @@
     }
   }
 
+  // HIER HINZUGEFÜGT: Funktion um die geworbenen Nutzer live zu zählen
   async function loadReferralStats(uid) {
     try {
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("referredBy", "==", uid));
       const querySnapshot = await getDocs(q);
-
+      
       let total = 0;
       let premium = 0;
-
+      
       querySnapshot.forEach((doc) => {
         total++;
         if (doc.data().is_premium === true) {
           premium++;
         }
       });
-
+      
       statsTotal.textContent = total;
       statsPremium.textContent = premium;
     } catch (error) {
@@ -764,10 +769,10 @@
       userEmail.textContent = user.email || "";
       deletePassword.value = "";
 
-      // 👉 CHANGED: Passes the full 'user' object to allow access to user.uid
+      // 👉 GEÄNDERT: Übergibt jetzt das ganze 'user'-Objekt statt nur user.email
       await checkFreePremium(user); 
 
-      // Generate referral link and load statistics
+      // Link generieren und Statistik laden
       referralLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${user.uid}`;
       await loadReferralStats(user.uid);
 
@@ -777,22 +782,23 @@
         3000
       );
     } else {
-      registerBox.classList.remove("hidden");
-      loginBox.classList.remove("hidden");
-      accountBox.classList.add("hidden");
+    registerBox.classList.remove("hidden");
+    loginBox.classList.remove("hidden");
+    accountBox.classList.add("hidden");
 
-      userEmail.textContent = "";
-      deletePassword.value = "";
+    userEmail.textContent = "";
+    deletePassword.value = "";
 
-      deleteForm.classList.add("hidden");
-      deleteInitialBox.classList.remove("hidden");
-      approvedDeletionStatus = null;
-      deleteWarning.textContent = "";
+    // HIER HINZUGEFÜGT: Lösch-Ansicht für den nächsten Login zurücksetzen
+    deleteForm.classList.add("hidden");
+    deleteInitialBox.classList.remove("hidden");
+    approvedDeletionStatus = null;
+    deleteWarning.textContent = "";
 
-      if (premiumBadge) {
-        premiumBadge.style.display = "none";
-      }
+    if (premiumBadge) {
+      premiumBadge.style.display = "none";
     }
+  }
   });
 
   registerForm.addEventListener("submit", async (event) => {
@@ -818,18 +824,22 @@
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
       try {
-        const pendingRef = sessionStorage.getItem("pending_referral");
-
-        const locale = navigator.language || "en-US";
-        const country = locale.split("-")[1] || "unknown";
+        // HIER GEÄNDERT: Zuordnung beim Registrieren mitspeichern
+        const pendingRef = sessionStorage.getItem('pending_referral');
         
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        const country = data.country_code || "unknown";
+          
         const userData = {
           email: userCredential.user.email || email,
           platform: "web",
           country: country.toUpperCase(),
           createdAt: serverTimestamp(),
-          availableTrialDays: 30,
+          availableTrialDays: 1,
           trialStartedAt: null,
+          trialEndsAt: null,
+          trialUsed: false,
           referralCountRewarded: 0
         };
 
@@ -838,9 +848,9 @@
         }
 
         await setDoc(doc(db, "users", userCredential.user.uid), userData, { merge: true });
-
+        
         if (pendingRef) {
-          sessionStorage.removeItem("pending_referral");
+          sessionStorage.removeItem('pending_referral');
         }
       } catch (firestoreError) {
         try {

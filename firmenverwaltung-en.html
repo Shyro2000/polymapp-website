@@ -45,13 +45,12 @@
     padding: 40px 20px;
     text-align: center;
 }
-
-    .header-logo {
-      width: 100%;
-      max-width: 400px;
-      height: auto;
-      margin-bottom: 10px;
-    }
+      .header-logo {
+        max-width: 400px;
+        width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+      }
 
     header h2 {
       color: #fff;
@@ -86,11 +85,12 @@
       text-decoration: none;
     }
 
-    nav a:not(:last-child)::after {
-      content: " |";
-      margin-left: 10px;
-      color: #fff;
-    }
+    /* Trenner automatisch nach jedem Link – außer dem letzten */
+      nav a:not(:last-child)::after {
+        content: " |";
+        color: white;
+        margin-left: 10px;
+      }
 
     nav a.active {
       font-weight: bold;
@@ -544,6 +544,57 @@
       background: #fdecec;
     }
 
+    .billing-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .billing-form-grid .input-group {
+      margin: 0;
+    }
+
+    .billing-form-grid .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .billing-modal {
+      position: fixed;
+      z-index: 10000;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.58);
+    }
+
+    .billing-modal-card {
+      width: min(760px, 100%);
+      padding: 22px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+    }
+
+    .billing-modal-card h2 {
+      margin-top: 0;
+    }
+
+    .optional-label {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: normal;
+    }
+
+    .billing-inline-error {
+      margin: 8px 0 12px;
+      color: #a00000;
+      font-weight: bold;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -560,7 +611,7 @@
     }
 
     @media (max-width: 700px) {
-
+    
 
     nav a {
         display: inline-block;
@@ -587,8 +638,13 @@
         grid-template-columns: 1fr;
     }
 
-    .profile-form .full-width {
+    .profile-form .full-width,
+    .billing-form-grid .full-width {
         grid-column: auto;
+    }
+
+    .billing-form-grid {
+        grid-template-columns: 1fr;
     }
 
     .member-actions,
@@ -686,7 +742,7 @@
     <a href="accountverwaltung-en.html">Account management</a>
     <a href="firmenverwaltung-en.html" class="active">Company management</a>
     <a href="datenschutz-en.html">Privacy policy</a>
-    <a href="about-en.html">About me</a>
+    <a href="about-en.html">About</a>
     <a href="kontakt-en.html">Contact</a>
   </nav>
 
@@ -813,10 +869,10 @@
               <div class="input-group">
                 <label for="inviteRoleSelect">Role</label>
                 <select id="inviteRoleSelect" name="inviteRole" required>
-                  <option id="inviteAdminOption" value="admin">Admin</option>
-                  <option value="editor">Editor</option>
-                  <option value="viewer">Viewer</option>
-                </select>
+ 		 <option id="inviteAdminOption" value="admin">Admin</option>
+ 		 <option value="editor">Editor</option>
+		 <option value="viewer">Viewer</option>
+		</select>
               </div>
 
               <button id="inviteMemberButton" type="submit">
@@ -857,7 +913,7 @@
                   <tr>
                     <th scope="col">Feature</th>
                     <th scope="col"><span class="role-badge role-owner">Owner</span></th>
-                    <th scope="col"><span class="role-badge role-admin">Administrator</span></th>
+                    <th scope="col"><span class="role-badge role-admin">Admin</span></th>
                     <th scope="col"><span class="role-badge role-editor">Editor</span></th>
                     <th scope="col"><span class="role-badge role-viewer">Viewer</span></th>
                   </tr>
@@ -946,7 +1002,7 @@
                   <td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td>
                 </tr>
 <tr>
-                  <th scope="row">Change the company name</th>
+                  <th scope="row">Change company name</th>
                   <td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td>
                   <td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td>
@@ -1038,6 +1094,176 @@
             </form>
           </details>
 
+          <details class="compact-disclosure management-card">
+            <summary>Billing details</summary>
+            <p class="empty-state">
+              These details are visible only to the owner and will be used for future company invoices.
+            </p>
+            <form
+              id="companyBillingSettingsForm"
+              class="billing-form-grid"
+            >
+              <p class="notice notice-warning full-width">
+                Fields marked with * are required. Enter at least a company name or a name/contact person.
+              </p>
+
+              <div class="input-group full-width">
+                <label>
+                  Company *
+                </label>
+                <input
+                  name="invoiceCompanyName"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="organization"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Name / Contact person *
+                </label>
+                <input
+                  name="recipientName"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="name"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Street / House number *
+                </label>
+                <input
+                  name="street"
+                  type="text"
+                  maxlength="160"
+                  autocomplete="street-address"
+                  required
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Additional address details
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="addressSupplement"
+                  type="text"
+                  maxlength="160"
+                  autocomplete="address-line2"
+                >
+              </div>
+
+              <div class="input-group">
+                <label>
+                  Postal code *
+                </label>
+                <input
+                  name="postalCode"
+                  type="text"
+                  maxlength="30"
+                  autocomplete="postal-code"
+                  required
+                >
+              </div>
+
+              <div class="input-group">
+                <label>
+                  City *
+                </label>
+                <input
+                  name="city"
+                  type="text"
+                  maxlength="100"
+                  autocomplete="address-level2"
+                  required
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Country *
+                </label>
+                <select
+                  name="countryCode"
+                  autocomplete="country"
+                  required
+                >
+                  <option value="">Select country</option>
+                </select>
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Billing email *
+                </label>
+                <input
+                  name="billingEmail"
+                  type="email"
+                  maxlength="254"
+                  autocomplete="email"
+                  required
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Business ID / VAT number
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="uidVat"
+                  type="text"
+                  maxlength="80"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Internal purchase order / Reference number
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="customerReference"
+                  type="text"
+                  maxlength="120"
+                >
+              </div>
+              <div class="full-width">
+                <button
+                  id="saveCompanyBillingSettingsButton"
+                  type="submit"
+                >
+                  Save billing details
+                </button>
+              </div>
+            </form>
+          </details>
+
+<details class="compact-disclosure management-card warning-card">
+  <summary>Delete company</summary>
+
+  <p id="deleteCompanyDescription">
+    Checking deletion requirements.
+  </p>
+
+  <button
+    id="deleteCompanyButton"
+    type="button"
+    class="danger-button"
+    disabled
+  >
+    Permanently delete company
+  </button>
+
+  <p class="notice notice-warning">
+    All company machines, tool lists, maintenance plans and maintenance history, member data and invitations will be permanently deleted. Your personal account, private machines and their maintenance data will be retained.
+  </p>
+</details>
+
           <details class="compact-disclosure management-card warning-card">
             <summary>Transfer ownership</summary>
             <p>
@@ -1052,29 +1278,7 @@
               Transfer ownership
             </button>
             <p class="notice notice-warning">
-              Before deleting your account, you must transfer ownership if other
-              members are present.
-            </p>
-          </details>
-
-          <details class="compact-disclosure management-card warning-card">
-            <summary>Delete company</summary>
-            <p id="deleteCompanyDescription">
-              The deletion requirements are being checked.
-            </p>
-            <button
-              id="deleteCompanyButton"
-              type="button"
-              class="danger-button"
-              disabled
-            >
-              Permanently delete company
-            </button>
-            <p class="notice notice-warning">
-              All company machines, tool lists, maintenance plans and history,
-              member data and invitations will be permanently deleted. Your
-              personal account, private machines and their maintenance data
-              will remain unchanged.
+              Before deleting your account, you must transfer ownership if other members are present.
             </p>
           </details>
         </div>
@@ -1103,6 +1307,167 @@
       </div>
     </section>
   </main>
+
+  <div
+    id="billingReviewModal"
+    class="billing-modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="billingReviewTitle"
+  >
+    <div class="billing-modal-card">
+      <h2 id="billingReviewTitle">Review billing details</h2>
+      <p>
+        As the owner, please review the billing address. The company name entered when creating the company has been prefilled in the “Company” field and can be changed or cleared.
+      </p>
+      <p class="notice notice-warning">
+        After ownership is transferred, the new owner must review and save these details again.
+      </p>
+
+      <form id="billingReviewForm" class="billing-form-grid">
+              <p class="notice notice-warning full-width">
+                Fields marked with * are required. Enter at least a company name or a name/contact person.
+              </p>
+
+              <div class="input-group full-width">
+                <label>
+                  Company *
+                </label>
+                <input
+                  name="invoiceCompanyName"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="organization"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Name / Contact person *
+                </label>
+                <input
+                  name="recipientName"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="name"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Street / House number *
+                </label>
+                <input
+                  name="street"
+                  type="text"
+                  maxlength="160"
+                  autocomplete="street-address"
+                  required
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Additional address details
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="addressSupplement"
+                  type="text"
+                  maxlength="160"
+                  autocomplete="address-line2"
+                >
+              </div>
+
+              <div class="input-group">
+                <label>
+                  Postal code *
+                </label>
+                <input
+                  name="postalCode"
+                  type="text"
+                  maxlength="30"
+                  autocomplete="postal-code"
+                  required
+                >
+              </div>
+
+              <div class="input-group">
+                <label>
+                  City *
+                </label>
+                <input
+                  name="city"
+                  type="text"
+                  maxlength="100"
+                  autocomplete="address-level2"
+                  required
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Country *
+                </label>
+                <select
+                  name="countryCode"
+                  autocomplete="country"
+                  required
+                >
+                  <option value="">Select country</option>
+                </select>
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Billing email *
+                </label>
+                <input
+                  name="billingEmail"
+                  type="email"
+                  maxlength="254"
+                  autocomplete="email"
+                  required
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Business ID / VAT number
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="uidVat"
+                  type="text"
+                  maxlength="80"
+                >
+              </div>
+
+              <div class="input-group full-width">
+                <label>
+                  Internal purchase order / Reference number
+                  <span class="optional-label">(optional)</span>
+                </label>
+                <input
+                  name="customerReference"
+                  type="text"
+                  maxlength="120"
+                >
+              </div>
+        <div class="full-width">
+          <p
+            id="billingReviewError"
+            class="billing-inline-error hidden"
+            role="alert"
+            aria-live="assertive"
+          ></p>
+          <button id="saveBillingReviewButton" type="submit">
+            Save details and continue
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <footer>
     <p><strong>PolymApp</strong> – Company management</p>
@@ -1156,6 +1521,264 @@
       appId: "1:64966382407:web:6739c6a7afa83eb7877262",
       measurementId: "G-0QQYN8BKQD"
     };
+
+    const COUNTRY_OPTIONS = Object.freeze([
+      ["CH", "Schweiz"],
+      ["DE", "Deutschland"],
+      ["AT", "Österreich"],
+      ["AF", "Afghanistan"],
+      ["AL", "Albanien"],
+      ["DZ", "Algerien"],
+      ["AS", "Amerikanisch-Samoa"],
+      ["VI", "Amerikanische Jungferninseln"],
+      ["UM", "Amerikanische Überseeinseln"],
+      ["AD", "Andorra"],
+      ["AO", "Angola"],
+      ["AI", "Anguilla"],
+      ["AQ", "Antarktis"],
+      ["AG", "Antigua und Barbuda"],
+      ["AR", "Argentinien"],
+      ["AM", "Armenien"],
+      ["AW", "Aruba"],
+      ["AZ", "Aserbaidschan"],
+      ["AU", "Australien"],
+      ["BS", "Bahamas"],
+      ["BH", "Bahrain"],
+      ["BD", "Bangladesch"],
+      ["BB", "Barbados"],
+      ["BY", "Belarus"],
+      ["BE", "Belgien"],
+      ["BZ", "Belize"],
+      ["BJ", "Benin"],
+      ["BM", "Bermuda"],
+      ["BT", "Bhutan"],
+      ["BO", "Bolivien"],
+      ["BA", "Bosnien und Herzegowina"],
+      ["BW", "Botsuana"],
+      ["BV", "Bouvetinsel"],
+      ["BR", "Brasilien"],
+      ["VG", "Britische Jungferninseln"],
+      ["IO", "Britisches Territorium im Indischen Ozean"],
+      ["BN", "Brunei Darussalam"],
+      ["BG", "Bulgarien"],
+      ["BF", "Burkina Faso"],
+      ["BI", "Burundi"],
+      ["CV", "Cabo Verde"],
+      ["CL", "Chile"],
+      ["CN", "China"],
+      ["CK", "Cookinseln"],
+      ["CR", "Costa Rica"],
+      ["CW", "Curaçao"],
+      ["CI", "Côte d’Ivoire"],
+      ["DM", "Dominica"],
+      ["DO", "Dominikanische Republik"],
+      ["DJ", "Dschibuti"],
+      ["DK", "Dänemark"],
+      ["EC", "Ecuador"],
+      ["SV", "El Salvador"],
+      ["ER", "Eritrea"],
+      ["EE", "Estland"],
+      ["SZ", "Eswatini"],
+      ["FK", "Falklandinseln"],
+      ["FJ", "Fidschi"],
+      ["FI", "Finnland"],
+      ["FR", "Frankreich"],
+      ["GF", "Französisch-Guayana"],
+      ["PF", "Französisch-Polynesien"],
+      ["TF", "Französische Süd- und Antarktisgebiete"],
+      ["FO", "Färöer"],
+      ["GA", "Gabun"],
+      ["GM", "Gambia"],
+      ["GE", "Georgien"],
+      ["GH", "Ghana"],
+      ["GI", "Gibraltar"],
+      ["GD", "Grenada"],
+      ["GR", "Griechenland"],
+      ["GL", "Grönland"],
+      ["GP", "Guadeloupe"],
+      ["GU", "Guam"],
+      ["GT", "Guatemala"],
+      ["GG", "Guernsey"],
+      ["GN", "Guinea"],
+      ["GW", "Guinea-Bissau"],
+      ["GY", "Guyana"],
+      ["HT", "Haiti"],
+      ["HM", "Heard und McDonaldinseln"],
+      ["HN", "Honduras"],
+      ["IN", "Indien"],
+      ["ID", "Indonesien"],
+      ["IQ", "Irak"],
+      ["IR", "Iran"],
+      ["IE", "Irland"],
+      ["IS", "Island"],
+      ["IM", "Isle of Man"],
+      ["IL", "Israel"],
+      ["IT", "Italien"],
+      ["JM", "Jamaika"],
+      ["JP", "Japan"],
+      ["YE", "Jemen"],
+      ["JE", "Jersey"],
+      ["JO", "Jordanien"],
+      ["KY", "Kaimaninseln"],
+      ["KH", "Kambodscha"],
+      ["CM", "Kamerun"],
+      ["CA", "Kanada"],
+      ["BQ", "Karibische Niederlande"],
+      ["KZ", "Kasachstan"],
+      ["QA", "Katar"],
+      ["KE", "Kenia"],
+      ["KG", "Kirgisistan"],
+      ["KI", "Kiribati"],
+      ["CC", "Kokosinseln"],
+      ["CO", "Kolumbien"],
+      ["KM", "Komoren"],
+      ["CG", "Kongo-Brazzaville"],
+      ["CD", "Kongo-Kinshasa"],
+      ["HR", "Kroatien"],
+      ["CU", "Kuba"],
+      ["KW", "Kuwait"],
+      ["LA", "Laos"],
+      ["LS", "Lesotho"],
+      ["LV", "Lettland"],
+      ["LB", "Libanon"],
+      ["LR", "Liberia"],
+      ["LY", "Libyen"],
+      ["LI", "Liechtenstein"],
+      ["LT", "Litauen"],
+      ["LU", "Luxemburg"],
+      ["MG", "Madagaskar"],
+      ["MW", "Malawi"],
+      ["MY", "Malaysia"],
+      ["MV", "Malediven"],
+      ["ML", "Mali"],
+      ["MT", "Malta"],
+      ["MA", "Marokko"],
+      ["MH", "Marshallinseln"],
+      ["MQ", "Martinique"],
+      ["MR", "Mauretanien"],
+      ["MU", "Mauritius"],
+      ["YT", "Mayotte"],
+      ["MX", "Mexiko"],
+      ["FM", "Mikronesien"],
+      ["MC", "Monaco"],
+      ["MN", "Mongolei"],
+      ["ME", "Montenegro"],
+      ["MS", "Montserrat"],
+      ["MZ", "Mosambik"],
+      ["MM", "Myanmar"],
+      ["NA", "Namibia"],
+      ["NR", "Nauru"],
+      ["NP", "Nepal"],
+      ["NC", "Neukaledonien"],
+      ["NZ", "Neuseeland"],
+      ["NI", "Nicaragua"],
+      ["NL", "Niederlande"],
+      ["NE", "Niger"],
+      ["NG", "Nigeria"],
+      ["NU", "Niue"],
+      ["KP", "Nordkorea"],
+      ["MK", "Nordmazedonien"],
+      ["NF", "Norfolkinsel"],
+      ["NO", "Norwegen"],
+      ["MP", "Nördliche Marianen"],
+      ["OM", "Oman"],
+      ["PK", "Pakistan"],
+      ["PW", "Palau"],
+      ["PS", "Palästinensische Autonomiegebiete"],
+      ["PA", "Panama"],
+      ["PG", "Papua-Neuguinea"],
+      ["PY", "Paraguay"],
+      ["PE", "Peru"],
+      ["PH", "Philippinen"],
+      ["PN", "Pitcairninseln"],
+      ["PL", "Polen"],
+      ["PT", "Portugal"],
+      ["PR", "Puerto Rico"],
+      ["MD", "Republik Moldau"],
+      ["RW", "Ruanda"],
+      ["RO", "Rumänien"],
+      ["RU", "Russland"],
+      ["RE", "Réunion"],
+      ["SB", "Salomonen"],
+      ["ZM", "Sambia"],
+      ["WS", "Samoa"],
+      ["SM", "San Marino"],
+      ["SA", "Saudi-Arabien"],
+      ["SE", "Schweden"],
+      ["SN", "Senegal"],
+      ["RS", "Serbien"],
+      ["SC", "Seychellen"],
+      ["SL", "Sierra Leone"],
+      ["ZW", "Simbabwe"],
+      ["SG", "Singapur"],
+      ["SX", "Sint Maarten"],
+      ["SK", "Slowakei"],
+      ["SI", "Slowenien"],
+      ["SO", "Somalia"],
+      ["HK", "Sonderverwaltungsregion Hongkong"],
+      ["MO", "Sonderverwaltungsregion Macau"],
+      ["ES", "Spanien"],
+      ["SJ", "Spitzbergen und Jan Mayen"],
+      ["LK", "Sri Lanka"],
+      ["BL", "St. Barthélemy"],
+      ["SH", "St. Helena"],
+      ["KN", "St. Kitts und Nevis"],
+      ["LC", "St. Lucia"],
+      ["MF", "St. Martin"],
+      ["PM", "St. Pierre und Miquelon"],
+      ["VC", "St. Vincent und die Grenadinen"],
+      ["SD", "Sudan"],
+      ["SR", "Suriname"],
+      ["SY", "Syrien"],
+      ["ST", "São Tomé und Príncipe"],
+      ["ZA", "Südafrika"],
+      ["GS", "Südgeorgien und die Südlichen Sandwichinseln"],
+      ["KR", "Südkorea"],
+      ["SS", "Südsudan"],
+      ["TJ", "Tadschikistan"],
+      ["TW", "Taiwan"],
+      ["TZ", "Tansania"],
+      ["TH", "Thailand"],
+      ["TL", "Timor-Leste"],
+      ["TG", "Togo"],
+      ["TK", "Tokelau"],
+      ["TO", "Tonga"],
+      ["TT", "Trinidad und Tobago"],
+      ["TD", "Tschad"],
+      ["CZ", "Tschechien"],
+      ["TN", "Tunesien"],
+      ["TM", "Turkmenistan"],
+      ["TC", "Turks- und Caicosinseln"],
+      ["TV", "Tuvalu"],
+      ["TR", "Türkei"],
+      ["UG", "Uganda"],
+      ["UA", "Ukraine"],
+      ["HU", "Ungarn"],
+      ["UY", "Uruguay"],
+      ["UZ", "Usbekistan"],
+      ["VU", "Vanuatu"],
+      ["VA", "Vatikanstadt"],
+      ["VE", "Venezuela"],
+      ["AE", "Vereinigte Arabische Emirate"],
+      ["US", "Vereinigte Staaten"],
+      ["GB", "Vereinigtes Königreich"],
+      ["VN", "Vietnam"],
+      ["WF", "Wallis und Futuna"],
+      ["CX", "Weihnachtsinsel"],
+      ["EH", "Westsahara"],
+      ["CF", "Zentralafrikanische Republik"],
+      ["CY", "Zypern"],
+      ["EG", "Ägypten"],
+      ["GQ", "Äquatorialguinea"],
+      ["ET", "Äthiopien"],
+      ["AX", "Ålandinseln"]
+    ]);
+
+    const PRIORITY_COUNTRY_CODES = Object.freeze([
+      "CH",
+      "DE",
+      "AT"
+    ]);
 
     const app = initializeApp(firebaseConfig);
     const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(
@@ -1216,12 +1839,20 @@
       functions,
       "updateCompanyName"
     );
+    const getCompanyBillingDetailsCall = httpsCallable(
+      functions,
+      "getCompanyBillingDetails"
+    );
+    const updateCompanyBillingDetailsCall = httpsCallable(
+      functions,
+      "updateCompanyBillingDetails"
+    );
     const transferOwnershipCall = httpsCallable(
       functions,
       "transferCompanyOwnership"
     );
     const leaveCompanyCall = httpsCallable(functions, "leaveCompany");
-    const deleteCompanyCall = httpsCallable(functions, "deleteCompany");
+    const deleteCompanyCall = httpsCallable(functions,"deleteCompany");
     const importPrivateMachinesCall = httpsCallable(
       functions,
       "importPrivateMachinesToCompany",
@@ -1280,6 +1911,24 @@
     const updateCompanyNameButton = document.getElementById(
       "updateCompanyNameButton"
     );
+    const companyBillingSettingsForm = document.getElementById(
+      "companyBillingSettingsForm"
+    );
+    const saveCompanyBillingSettingsButton = document.getElementById(
+      "saveCompanyBillingSettingsButton"
+    );
+    const billingReviewModal = document.getElementById(
+      "billingReviewModal"
+    );
+    const billingReviewForm = document.getElementById(
+      "billingReviewForm"
+    );
+    const saveBillingReviewButton = document.getElementById(
+      "saveBillingReviewButton"
+    );
+    const billingReviewError = document.getElementById(
+      "billingReviewError"
+    );
     const ownershipTargetSelect = document.getElementById(
       "ownershipTargetSelect"
     );
@@ -1287,12 +1936,8 @@
       "transferOwnershipButton"
     );
     const leaveCompanyButton = document.getElementById("leaveCompanyButton");
-    const deleteCompanyButton = document.getElementById(
-      "deleteCompanyButton"
-    );
-    const deleteCompanyDescription = document.getElementById(
-      "deleteCompanyDescription"
-    );
+    const deleteCompanyButton = document.getElementById("deleteCompanyButton");
+    const deleteCompanyDescription = document.getElementById("deleteCompanyDescription");
     const privateMachineList = document.getElementById("privateMachineList");
     const companyMachineList = document.getElementById("companyMachineList");
     const machineSelectionCount = document.getElementById(
@@ -1332,8 +1977,12 @@
     let currentActiveInvitationCount = null;
     let statusTimer = null;
     let verificationEmailSent = false;
+    let currentBillingDetails = null;
+    let billingDetailsLoadedKey = "";
+    let billingDetailsLoadingKey = "";
 
     document.getElementById("year").textContent = new Date().getFullYear();
+    populateCountrySelects();
 
     function setStatus(message, type = "success", duration = 5000) {
       window.clearTimeout(statusTimer);
@@ -1343,6 +1992,301 @@
       statusTimer = window.setTimeout(() => {
         statusBox.classList.remove("visible");
       }, duration);
+    }
+
+    function billingDetailsFromForm(form) {
+      const formData = new FormData(form);
+
+      return {
+        invoiceCompanyName:
+          String(formData.get("invoiceCompanyName") || "").trim(),
+        recipientName:
+          String(formData.get("recipientName") || "").trim(),
+        street:
+          String(formData.get("street") || "").trim(),
+        addressSupplement:
+          String(formData.get("addressSupplement") || "").trim(),
+        postalCode:
+          String(formData.get("postalCode") || "").trim(),
+        city:
+          String(formData.get("city") || "").trim(),
+        countryCode:
+          String(formData.get("countryCode") || "")
+            .trim()
+            .toUpperCase(),
+        country:
+          countryNameFromCode(
+            String(formData.get("countryCode") || "")
+              .trim()
+              .toUpperCase()
+          ),
+        billingEmail:
+          String(formData.get("billingEmail") || "").trim(),
+        uidVat:
+          String(formData.get("uidVat") || "").trim(),
+        customerReference:
+          String(formData.get("customerReference") || "").trim()
+      };
+    }
+
+    function fillBillingForm(form, details = {}) {
+      for (const name of [
+        "invoiceCompanyName",
+        "recipientName",
+        "street",
+        "addressSupplement",
+        "postalCode",
+        "city",
+        "billingEmail",
+        "uidVat",
+        "customerReference"
+      ]) {
+        const field = form.elements.namedItem(name);
+
+        if (field) {
+          field.value =
+            typeof details?.[name] === "string"
+              ? details[name]
+              : "";
+        }
+      }
+
+      const countrySelect = form.elements.namedItem(
+        "countryCode"
+      );
+
+      if (countrySelect) {
+        countrySelect.value =
+          typeof details?.countryCode === "string" &&
+          details.countryCode
+            ? details.countryCode
+            : countryCodeFromName(details?.country);
+      }
+    }
+
+    function countryNameFromCode(countryCode) {
+      const match = COUNTRY_OPTIONS.find(
+        ([code]) => code === countryCode
+      );
+
+      return match ? match[1] : "";
+    }
+
+    function countryCodeFromName(countryName) {
+      if (typeof countryName !== "string") {
+        return "";
+      }
+
+      const normalized = countryName.trim().toLocaleLowerCase("de-CH");
+      const direct = COUNTRY_OPTIONS.find(
+        ([, label]) =>
+          label.toLocaleLowerCase("de-CH") === normalized
+      );
+
+      if (direct) {
+        return direct[0];
+      }
+
+      if (
+        ["suisse", "svizzera", "switzerland"].includes(normalized)
+      ) {
+        return "CH";
+      }
+
+      if (
+        ["germany", "allemagne"].includes(normalized)
+      ) {
+        return "DE";
+      }
+
+      if (
+        ["oesterreich", "austria", "autriche"].includes(normalized)
+      ) {
+        return "AT";
+      }
+
+      return "";
+    }
+
+    function populateCountrySelects() {
+      const selects = [
+        companyBillingSettingsForm.elements.namedItem("countryCode"),
+        billingReviewForm.elements.namedItem("countryCode")
+      ].filter(Boolean);
+
+      for (const select of selects) {
+        select.replaceChildren();
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Select country";
+        select.append(placeholder);
+
+        for (const code of PRIORITY_COUNTRY_CODES) {
+          const label = countryNameFromCode(code);
+          const option = document.createElement("option");
+          option.value = code;
+          option.textContent = new Intl.DisplayNames(["en"], {type: "region"}).of(code) || label;
+          select.append(option);
+        }
+
+        const separator = document.createElement("option");
+        separator.disabled = true;
+        separator.textContent = "──────────";
+        select.append(separator);
+
+        for (const [code, label] of COUNTRY_OPTIONS) {
+          if (PRIORITY_COUNTRY_CODES.includes(code)) {
+            continue;
+          }
+
+          const option = document.createElement("option");
+          option.value = code;
+          option.textContent = new Intl.DisplayNames(["en"], {type: "region"}).of(code) || label;
+          select.append(option);
+        }
+      }
+    }
+
+    function setBillingReviewError(message = "") {
+      billingReviewError.textContent = message;
+      billingReviewError.classList.toggle("hidden", !message);
+    }
+
+    function clearBillingForms() {
+      companyBillingSettingsForm.reset();
+      billingReviewForm.reset();
+      currentBillingDetails = null;
+      billingDetailsLoadedKey = "";
+      billingDetailsLoadingKey = "";
+      billingReviewModal.classList.add("hidden");
+      setBillingReviewError("");
+    }
+
+    async function ensureOwnerBillingDetails() {
+      if (
+        !currentUser ||
+        !currentCompanyId ||
+        !currentCompany ||
+        !currentMembership ||
+        currentMembership.role !== "owner" ||
+        currentCompany.ownerUid !== currentUser.uid
+      ) {
+        return;
+      }
+
+      const key = `${currentCompanyId}:${currentUser.uid}`;
+
+      if (
+        billingDetailsLoadedKey === key ||
+        billingDetailsLoadingKey === key
+      ) {
+        return;
+      }
+
+      billingDetailsLoadingKey = key;
+
+      try {
+        const result = await getCompanyBillingDetailsCall();
+
+        if (
+          !currentUser ||
+          `${currentCompanyId}:${currentUser.uid}` !== key
+        ) {
+          return;
+        }
+
+        currentBillingDetails = result?.data?.details || {};
+        billingDetailsLoadedKey = key;
+        fillBillingForm(
+          companyBillingSettingsForm,
+          currentBillingDetails
+        );
+        fillBillingForm(
+          billingReviewForm,
+          currentBillingDetails
+        );
+
+        if (result?.data?.needsReview === true) {
+          setBillingReviewError("");
+          billingReviewModal.classList.remove("hidden");
+          billingReviewForm.elements
+            .namedItem("invoiceCompanyName")
+            ?.focus();
+        }
+      } catch (error) {
+        setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        if (billingDetailsLoadingKey === key) {
+          billingDetailsLoadingKey = "";
+        }
+      }
+    }
+
+    async function saveCompanyBillingDetails(
+      form,
+      button,
+      closeReviewModal
+    ) {
+      button.disabled = true;
+
+      try {
+        if (closeReviewModal) {
+          setBillingReviewError("");
+        }
+
+        const details = billingDetailsFromForm(form);
+
+        if (
+          !details.invoiceCompanyName &&
+          !details.recipientName
+        ) {
+          const message =
+            "Please enter a company name or a name/contact person.";
+
+          if (closeReviewModal) {
+            setBillingReviewError(message);
+          } else {
+            setStatus(message, "error", 7000);
+          }
+          return;
+        }
+
+        const result = await updateCompanyBillingDetailsCall({
+          details
+        });
+
+        currentBillingDetails = result?.data?.details || details;
+        fillBillingForm(
+          companyBillingSettingsForm,
+          currentBillingDetails
+        );
+        fillBillingForm(
+          billingReviewForm,
+          currentBillingDetails
+        );
+
+        if (currentUser && currentCompanyId) {
+          billingDetailsLoadedKey =
+            `${currentCompanyId}:${currentUser.uid}`;
+        }
+
+        if (closeReviewModal) {
+          billingReviewModal.classList.add("hidden");
+        }
+
+        setStatus("The billing details have been saved.");
+      } catch (error) {
+        const message = mapFunctionError(error);
+
+        if (closeReviewModal) {
+          setBillingReviewError(message);
+        } else {
+          setStatus(message, "error", 7000);
+        }
+      } finally {
+        button.disabled = false;
+      }
     }
 
     async function ensureEmailVerifiedForCompanyAction() {
@@ -1404,7 +2348,6 @@
 
     function mapFunctionError(error) {
       const reason = error?.details?.reason;
-      const serverMessage = String(error?.message || "");
 
       if (reason === "email_not_verified") {
         return "Verify your email address first.";
@@ -1418,16 +2361,10 @@
           "cannot currently be copied.";
       }
       if (error?.code === "functions/already-exists") {
-        if (serverMessage.includes("Mitglied dieser Firma")) {
-          return "This person is already a member of this company.";
-        }
-        if (serverMessage.includes("Einladung")) {
-          return "An invitation already exists for this email address.";
-        }
-        return "This entry already exists.";
+        return error.message || "The entry already exists.";
       }
       if (error?.code === "functions/resource-exhausted") {
-        return "No capacity is available for this action.";
+        return "No company seat is available.";
       }
       if (error?.code === "functions/permission-denied") {
         return "You do not have permission for this action.";
@@ -1438,36 +2375,24 @@
       if (error?.code === "functions/unavailable") {
         return "The service is currently unavailable.";
       }
-      if (error?.code === "functions/invalid-argument") {
-        return "The submitted information is invalid.";
-      }
-      if (error?.code === "functions/failed-precondition") {
-        return "The requirements for this action are not met.";
-      }
-      if (error?.code === "functions/not-found") {
-        return "The requested entry was not found.";
-      }
-      if (error?.code === "functions/deadline-exceeded") {
-        return "The invitation or request has expired.";
-      }
 
-      return "The action could not be completed.";
+      return error?.message || "The action could not be completed.";
     }
 
     function roleLabel(role) {
-      switch (role) {
-        case "owner":
-          return "Owner";
-        case "admin":
-          return "Admin";
-        case "editor":
-          return "Editor";
-        case "viewer":
-          return "Viewer";
-        default:
-          return "Unknown";
-      }
-    }
+  switch (role) {
+    case "owner":
+      return "Owner";
+    case "admin":
+      return "Admin";
+    case "editor":
+      return "Editor";
+    case "viewer":
+      return "Viewer";
+    default:
+      return "Unknown";
+  }
+}
 
     function roleText(role) {
       switch (role) {
@@ -1491,7 +2416,7 @@
         return "unknown";
       }
 
-      return new Intl.DateTimeFormat("en-GB", {
+      return new Intl.DateTimeFormat("en-CH", {
         dateStyle: "medium",
         timeStyle: "short"
       }).format(date);
@@ -1521,6 +2446,7 @@
       currentActiveInvitationCount = null;
       currentCompany = null;
       currentMembership = null;
+      clearBillingForms();
       managementPanel.classList.add("hidden");
     }
 
@@ -1906,7 +2832,7 @@
       try {
         window.localStorage.setItem(machineImportNoticeKey(), "1");
       } catch {
-        // The import remains fully usable without local storage.
+        // Der Import bleibt auch ohne lokalen Speicher vollständig nutzbar.
       }
       machineImportNotice.classList.add("hidden");
     }
@@ -1930,104 +2856,138 @@
     }
 
     function renderCompanySettings() {
-      if (!currentCompany || !currentMembership || !currentUser) {
-        return;
-      }
+  if (!currentCompany || !currentMembership || !currentUser) {
+    return;
+  }
 
-      const isOwner = currentMembership.role === "owner" &&
-        currentCompany.ownerUid === currentUser.uid;
+  const isOwner =
+    currentMembership.role === "owner" &&
+    currentCompany.ownerUid === currentUser.uid;
 
-      ownerSettings.classList.toggle("hidden", !isOwner);
-      memberExitPanel.classList.toggle("hidden", isOwner);
+  ownerSettings.classList.toggle("hidden", !isOwner);
+  memberExitPanel.classList.toggle("hidden", isOwner);
 
-      if (!isOwner) {
-        memberExitDescription.textContent =
-          `You are currently ${roleLabel(currentMembership.role)}. ` +
-          "You can leave the company yourself.";
-        return;
-      }
+  if (!isOwner) {
+    clearBillingForms();
+    memberExitDescription.textContent =
+      `You are currently ${roleLabel(currentMembership.role)}. ` +
+      "You can leave the company yourself.";
+    return;
+  }
 
-      if (document.activeElement !== companyNameSettingsInput) {
-        companyNameSettingsInput.value = currentCompany.name || "";
-      }
+  ensureOwnerBillingDetails();
 
-      const previousSelection = ownershipTargetSelect.value;
-      ownershipTargetSelect.replaceChildren();
+  if (document.activeElement !== companyNameSettingsInput) {
+    companyNameSettingsInput.value =
+      currentCompany.name || "";
+  }
 
-      const possibleOwners = [...currentMembers.values()]
-        .filter((member) =>
-          member.status === "active" &&
-          member.id !== currentUser.uid &&
-          member.role !== "owner"
-        )
-        .sort((left, right) => {
-          const leftProfile = currentMemberProfiles.get(left.id);
-          const rightProfile = currentMemberProfiles.get(right.id);
-          return memberDisplayName(leftProfile).localeCompare(
-            memberDisplayName(rightProfile),
-            "en"
-          );
-        });
+  const previousSelection =
+    ownershipTargetSelect.value;
 
-      for (const member of possibleOwners) {
-        const profile = currentMemberProfiles.get(member.id) || {};
-        const option = document.createElement("option");
-        option.value = member.id;
-        option.textContent =
-          `${memberDisplayName(profile)} (${roleLabel(member.role)})`;
-        option.selected = member.id === previousSelection;
-        ownershipTargetSelect.append(option);
-      }
+  ownershipTargetSelect.replaceChildren();
 
-      const hasTransferTarget = possibleOwners.length > 0;
-      ownershipTargetSelect.disabled = !hasTransferTarget;
-      transferOwnershipButton.disabled = !hasTransferTarget;
-      transferOwnershipButton.classList.toggle(
-        "unavailable",
-        !hasTransferTarget
+  const possibleOwners = [...currentMembers.values()]
+    .filter((member) =>
+      member.status === "active" &&
+      member.id !== currentUser.uid &&
+      member.role !== "owner"
+    )
+    .sort((left, right) => {
+      const leftProfile =
+        currentMemberProfiles.get(left.id);
+
+      const rightProfile =
+        currentMemberProfiles.get(right.id);
+
+      return memberDisplayName(leftProfile).localeCompare(
+        memberDisplayName(rightProfile),
+        "de",
       );
+    });
 
-      const activeMembers = [...currentMembers.values()]
-        .filter((member) => member.status === "active");
+  for (const member of possibleOwners) {
+    const profile =
+      currentMemberProfiles.get(member.id) || {};
 
-      const otherActiveMemberExists = activeMembers.some(
-        (member) => member.id !== currentUser.uid
-      );
+    const option =
+      document.createElement("option");
 
-      const storedMemberCount = Number(
-        currentCompany.activeMemberCount || 0
-      );
-      const invitationsLoaded = currentActiveInvitationCount !== null;
-      const hasActiveInvitations =
-        currentActiveInvitationCount !== null &&
-        currentActiveInvitationCount > 0;
+    option.value = member.id;
+    option.textContent =
+      `${memberDisplayName(profile)} ` +
+      `(${roleLabel(member.role)})`;
 
-      const canDeleteCompany =
-        invitationsLoaded &&
-        storedMemberCount === 1 &&
-        !otherActiveMemberExists &&
-        !hasActiveInvitations;
+    option.selected =
+      member.id === previousSelection;
 
-      deleteCompanyButton.disabled = !canDeleteCompany;
-      deleteCompanyButton.classList.toggle(
-        "unavailable",
-        !canDeleteCompany
-      );
+    ownershipTargetSelect.append(option);
+  }
 
-      if (!invitationsLoaded) {
-        deleteCompanyDescription.textContent =
-          "Open invitations are being checked.";
-      } else if (storedMemberCount !== 1 || otherActiveMemberExists) {
-        deleteCompanyDescription.textContent =
-          "Remove all other company members first.";
-      } else if (hasActiveInvitations) {
-        deleteCompanyDescription.textContent =
-          "Withdraw all valid open invitations first.";
-      } else {
-        deleteCompanyDescription.textContent =
-          "You are the only member and there are no valid open invitations. The company can be deleted.";
-      }
-    }
+  const hasTransferTarget =
+    possibleOwners.length > 0;
+
+  ownershipTargetSelect.disabled =
+    !hasTransferTarget;
+
+  transferOwnershipButton.disabled =
+    !hasTransferTarget;
+
+  transferOwnershipButton.classList.toggle(
+    "unavailable",
+    !hasTransferTarget,
+  );
+
+  const activeMembers = [...currentMembers.values()]
+    .filter((member) => member.status === "active");
+
+  const otherActiveMemberExists =
+    activeMembers.some(
+      (member) => member.id !== currentUser.uid,
+    );
+
+  const storedMemberCount =
+    Number(currentCompany.activeMemberCount || 0);
+
+  const invitationsLoaded =
+    currentActiveInvitationCount !== null;
+
+  const hasActiveInvitations =
+    currentActiveInvitationCount !== null &&
+    currentActiveInvitationCount > 0;
+
+  const canDeleteCompany =
+    invitationsLoaded &&
+    storedMemberCount === 1 &&
+    !otherActiveMemberExists &&
+    !hasActiveInvitations;
+
+  deleteCompanyButton.disabled =
+    !canDeleteCompany;
+
+  deleteCompanyButton.classList.toggle(
+    "unavailable",
+    !canDeleteCompany,
+  );
+
+  if (!invitationsLoaded) {
+    deleteCompanyDescription.textContent =
+      "Open invitations are being checked.";
+  } else if (
+    storedMemberCount !== 1 ||
+    otherActiveMemberExists
+  ) {
+    deleteCompanyDescription.textContent =
+      "Remove all other company members first.";
+  } else if (hasActiveInvitations) {
+    deleteCompanyDescription.textContent =
+      "Withdraw all valid open invitations first.";
+  } else {
+    deleteCompanyDescription.textContent =
+      "You are the only member and there are no " +
+      "valid open invitations. The company can be deleted.";
+  }
+}
 
     function createProfileField({label, name, value, maxLength, multiline}) {
       const group = document.createElement("div");
@@ -2311,6 +3271,30 @@
       }
     }
 
+    companyBillingSettingsForm.addEventListener(
+      "submit",
+      async (event) => {
+        event.preventDefault();
+        await saveCompanyBillingDetails(
+          companyBillingSettingsForm,
+          saveCompanyBillingSettingsButton,
+          false
+        );
+      }
+    );
+
+    billingReviewForm.addEventListener(
+      "submit",
+      async (event) => {
+        event.preventDefault();
+        await saveCompanyBillingDetails(
+          billingReviewForm,
+          saveBillingReviewButton,
+          true
+        );
+      }
+    );
+
     updateCompanyNameForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
@@ -2400,59 +3384,91 @@
       }
     });
 
-    deleteCompanyButton.addEventListener("click", async () => {
-      if (!currentCompany || !currentMembership || !currentUser) {
-        setStatus("The company data has not yet been fully loaded.", "error");
-        return;
-      }
+deleteCompanyButton.addEventListener(
+  "click",
+  async () => {
+    if (
+      !currentCompany ||
+      !currentMembership ||
+      !currentUser
+    ) {
+      setStatus(
+        "The company data has not yet been fully loaded.",
+        "error",
+      );
+      return;
+    }
 
-      const isOwner = currentMembership.role === "owner" &&
-        currentCompany.ownerUid === currentUser.uid;
+    const isOwner =
+      currentMembership.role === "owner" &&
+      currentCompany.ownerUid === currentUser.uid;
 
-      if (!isOwner) {
-        setStatus("Only the owner may delete the company.", "error");
-        return;
-      }
+    if (!isOwner) {
+      setStatus(
+        "Only the owner may delete the company.",
+        "error",
+      );
+      return;
+    }
 
-      const companyName = String(currentCompany.name || "").trim();
-      const confirmed = window.confirm(
-        `Really delete company “${companyName}”?\n\n` +
-        "All company machines, tool lists, maintenance plans and history, member data and invitations will be permanently deleted.\n\nYour personal account, private machines and their maintenance data will remain unchanged."
+    const companyName =
+      String(currentCompany.name || "").trim();
+
+    const confirmed = window.confirm(
+      `Really delete company “${companyName}”?\n\n` +
+      "All company machines, tool lists, maintenance plans, " +
+      "maintenance history, member data and invitations will be " +
+      "permanently deleted.\n\n" +
+      "Your personal account, private machines " +
+      "and their maintenance data will be retained.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const enteredCompanyName = window.prompt(
+      "To confirm, enter the full " +
+      "company name:",
+      "",
+    );
+
+    if (enteredCompanyName === null) {
+      return;
+    }
+
+    if (enteredCompanyName.trim() !== companyName) {
+      setStatus(
+        "The company name you entered does not match.",
+        "error",
+        7000,
+      );
+      return;
+    }
+
+    deleteCompanyButton.disabled = true;
+
+    try {
+      await deleteCompanyCall();
+
+      currentCompanyId = null;
+      stopCompanyListeners();
+      showNoCompanyState();
+
+      setStatus(
+        `Company “${companyName}” was completely deleted.`,
+      );
+    } catch (error) {
+      setStatus(
+        mapFunctionError(error),
+        "error",
+        7000,
       );
 
-      if (!confirmed) {
-        return;
-      }
-
-      const enteredCompanyName = window.prompt(
-        "To confirm, enter the full company name:",
-        ""
-      );
-
-      if (enteredCompanyName === null) {
-        return;
-      }
-
-      if (enteredCompanyName.trim() !== companyName) {
-        setStatus("The company name you entered does not match.", "error", 7000);
-        return;
-      }
-
-      deleteCompanyButton.disabled = true;
-
-      try {
-        await deleteCompanyCall();
-        currentCompanyId = null;
-        stopCompanyListeners();
-        showNoCompanyState();
-        setStatus(
-          `Company “${companyName}” was completely deleted.`
-        );
-      } catch (error) {
-        setStatus(mapFunctionError(error), "error", 7000);
-        renderCompanySettings();
-      }
-    });
+      renderCompanySettings();
+    }
+  },
+);
 
     importMachinesButton.addEventListener("click", async () => {
       const machineIds = [...selectedPrivateMachineIds];
@@ -2536,48 +3552,68 @@
     }
 
     function renderSentInvitations(documents) {
-      const now = Date.now();
-      const invitations = [...documents]
-        .map((invitation) => {
-          const data = invitation.data();
-          const expiresAtMilliseconds = data.expiresAt?.toMillis?.() || 0;
-          const effectiveStatus = data.status === "pending" &&
-            expiresAtMilliseconds <= now
-            ? "expired"
-            : data.status;
+  const now = Date.now();
 
-          return {invitation, data, effectiveStatus};
-        })
-        .sort((left, right) => {
-          const leftTime = left.data.createdAt?.toMillis?.() || 0;
-          const rightTime = right.data.createdAt?.toMillis?.() || 0;
-          return rightTime - leftTime;
-        });
+  const invitations = [...documents]
+    .map((invitation) => {
+      const data = invitation.data();
 
-      const activeInvitations = invitations.filter(
-        (item) => item.effectiveStatus === "pending"
-      );
-      const invitationHistory = invitations.filter(
-        (item) => item.effectiveStatus !== "pending"
-      );
+      const expiresAtMilliseconds =
+        data.expiresAt?.toMillis?.() || 0;
 
-      currentActiveInvitationCount = activeInvitations.length;
-      activeInvitationCount.textContent = `(${activeInvitations.length})`;
-      invitationHistoryCount.textContent = `(${invitationHistory.length})`;
+      const effectiveStatus =
+        data.status === "pending" &&
+        expiresAtMilliseconds <= now
+          ? "expired"
+          : data.status;
 
-      renderInvitationGroup(
-        activeSentInvitationList,
-        activeInvitations,
-        "There are no current invitations."
-      );
-      renderInvitationGroup(
-        invitationHistoryList,
-        invitationHistory,
-        "There is no invitation history yet."
-      );
+      return {
+        invitation,
+        data,
+        effectiveStatus,
+      };
+    })
+    .sort((left, right) => {
+      const leftTime =
+        left.data.createdAt?.toMillis?.() || 0;
 
-      renderCompanySettings();
-    }
+      const rightTime =
+        right.data.createdAt?.toMillis?.() || 0;
+
+      return rightTime - leftTime;
+    });
+
+  const activeInvitations = invitations.filter(
+    (item) => item.effectiveStatus === "pending",
+  );
+
+  const invitationHistory = invitations.filter(
+    (item) => item.effectiveStatus !== "pending",
+  );
+
+  currentActiveInvitationCount =
+    activeInvitations.length;
+
+  activeInvitationCount.textContent =
+    `(${activeInvitations.length})`;
+
+  invitationHistoryCount.textContent =
+    `(${invitationHistory.length})`;
+
+  renderInvitationGroup(
+    activeSentInvitationList,
+    activeInvitations,
+    "There are no current invitations.",
+  );
+
+  renderInvitationGroup(
+    invitationHistoryList,
+    invitationHistory,
+    "There is no invitation history yet.",
+  );
+
+  renderCompanySettings();
+}
 
     function renderInvitationGroup(container, invitations, emptyText) {
       retainDisclosureStates(container);
