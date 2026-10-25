@@ -34,36 +34,23 @@ async function getOwnerContext(
 
   const companyId = userSnapshot.get("companyId");
 
-  if (
-    typeof companyId !== "string" ||
-    companyId.length === 0
-  ) {
+  if (typeof companyId !== "string" || companyId.length === 0) {
     throw new HttpsError(
       "failed-precondition",
       "Der Benutzer gehört keiner Firma an.",
     );
   }
 
-  const companyRef = db
-    .collection("companies")
-    .doc(companyId);
-  const memberRef = companyRef
-    .collection("members")
-    .doc(uid);
+  const companyRef = db.collection("companies").doc(companyId);
+  const memberRef = companyRef.collection("members").doc(uid);
 
-  const [
-    companySnapshot,
-    memberSnapshot,
-  ] = await Promise.all([
+  const [companySnapshot, memberSnapshot] = await Promise.all([
     companyRef.get(),
     memberRef.get(),
   ]);
 
   if (!companySnapshot.exists) {
-    throw new HttpsError(
-      "not-found",
-      "Die Firma wurde nicht gefunden.",
-    );
+    throw new HttpsError("not-found", "Die Firma wurde nicht gefunden.");
   }
 
   if (
@@ -82,10 +69,7 @@ async function getOwnerContext(
 
   return {
     companyId,
-    companyName:
-      typeof companyName === "string" ?
-        companyName :
-        "",
+    companyName: typeof companyName === "string" ? companyName : "",
     email:
       typeof authenticatedEmail === "string" ?
         authenticatedEmail.trim().toLowerCase() :
@@ -97,13 +81,8 @@ async function getOwnerContext(
  * Validates an optional email address.
  * @param {CompanyBillingDetails} details Rechnungsdaten.
  */
-function validateBillingDetails(
-  details: CompanyBillingDetails,
-): void {
-  if (
-    !details.invoiceCompanyName &&
-    !details.recipientName
-  ) {
+export function validateBillingDetails(details: CompanyBillingDetails): void {
+  if (!details.invoiceCompanyName && !details.recipientName) {
     throw new HttpsError(
       "invalid-argument",
       "Bitte Firma oder Name/Ansprechpartner angeben.",
@@ -118,23 +97,14 @@ function validateBillingDetails(
   }
 
   if (!details.postalCode) {
-    throw new HttpsError(
-      "invalid-argument",
-      "Die PLZ ist erforderlich.",
-    );
+    throw new HttpsError("invalid-argument", "Die PLZ ist erforderlich.");
   }
 
   if (!details.city) {
-    throw new HttpsError(
-      "invalid-argument",
-      "Der Ort ist erforderlich.",
-    );
+    throw new HttpsError("invalid-argument", "Der Ort ist erforderlich.");
   }
 
-  if (
-    !details.country ||
-    !/^[A-Z]{2}$/.test(details.countryCode)
-  ) {
+  if (!details.country || !/^[A-Z]{2}$/.test(details.countryCode)) {
     throw new HttpsError(
       "invalid-argument",
       "Bitte ein gültiges Land auswählen.",
@@ -148,11 +118,7 @@ function validateBillingDetails(
     );
   }
 
-  if (
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-      details.billingEmail,
-    )
-  ) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.billingEmail)) {
     throw new HttpsError(
       "invalid-argument",
       "Die Rechnungs-E-Mail-Adresse ist ungültig.",
@@ -163,78 +129,80 @@ function validateBillingDetails(
 /**
  * Returns the owner-only company billing details.
  */
-export const getCompanyBillingDetails = onCall(
-  async (request) => {
-    if (!request.auth) {
-      throw new HttpsError(
-        "unauthenticated",
-        "Du musst angemeldet sein.",
-      );
-    }
+export const getCompanyBillingDetails = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Du musst angemeldet sein.");
+  }
 
-    const uid = request.auth.uid;
-    const context = await getOwnerContext(
-      uid,
-      request.auth.token.email,
-    );
+  const uid = request.auth.uid;
+  const context = await getOwnerContext(uid, request.auth.token.email);
 
-    const billingRef = db
-      .collection("companyBillingDetails")
-      .doc(context.companyId);
-    const billingSnapshot = await billingRef.get();
+  const billingRef = db
+    .collection("companyBillingDetails")
+    .doc(context.companyId);
+  const billingSnapshot = await billingRef.get();
 
-    const details = normalizeCompanyBillingDetails(
-      billingSnapshot.exists ?
-        billingSnapshot.data() :
-        null,
-      context.companyName,
-      context.email,
-    );
+  const details = normalizeCompanyBillingDetails(
+    billingSnapshot.exists ? billingSnapshot.data() : null,
+    context.companyName,
+    context.email,
+  );
 
-    return {
-      companyId: context.companyId,
-      details,
-      needsReview:
-        details.reviewedByOwnerUid !== uid,
-    };
-  },
-);
+  return {
+    companyId: context.companyId,
+    details,
+    needsReview: details.reviewedByOwnerUid !== uid,
+  };
+});
 
 /**
  * Saves owner-only company billing details.
  */
-export const updateCompanyBillingDetails = onCall(
-  async (request) => {
-    if (!request.auth) {
+export const updateCompanyBillingDetails = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Du musst angemeldet sein.");
+  }
+
+  const uid = request.auth.uid;
+  const context = await getOwnerContext(uid, request.auth.token.email);
+
+  const details = normalizeCompanyBillingDetails(
+    request.data?.details,
+    "",
+    "",
+  );
+  validateBillingDetails(details);
+
+  const savedDetails: CompanyBillingDetails = {
+    ...details,
+    reviewedByOwnerUid: uid,
+  };
+
+  const billingRef = db
+    .collection("companyBillingDetails")
+    .doc(context.companyId);
+
+  await db.runTransaction(async (tx) => {
+    const companyRef = db.collection("companies").doc(context.companyId);
+    const [company, member, user] = await Promise.all([
+      tx.get(companyRef),
+      tx.get(companyRef.collection("members").doc(uid)),
+      tx.get(db.collection("users").doc(uid)),
+    ]);
+    if (
+      company.get("ownerUid") !== uid ||
+      member.get("role") !== "owner" ||
+      member.get("status") !== "active" ||
+      company.get("status") !== "active" ||
+      user.get("companyId") !== context.companyId
+    ) {
       throw new HttpsError(
-        "unauthenticated",
-        "Du musst angemeldet sein.",
+        "permission-denied",
+        "Die Inhaberrechte haben sich geändert.",
       );
     }
-
-    const uid = request.auth.uid;
-    const context = await getOwnerContext(
-      uid,
-      request.auth.token.email,
-    );
-
-    const details = normalizeCompanyBillingDetails(
-      request.data?.details,
-      "",
-      "",
-    );
-    validateBillingDetails(details);
-
-    const savedDetails: CompanyBillingDetails = {
-      ...details,
-      reviewedByOwnerUid: uid,
-    };
-
-    const billingRef = db
-      .collection("companyBillingDetails")
-      .doc(context.companyId);
-
-    await billingRef.set(
+    tx.set(
+      billingRef,
       {
         companyId: context.companyId,
         ...savedDetails,
@@ -244,11 +212,11 @@ export const updateCompanyBillingDetails = onCall(
       },
       {merge: true},
     );
+  });
 
-    return {
-      companyId: context.companyId,
-      details: savedDetails,
-      needsReview: false,
-    };
-  },
-);
+  return {
+    companyId: context.companyId,
+    details: savedDetails,
+    needsReview: false,
+  };
+});

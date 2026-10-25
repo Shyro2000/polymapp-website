@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <script>
+    if (location.hostname === "www.polymapp.ch") {
+      location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
+    }
+  </script>
   <meta name="description" content="PolymApp - Datenschutzerklärung zur Appnutzung.">
 
   <link rel="alternate" hreflang="de" href="https://polymapp.ch/datenschutz.html">
@@ -102,6 +107,7 @@
     }
 
   </style>
+  <link rel="stylesheet" href="assets/account-menu.css">
 </head>
 <body>
 
@@ -117,7 +123,6 @@
 
 <nav>
   <a href="index.html">Startseite</a>
-  <a href="accountverwaltung.html">Accountverwaltung</a>
     <a href="datenschutz.html" class="active">Datenschutzerklärung</a>
   <a href="about.html">Über mich</a>
   <a href="kontakt.html">Kontakt</a>
@@ -224,7 +229,6 @@ Stand: 07.08.2025
   <p><strong>PolymApp</strong> - Datenschutzerklärung</p>
   <p>
     <a href="index.html">Startseite</a> ·
-    <a href="accountverwaltung.html">Accountverwaltung</a> ·
     <a href="about.html">Über mich</a> ·
     <a href="kontakt.html">Kontakt</a>
   </p>
@@ -234,5 +238,6 @@ Stand: 07.08.2025
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
 </script>
+  <script type="module" src="assets/account-menu.js"></script>
 </body>
 </html>

@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <script>
+    if (location.hostname === "www.polymapp.ch") {
+      location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
+    }
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta
@@ -724,6 +729,8 @@
       text-align: left; background: var(--surface); font-weight: bold;
     }
   </style>
+  <link rel="stylesheet" href="assets/account-menu.css">
+  <link rel="stylesheet" href="assets/company-subscription.css">
 </head>
 
 <body>
@@ -739,7 +746,6 @@
 
   <nav>
     <a href="index.html">Startseite</a>
-    <a href="accountverwaltung.html">Accountverwaltung</a>
     <a href="datenschutz.html">Datenschutzerklärung</a>
     <a href="about.html">Über mich</a>
     <a href="kontakt.html">Kontakt</a>
@@ -794,7 +800,8 @@
             required
           >
         </div>
-        <button id="createCompanyButton" type="submit">Firma erstellen</button>
+        <div id="createTariffSlot" role="status"></div>
+        <button id="createCompanyButton" type="submit" disabled>Firma erstellen</button>
       </form>
 
       <p class="notice notice-warning">
@@ -806,6 +813,8 @@
 
     <section id="companyPanel" class="panel hidden">
       <h2 id="companyNameHeading">Firma</h2>
+
+      <section id="subscriptionPanel" class="subscription-panel" hidden></section>
 
       <div class="summary-grid">
         <div class="summary-item">
@@ -1318,10 +1327,11 @@
     aria-labelledby="billingReviewTitle"
   >
     <div class="billing-modal-card">
+      <p id="creationReviewSummary" class="creation-tariff-note hidden"></p>
       <h2 id="billingReviewTitle">Rechnungsdaten prüfen</h2>
-      <p>
-        Bitte prüfen Sie als Inhaber die Rechnungsadresse. Alle Angaben sind
-        optional. Der bei der Firmenerstellung gewählte Name wurde im Feld
+      <p id="billingReviewExplanation">
+        Bitte prüfen Sie als Inhaber die Rechnungsadresse. Der bei der
+        Firmenerstellung gewählte Name wurde im Feld
         „Firma“ vorbelegt und kann geändert oder vollständig gelöscht werden.
       </p>
       <p class="notice notice-warning">
@@ -1468,6 +1478,7 @@
             role="alert"
             aria-live="assertive"
           ></p>
+          <button id="cancelCreationReview" type="button" class="button-secondary hidden">Zurück zur Tarifauswahl</button>
           <button id="saveBillingReviewButton" type="submit">
             Angaben speichern und weiter
           </button>
@@ -1480,7 +1491,6 @@
     <p><strong>PolymApp</strong> – Firmenverwaltung</p>
     <p>
       <a href="index.html">Startseite</a> ·
-      <a href="accountverwaltung.html">Accountverwaltung</a> ·
       <a href="datenschutz.html">Datenschutz</a> ·
       <a href="about.html">Über mich</a> ·
       <a href="kontakt.html">Kontakt</a>
@@ -1489,12 +1499,10 @@
   </footer>
 
   <script type="module">
+    import {setupCreationTariffs, selectedCreationTariff, updateSubscriptionUI,
+      resetSubscriptionUI} from "./assets/company-subscription.js";
+  import {app, auth} from "./assets/website-auth.js";
     import {
-      initializeApp
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getAuth,
-      connectAuthEmulator,
       onAuthStateChanged,
       sendEmailVerification,
       reload,
@@ -1519,15 +1527,6 @@
       httpsCallable
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
-      authDomain: "twyt-80c82.firebaseapp.com",
-      projectId: "twyt-80c82",
-      storageBucket: "twyt-80c82.firebasestorage.app",
-      messagingSenderId: "64966382407",
-      appId: "1:64966382407:web:6739c6a7afa83eb7877262",
-      measurementId: "G-0QQYN8BKQD"
-    };
 
     const COUNTRY_OPTIONS = Object.freeze([
       ["CH", "Schweiz"],
@@ -1787,7 +1786,6 @@
       "AT"
     ]);
 
-    const app = initializeApp(firebaseConfig);
     const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(
       window.location.hostname
     );
@@ -1801,14 +1799,10 @@
       });
     }
 
-    const auth = getAuth(app);
     const db = getFirestore(app);
     const functions = getFunctions(app, "europe-west1");
 
     if (isLocalDevelopment) {
-      connectAuthEmulator(auth, "http://127.0.0.1:9099", {
-        disableWarnings: true
-      });
       connectFirestoreEmulator(db, "127.0.0.1", 8080);
       connectFunctionsEmulator(functions, "127.0.0.1", 5001);
     }
@@ -1988,6 +1982,26 @@
     let billingDetailsLoadingKey = "";
 
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    let pendingCompanyCreation = null;
+    const creationSummary = document.getElementById("creationReviewSummary");
+    const originalBillingTitle = document.getElementById("billingReviewTitle").textContent;
+    const originalBillingExplanation = document.getElementById("billingReviewExplanation").textContent;
+    const originalBillingSave = saveBillingReviewButton.textContent;
+    const cancelCreationReview = document.getElementById("cancelCreationReview");
+    function resetCreationReview() {
+      pendingCompanyCreation = null;
+      creationSummary.classList.add("hidden");
+      cancelCreationReview.classList.add("hidden");
+      document.getElementById("billingReviewTitle").textContent = originalBillingTitle;
+      document.getElementById("billingReviewExplanation").textContent = originalBillingExplanation;
+      saveBillingReviewButton.textContent = originalBillingSave;
+    }
+    cancelCreationReview.addEventListener("click", () => {
+      resetCreationReview(); billingReviewModal.classList.add("hidden");
+      createCompanyButton.focus();
+    });
+
     populateCountrySelects();
 
     function setStatus(message, type = "success", duration = 5000) {
@@ -2354,6 +2368,7 @@
 
     function mapFunctionError(error) {
       const reason = error?.details?.reason;
+      if (reason === "company_access_inactive") return "Die Firmenfunktionen sind derzeit nicht freigeschaltet. Bitte wenden Sie sich an den Inhaber.";
 
       if (reason === "email_not_verified") {
         return "Bestätigen Sie zuerst Ihre E-Mail-Adresse.";
@@ -2453,6 +2468,8 @@
       currentCompany = null;
       currentMembership = null;
       clearBillingForms();
+      resetCreationReview();
+      resetSubscriptionUI();
       managementPanel.classList.add("hidden");
     }
 
@@ -2476,6 +2493,7 @@
       loadingPanel.classList.add("hidden");
       loginPanel.classList.add("hidden");
       noCompanyPanel.classList.remove("hidden");
+      setupCreationTariffs();
       companyPanel.classList.add("hidden");
     }
 
@@ -2494,6 +2512,7 @@
       noCompanyPanel.classList.add("hidden");
       companyPanel.classList.remove("hidden");
 
+      updateSubscriptionUI(currentCompanyId);
       companyNameHeading.textContent = currentCompany.name || "Firma";
 
       const role = currentMembership.role;
@@ -2513,6 +2532,17 @@
 
       updateManagementArea(role, reservedSeats, seatLimit);
       renderCompanySettings();
+    }
+
+    function companyFeaturesActive() {
+      if (!currentCompany || currentCompany.status !== "active" ||
+          currentCompany.billingStatus === "suspended") return false;
+      if (currentCompany.accessMode === "pilot") {
+        return !currentCompany.pilotValidUntil || currentCompany.pilotValidUntil.toMillis() >= Date.now();
+      }
+      return currentCompany.accessMode === "paid" &&
+        currentCompany.billingValidFrom?.toMillis?.() <= Date.now() &&
+        currentCompany.billingValidUntil?.toMillis?.() >= Date.now();
     }
 
     function updateManagementArea(role, reservedSeats, seatLimit) {
@@ -2549,7 +2579,16 @@
         inviteRoleSelect.value = "editor";
       }
 
-      const hasFreeSeat = seatLimit > 0 && reservedSeats < seatLimit;
+      const licenceActive = companyFeaturesActive();
+      const hasFreeSeat = licenceActive && seatLimit > 0 && reservedSeats < seatLimit;
+      machineImportSection.classList.toggle("hidden", !licenceActive);
+      if (!licenceActive) {
+        machineImportNotice.classList.add("hidden");
+        unsubscribeCompanyMachines?.(); unsubscribePrivateMachines?.();
+        unsubscribeCompanyMachines = null; unsubscribePrivateMachines = null;
+        currentCompanyMachines = new Map(); currentPrivateMachines = new Map();
+        selectedPrivateMachineIds = new Set();
+      }
       inviteMemberButton.disabled = !hasFreeSeat;
       inviteEmailInput.disabled = !hasFreeSeat;
       inviteRoleSelect.disabled = !hasFreeSeat;
@@ -2558,7 +2597,7 @@
         ? "Aktive Mitglieder und gültige Einladungen reservieren jeweils einen Platz."
         : "Alle verfügbaren Plätze sind momentan belegt oder reserviert.";
 
-      if (managedCompanyId !== currentCompanyId) {
+      if (managedCompanyId !== currentCompanyId || (licenceActive && !unsubscribeCompanyMachines)) {
         startManagementListeners(currentCompanyId);
       }
 
@@ -2613,6 +2652,8 @@
         },
         (error) => setStatus(error.message, "error", 7000)
       );
+
+      if (!companyFeaturesActive()) return;
 
       unsubscribePrivateMachines = onSnapshot(
         collection(db, "users", currentUser.uid, "machines"),
@@ -2846,7 +2887,7 @@
     function updateMachineImportNotice(unimportedMachineCount) {
       const canImport = currentMembership?.role === "owner" ||
         currentMembership?.role === "admin";
-      const shouldShow = canImport &&
+      const shouldShow = companyFeaturesActive() && canImport &&
         unimportedMachineCount > 0 &&
         !isMachineImportNoticeDismissed();
 
@@ -3293,6 +3334,24 @@
       "submit",
       async (event) => {
         event.preventDefault();
+        if (pendingCompanyCreation) {
+          const details = billingDetailsFromForm(billingReviewForm);
+          if (!details.invoiceCompanyName && !details.recipientName) {
+            setBillingReviewError("Bitte Firma oder Name/Ansprechpartner angeben."); return;
+          }
+          saveBillingReviewButton.disabled = true;
+          cancelCreationReview.disabled = true;
+          const pending = pendingCompanyCreation;
+          try {
+            await createCompanyCall({name: pending.name, seatLimit: pending.seatLimit,
+              pricingVersion: pending.pricingVersion, billingDetails: details,
+              acceptPaidTerms: pending.paidEnrollmentEnabled === true});
+            resetCreationReview(); billingReviewModal.classList.add("hidden");
+            createCompanyForm.reset();
+          } catch (error) {setBillingReviewError(mapFunctionError(error));}
+          finally {saveBillingReviewButton.disabled = false; cancelCreationReview.disabled = false;}
+          return;
+        }
         await saveCompanyBillingDetails(
           billingReviewForm,
           saveBillingReviewButton,
@@ -3883,9 +3942,20 @@ deleteCompanyButton.addEventListener(
           return;
         }
 
-        await createCompanyCall({name});
-        createCompanyForm.reset();
-        setStatus("Die Firma wurde erfolgreich erstellt.");
+        const tariff = await selectedCreationTariff();
+        pendingCompanyCreation = {name, ...tariff};
+        fillBillingForm(billingReviewForm, {invoiceCompanyName: name,
+          billingEmail: auth.currentUser?.email || "", countryCode: "CH"});
+        document.getElementById("billingReviewTitle").textContent = "Firma erstellen – Rechnungsdaten";
+        document.getElementById("billingReviewExplanation").textContent = tariff.notice;
+        saveBillingReviewButton.textContent = tariff.paidEnrollmentEnabled ? "Kostenpflichtiges Jahresabo bestätigen" : "Firma erstellen";
+        creationSummary.textContent = (tariff.paidEnrollmentEnabled ? "Einführungspreis / Jahresabo: " : "Einführungspreis (aktuell kostenlos): ") +
+          `${tariff.seatLimit} × CHF ${tariff.monthlyRate} × 12 = CHF ${(tariff.annualCents / 100).toFixed(2)}`;
+        creationSummary.classList.remove("hidden");
+        cancelCreationReview.classList.remove("hidden");
+        setBillingReviewError("");
+        billingReviewModal.classList.remove("hidden");
+        billingReviewForm.elements.namedItem("invoiceCompanyName").focus();
       } catch (error) {
         setStatus(mapFunctionError(error), "error", 7000);
       } finally {
@@ -3980,5 +4050,6 @@ deleteCompanyButton.addEventListener(
       );
     });
   </script>
+  <script type="module" src="assets/account-menu.js"></script>
 </body>
 </html>

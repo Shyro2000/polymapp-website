@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    if (location.hostname === "www.polymapp.ch") {
+      location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
+    }
+  </script>
     <meta name="description" content="PolymApp - Account management for user accounts in the app.">
 
     <link rel="alternate" hreflang="de" href="https://polymapp.ch/accountverwaltung.html">
@@ -276,6 +281,7 @@
       }
 
     </style>
+  <link rel="stylesheet" href="assets/account-menu.css">
 </head>
 <body>
 
@@ -291,7 +297,6 @@
 
 <nav>
   <a href="index-en.html">Home</a>
-  <a href="accountverwaltung-en.html" class="active">Account Management</a>
   <a href="datenschutz-en.html">Privacy Policy</a>
   <a href="about-en.html">About Me</a>
   <a href="kontakt-en.html">Contact</a>
@@ -303,7 +308,9 @@
   <h2>Account Management</h2>
   <p>You can create your PolymApp account, sign in, or delete it directly on the website.</p>
 
-  <div class="auth-box" id="registerBox">
+  <p id="authLoading" role="status">Checking sign-in …</p>
+
+  <div class="auth-box hidden" id="registerBox">
     <h2>Create account</h2>
     <p class="small-text">Registration only requires an email address and a password.</p>
 
@@ -333,11 +340,12 @@
         </div>
       </div>
 
+      <label class="remember-login"><input type="checkbox" id="registerRemember" checked>Stay signed in</label>
       <button type="submit">Create account</button>
     </form>
   </div>
 
-  <div class="auth-box" id="loginBox">
+  <div class="auth-box hidden" id="loginBox">
     <h2>Sign in</h2>
     <p class="small-text">Sign in with your existing PolymApp account.</p>
 
@@ -357,6 +365,7 @@
         </div>
       </div>
 
+      <label class="remember-login"><input type="checkbox" id="loginRemember" checked>Stay signed in</label>
       <button type="submit">Sign in</button>
       <br><br>
       <button type="button" id="resetPasswordBtn">Forgot password</button>
@@ -460,12 +469,8 @@
 </footer>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {app, auth, choosePersistence} from "./assets/website-auth.js";
   import {
-    getAuth,
-    connectAuthEmulator,
-    setPersistence,
-    browserLocalPersistence,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     onAuthStateChanged,
@@ -497,17 +502,6 @@
     httpsCallable
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
-    authDomain: "twyt-80c82.firebaseapp.com",
-    projectId: "twyt-80c82",
-    storageBucket: "twyt-80c82.firebasestorage.app",
-    messagingSenderId: "64966382407",
-    appId: "1:64966382407:web:6739c6a7afa83eb7877262",
-    measurementId: "G-0QQYN8BKQD"
-  };
-
-    const app = initializeApp(firebaseConfig);
   const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(
     window.location.hostname
   );
@@ -519,7 +513,6 @@
     });
   }
 
-  const auth = getAuth(app);
   const db = getFirestore(app);
   const functions = getFunctions(app, "europe-west1");
   const getAccountDeletionStatusCall = httpsCallable(
@@ -532,16 +525,10 @@
   );
 
   if (isLocalDevelopment) {
-    connectAuthEmulator(auth, "http://127.0.0.1:9099", {
-      disableWarnings: true
-    });
     connectFirestoreEmulator(db, "127.0.0.1", 8080);
     connectFunctionsEmulator(functions, "127.0.0.1", 5001);
   }
 
-  await setPersistence(auth, browserLocalPersistence).catch((error) => {
-    console.warn("Firebase Persistence could not be set:", error);
-  });
 
   const registerBox = document.getElementById("registerBox");
   const loginBox = document.getElementById("loginBox");
@@ -781,6 +768,7 @@
   }
 
   onAuthStateChanged(auth, async (user) => {
+    document.getElementById("authLoading").classList.add("hidden");
     const premiumBadge = document.getElementById("premiumBadge");
 
     if (user) {
@@ -797,12 +785,6 @@
       // Link generieren und Statistik laden
       referralLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${user.uid}`;
       await loadReferralStats(user.uid);
-
-      setStatus(
-        `Logged in as ${user.email || "unknown"}.`,
-        "success",
-        3000
-      );
     } else {
     registerBox.classList.remove("hidden");
     loginBox.classList.remove("hidden");
@@ -843,6 +825,7 @@
     try {
       setStatus("Creating account ...", "success", 3000);
 
+      await choosePersistence(document.getElementById("registerRemember").checked);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
       try {
@@ -899,6 +882,7 @@
 
     try {
       setStatus("Signing in ...", "success", 2500);
+      await choosePersistence(document.getElementById("loginRemember").checked);
       await signInWithEmailAndPassword(auth, email, password);
       loginForm.reset();
       setStatus("Signed in successfully.", "success", 3000);
@@ -1072,5 +1056,6 @@
   })();
 </script>
 
+  <script type="module" src="assets/account-menu.js"></script>
 </body>
 </html>

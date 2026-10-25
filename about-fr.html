@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <script>
+    if (location.hostname === "www.polymapp.ch") {
+      location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
+    }
+  </script>
   <meta charset="UTF-8">
   <title>À propos - PolymApp</title>
   <meta name="description" content="À propos du développeur de PolymApp - une application CNC pratique développée par un chef d'équipe issu de la production.">
@@ -123,6 +128,7 @@
 
 
   </style>
+  <link rel="stylesheet" href="assets/account-menu.css">
 </head>
 
 <body>
@@ -140,7 +146,6 @@
 
 <nav>
   <a href="index-fr.html">AccueilApp</a>
-  <a href="accountverwaltung-fr.html">Gestion du compte</a>
   <a href="datenschutz-fr.html">Politique de confidentialité</a>
   <a href="about-fr.html" class="active">À propos</a>
   <a href="kontakt-fr.html">Contact</a>
@@ -196,7 +201,6 @@
   <p><strong>PolymApp</strong> - À propos</p>
   <p>
     <a href="index-fr.html">Accueil</a> ·
-    <a href="accountverwaltung-fr.html">Gestion du compte</a> ·
     <a href="datenschutz-fr.html">Protection des données</a> ·
     <a href="kontakt-fr.html">Contact</a>
   </p>
@@ -234,5 +238,6 @@
   }, 5000);
 </script>
 
+  <script type="module" src="assets/account-menu.js"></script>
 </body>
 </html>

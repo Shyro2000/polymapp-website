@@ -7,6 +7,11 @@
 <link rel="alternate" hreflang="fr" href="https://polymapp.ch/kontakt-fr.html">
 
 <head>
+  <script>
+    if (location.hostname === "www.polymapp.ch") {
+      location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
+    }
+  </script>
   <!-- Favicons -->
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -142,6 +147,7 @@
     }
 
   </style>
+  <link rel="stylesheet" href="assets/account-menu.css">
 </head>
 
 <body>
@@ -158,7 +164,6 @@
 
 <nav>
   <a href="index.html">Startseite</a>
-  <a href="accountverwaltung.html">Accountverwaltung</a>
   <a href="datenschutz.html">Datenschutzerklärung</a>
   <a href="about.html">Über mich</a>
   <a href="kontakt.html" class="active">Kontakt</a>
@@ -191,7 +196,6 @@
   <p>
     <a href="index.html">Startseite</a> ·
     <a href="datenschutz.html">Datenschutz</a> ·
-    <a href="accountverwaltung.html">Accountverwaltung</a> ·
     <a href="about.html">Über mich</a>
     </p>
   <p>© 2024-<span id="year"></span> PolymApp</p>
@@ -204,5 +208,6 @@
     
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
+  <script type="module" src="assets/account-menu.js"></script>
 </body>
 </html>

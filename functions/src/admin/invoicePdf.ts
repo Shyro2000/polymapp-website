@@ -43,6 +43,18 @@ function toDate(value: unknown): Date | null {
 }
 
 /**
+ * Formats a service-period boundary using its contractual UTC calendar day.
+ * @param {*} value Stored service date.
+ * @return {string} Human-readable contract date.
+ */
+function formatContractDate(value: unknown): string {
+  const date = toDate(value);
+  return date ? new Intl.DateTimeFormat("de-CH", {
+    day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC",
+  }).format(date) : "-";
+}
+
+/**
  * Formats a date for Swiss German invoices.
  * @param {unknown} value Raw date value.
  * @return {string} Formatted date.
@@ -68,10 +80,7 @@ function formatDate(value: unknown): string {
  * @return {string} Formatted date.
  */
 function formatIsoDate(value: unknown): string {
-  if (
-    typeof value !== "string" ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(value)
-  ) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return "-";
   }
 
@@ -86,10 +95,7 @@ function formatIsoDate(value: unknown): string {
  */
 function formatCurrency(value: unknown): string {
   const amount =
-    typeof value === "number" &&
-    Number.isFinite(value) ?
-      value :
-      0;
+    typeof value === "number" && Number.isFinite(value) ? value : 0;
 
   return `CHF ${amount.toFixed(2)}`;
 }
@@ -100,10 +106,7 @@ function formatCurrency(value: unknown): string {
  * @return {string} Compact decimal value.
  */
 function formatRate(value: number): string {
-  return value
-    .toFixed(3)
-    .replace(/0+$/, "")
-    .replace(/\.$/, "");
+  return value.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
 }
 
 /**
@@ -184,11 +187,7 @@ function textCommand(
  * @param {number} top Top position.
  * @return {string} PDF line command.
  */
-function lineCommand(
-  x1: number,
-  x2: number,
-  top: number,
-): string {
+function lineCommand(x1: number, x2: number, top: number): string {
   const y = PAGE_HEIGHT - top;
   return `${x1} ${y} m ${x2} ${y} l S`;
 }
@@ -224,10 +223,7 @@ function filledRectCommand(
  * @param {number} maxCharacters Approximate characters per line.
  * @return {string[]} Wrapped lines.
  */
-function wrapText(
-  value: string,
-  maxCharacters: number,
-): string[] {
+function wrapText(value: string, maxCharacters: number): string[] {
   const words = value.trim().split(/\s+/).filter(Boolean);
   const lines: string[] = [];
   let current = "";
@@ -235,10 +231,7 @@ function wrapText(
   for (const word of words) {
     const candidate = current ? `${current} ${word}` : word;
 
-    if (
-      candidate.length > maxCharacters &&
-      current
-    ) {
+    if (candidate.length > maxCharacters && current) {
       lines.push(current);
       current = word;
     } else {
@@ -258,9 +251,7 @@ function wrapText(
  * @param {unknown} value Raw snapshot.
  * @return {CompanyBillingDetails} Normalized billing details.
  */
-function customerSnapshot(
-  value: unknown,
-): CompanyBillingDetails {
+function customerSnapshot(value: unknown): CompanyBillingDetails {
   return normalizeCompanyBillingDetails(value);
 }
 
@@ -269,9 +260,7 @@ function customerSnapshot(
  * @param {unknown} value Raw snapshot.
  * @return {InvoiceIssuerSettings} Normalized issuer settings.
  */
-function issuerSnapshot(
-  value: unknown,
-): InvoiceIssuerSettings {
+function issuerSnapshot(value: unknown): InvoiceIssuerSettings {
   return normalizeIssuerSettings(value);
 }
 
@@ -280,9 +269,7 @@ function issuerSnapshot(
  * @param {string} value Combined street and building number.
  * @return {StructuredAddress} Structured street details.
  */
-function splitStreetAddress(
-  value: string,
-): StructuredAddress {
+function splitStreetAddress(value: string): StructuredAddress {
   const trimmed = value.trim();
   const match = trimmed.match(
     /^(.*\S)\s+(\d+[A-Za-z]?(?:[-/.]\d+[A-Za-z]?)?)$/,
@@ -315,22 +302,20 @@ function compactIban(value: string): string {
  * @param {string} invoiceNumber Invoice identifier.
  * @return {string} RF Creditor Reference.
  */
-function createScorReference(
-  invoiceNumber: string,
-): string {
-  const base = invoiceNumber
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "")
-    .slice(0, 21) || "POLYMAPP";
+function createScorReference(invoiceNumber: string): string {
+  const base =
+    invoiceNumber
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "")
+      .slice(0, 21) || "POLYMAPP";
 
   const rearranged = `${base}RF00`;
   let remainder = 0;
 
   for (const character of rearranged) {
-    const numeric =
-      /[A-Z]/.test(character) ?
-        String(character.charCodeAt(0) - 55) :
-        character;
+    const numeric = /[A-Z]/.test(character) ?
+      String(character.charCodeAt(0) - 55) :
+      character;
 
     for (const digit of numeric) {
       remainder = (remainder * 10 + Number(digit)) % 97;
@@ -347,10 +332,7 @@ function createScorReference(
  * @param {number} maxLength Maximum length.
  * @return {string} Sanitized text.
  */
-function qrText(
-  value: string,
-  maxLength: number,
-): string {
+function qrText(value: string, maxLength: number): string {
   return value
     .replace(/[\r\n]+/g, " ")
     .trim()
@@ -362,25 +344,14 @@ function qrText(
  * @param {CompanyBillingDetails} customer Customer details.
  * @return {string} ISO alpha-2 country code.
  */
-function customerCountryCode(
-  customer: CompanyBillingDetails,
-): string {
+function customerCountryCode(customer: CompanyBillingDetails): string {
   if (/^[A-Z]{2}$/.test(customer.countryCode)) {
     return customer.countryCode;
   }
 
-  const normalized = customer.country
-    .trim()
-    .toLocaleLowerCase("de-CH");
+  const normalized = customer.country.trim().toLocaleLowerCase("de-CH");
 
-  if (
-    [
-      "schweiz",
-      "suisse",
-      "svizzera",
-      "switzerland",
-    ].includes(normalized)
-  ) {
+  if (["schweiz", "suisse", "svizzera", "switzerland"].includes(normalized)) {
     return "CH";
   }
 
@@ -408,13 +379,9 @@ function buildSwissQrPayload(
   const debtorStreet = splitStreetAddress(customer.street);
   const iban = compactIban(issuer.iban);
   const scor = createScorReference(invoiceNumber);
-  const creditorName = qrText(
-    issuer.contactName || issuer.businessName,
-    70,
-  );
+  const creditorName = qrText(issuer.contactName || issuer.businessName, 70);
   const debtorName = qrText(
-    customer.invoiceCompanyName ||
-      customer.recipientName,
+    customer.invoiceCompanyName || customer.recipientName,
     70,
   );
 
@@ -466,20 +433,14 @@ function buildSwissQrPayload(
  * @param {number} top Top position.
  * @return {string[]} PDF drawing commands.
  */
-function swissQrCommands(
-  payload: string,
-  x: number,
-  top: number,
-): string[] {
+function swissQrCommands(payload: string, x: number, top: number): string[] {
   const qr = qrcode(0, "M");
   qr.addData(payload, "Byte");
   qr.make();
 
   const count = qr.getModuleCount();
   const moduleSize = SWISS_QR_SIZE / count;
-  const commands: string[] = [
-    "0 g",
-  ];
+  const commands: string[] = ["0 g"];
 
   for (let row = 0; row < count; row += 1) {
     for (let column = 0; column < count; column += 1) {
@@ -498,10 +459,8 @@ function swissQrCommands(
     }
   }
 
-  const crossLeft =
-    x + (SWISS_QR_SIZE - SWISS_CROSS_SIZE) / 2;
-  const crossTop =
-    top + (SWISS_QR_SIZE - SWISS_CROSS_SIZE) / 2;
+  const crossLeft = x + (SWISS_QR_SIZE - SWISS_CROSS_SIZE) / 2;
+  const crossTop = top + (SWISS_QR_SIZE - SWISS_CROSS_SIZE) / 2;
   const bar = SWISS_CROSS_SIZE * 0.2;
   const arm = SWISS_CROSS_SIZE * 0.64;
 
@@ -563,13 +522,7 @@ function buildInvoicePage(
   const commands: string[] = [
     "0 G",
     "0.7 w",
-    textCommand(
-      "F2",
-      18,
-      48,
-      58,
-      issuer.businessName || "PolymApp",
-    ),
+    textCommand("F2", 18, 48, 58, issuer.businessName || "PolymApp"),
   ];
 
   let senderTop = 78;
@@ -580,29 +533,15 @@ function buildInvoicePage(
     issuer.country,
     issuer.email,
   ].filter(Boolean)) {
-    commands.push(
-      textCommand("F1", 9, 48, senderTop, line),
-    );
+    commands.push(textCommand("F1", 9, 48, senderTop, line));
     senderTop += 13;
   }
 
   commands.push(
     textCommand("F2", 26, 390, 62, "RECHNUNG"),
     textCommand("F1", 9, 390, 88, `Nr. ${invoiceNumber}`),
-    textCommand(
-      "F1",
-      9,
-      390,
-      103,
-      `Datum: ${formatDate(data.createdAt)}`,
-    ),
-    textCommand(
-      "F1",
-      9,
-      390,
-      118,
-      `Fällig: ${formatIsoDate(data.dueDate)}`,
-    ),
+    textCommand("F1", 9, 390, 103, `Datum: ${formatDate(data.createdAt)}`),
+    textCommand("F1", 9, 390, 118, `Fällig: ${formatIsoDate(data.dueDate)}`),
     textCommand("F1", 8, 48, 164, "Rechnung an"),
   );
 
@@ -612,26 +551,16 @@ function buildInvoicePage(
     customer.recipientName,
     customer.street,
     customer.addressSupplement,
-    [customer.postalCode, customer.city]
-      .filter(Boolean)
-      .join(" "),
+    [customer.postalCode, customer.city].filter(Boolean).join(" "),
     customer.country,
   ].filter(Boolean)) {
-    commands.push(
-      textCommand("F1", 10, 48, customerTop, line),
-    );
+    commands.push(textCommand("F1", 10, 48, customerTop, line));
     customerTop += 15;
   }
 
   if (customer.billingEmail) {
     commands.push(
-      textCommand(
-        "F1",
-        9,
-        48,
-        customerTop + 3,
-        customer.billingEmail,
-      ),
+      textCommand("F1", 9, 48, customerTop + 3, customer.billingEmail),
     );
   }
 
@@ -644,21 +573,27 @@ function buildInvoicePage(
   );
 
   const description =
-    `PolymApp Firmen-Jahresabo für bis zu ${seatLimit} Mitglieder`;
+    data.kind === "tariff_change" ?
+      `PolymApp Firmenabo: Tarifwechsel auf ${seatLimit} Plätze` :
+      `PolymApp Firmen-Jahresabo für bis zu ${seatLimit} Plätze`;
+  const grossAmount =
+    typeof data.grossAmountCents === "number" ?
+      data.grossAmountCents / 100 :
+      annualAmount;
+  const creditAmount =
+    typeof data.creditUsedCents === "number" ? data.creditUsedCents / 100 : 0;
   const descriptionLines = wrapText(description, 50);
 
   let descriptionTop = 338;
   for (const line of descriptionLines) {
-    commands.push(
-      textCommand("F1", 10, 48, descriptionTop, line),
-    );
+    commands.push(textCommand("F1", 10, 48, descriptionTop, line));
     descriptionTop += 14;
   }
 
   const periodText = activationOnPayment ?
     "Leistungsdauer: 12 Monate ab Freischaltung nach Zahlungseingang" :
-    `Leistungszeitraum: ${formatDate(data.periodStartAt)} bis ` +
-      `${formatDate(data.periodEndAt)}`;
+    `Leistungszeitraum: ${formatContractDate(data.periodStartAt)} bis ` +
+      `${formatContractDate(data.periodEndAt)}`;
 
   commands.push(
     textCommand("F1", 8, 48, descriptionTop + 3, periodText),
@@ -667,7 +602,9 @@ function buildInvoicePage(
       9,
       320,
       338,
-      `${seatLimit} x CHF ${formatRate(monthlyRate)} x 12 Monate`,
+      data.kind === "tariff_change" ?
+        "Anteilig / taggenau" :
+        `${seatLimit} x CHF ${formatRate(monthlyRate)} x 12 Monate`,
     ),
     textCommand(
       "F2",
@@ -675,8 +612,22 @@ function buildInvoicePage(
       472,
       338,
       currency === "CHF" ?
-        formatCurrency(annualAmount) :
-        `${annualAmount.toFixed(2)} ${currency}`,
+        formatCurrency(grossAmount) :
+        `${grossAmount.toFixed(2)} ${currency}`,
+    ),
+    textCommand(
+      "F1",
+      9,
+      48,
+      379,
+      creditAmount > 0 ? "Verrechnete Tarifgutschrift" : "",
+    ),
+    textCommand(
+      "F1",
+      9,
+      472,
+      379,
+      creditAmount > 0 ? `- ${formatCurrency(creditAmount)}` : "",
     ),
     lineCommand(48, 547, 392),
     textCommand("F2", 11, 410, 420, "Total"),
@@ -692,26 +643,12 @@ function buildInvoicePage(
   );
 
   if (reference) {
-    commands.push(
-      textCommand(
-        "F1",
-        9,
-        48,
-        450,
-        `Referenz: ${reference}`,
-      ),
-    );
+    commands.push(textCommand("F1", 9, 48, 450, `Referenz: ${reference}`));
   }
 
   if (customer.uidVat) {
     commands.push(
-      textCommand(
-        "F1",
-        8,
-        48,
-        470,
-        `Kunden-UID/MWST: ${customer.uidVat}`,
-      ),
+      textCommand("F1", 8, 48, 470, `Kunden-UID/MWST: ${customer.uidVat}`),
     );
   }
 
@@ -727,21 +664,13 @@ function buildInvoicePage(
     `Zahlungsfrist: ${issuer.paymentTermsDays} Tage`,
     `Bitte Rechnungsnummer ${invoiceNumber} als Referenz angeben.`,
   ].filter(Boolean)) {
-    commands.push(
-      textCommand("F1", 9, 48, paymentTop, line),
-    );
+    commands.push(textCommand("F1", 9, 48, paymentTop, line));
     paymentTop += 15;
   }
 
   if (issuer.uidVat) {
     commands.push(
-      textCommand(
-        "F1",
-        8,
-        48,
-        paymentTop + 5,
-        `UID/MWST: ${issuer.uidVat}`,
-      ),
+      textCommand("F1", 8, 48, paymentTop + 5, `UID/MWST: ${issuer.uidVat}`),
     );
   }
 
@@ -772,10 +701,7 @@ function buildSwissQrPage(
   invoiceNumber: string,
   annualAmount: number,
 ): string {
-  const {
-    payload,
-    scor,
-  } = buildSwissQrPayload(
+  const {payload, scor} = buildSwissQrPayload(
     issuer,
     customer,
     invoiceNumber,
@@ -847,40 +773,28 @@ function buildSwissQrPage(
   );
 
   rightTop += 55;
-  commands.push(
-    textCommand("F2", 10, rightLeft, rightTop, "Referenz"),
-  );
+  commands.push(textCommand("F2", 10, rightLeft, rightTop, "Referenz"));
 
   for (const line of wrapText(scor, 28)) {
     rightTop += 15;
-    commands.push(
-      textCommand("F1", 9, rightLeft, rightTop, line),
-    );
+    commands.push(textCommand("F1", 9, rightLeft, rightTop, line));
   }
 
   rightTop += 27;
-  commands.push(
-    textCommand("F2", 10, rightLeft, rightTop, "Zahlbar durch"),
-  );
+  commands.push(textCommand("F2", 10, rightLeft, rightTop, "Zahlbar durch"));
 
   for (const line of [
-    customer.invoiceCompanyName ||
-      customer.recipientName,
-    customer.recipientName &&
-      customer.invoiceCompanyName ?
+    customer.invoiceCompanyName || customer.recipientName,
+    customer.recipientName && customer.invoiceCompanyName ?
       customer.recipientName :
       "",
     customer.street,
     customer.addressSupplement,
-    [customer.postalCode, customer.city]
-      .filter(Boolean)
-      .join(" "),
+    [customer.postalCode, customer.city].filter(Boolean).join(" "),
     customer.country,
   ].filter(Boolean)) {
     rightTop += 14;
-    commands.push(
-      textCommand("F1", 9, rightLeft, rightTop, line),
-    );
+    commands.push(textCommand("F1", 9, rightLeft, rightTop, line));
   }
 
   commands.push(
@@ -890,15 +804,10 @@ function buildSwissQrPage(
       8,
       48,
       585,
-      "Beim Scannen werden IBAN, Betrag und Referenz automatisch übernommen.",
+      "Beim Scannen werden IBAN, Betrag und " +
+            "Referenz automatisch übernommen.",
     ),
-    textCommand(
-      "F1",
-      8,
-      48,
-      602,
-      `Rechnung ${invoiceNumber}`,
-    ),
+    textCommand("F1", 8, 48, 602, `Rechnung ${invoiceNumber}`),
   );
 
   return commands.join("\n");
@@ -914,10 +823,7 @@ function buildPdfDocument(
   firstPage: string,
   secondPage: string | null,
 ): Buffer {
-  const firstLength = Buffer.byteLength(
-    firstPage,
-    "latin1",
-  );
+  const firstLength = Buffer.byteLength(firstPage, "latin1");
   const objects: string[] = [
     "<< /Type /Catalog /Pages 2 0 R >>",
     secondPage ?
@@ -933,15 +839,11 @@ function buildPdfDocument(
       "/Encoding /WinAnsiEncoding >>",
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold " +
       "/Encoding /WinAnsiEncoding >>",
-    `<< /Length ${firstLength} >>\nstream\n` +
-      `${firstPage}\nendstream`,
+    `<< /Length ${firstLength} >>\nstream\n` + `${firstPage}\nendstream`,
   ];
 
   if (secondPage) {
-    const secondLength = Buffer.byteLength(
-      secondPage,
-      "latin1",
-    );
+    const secondLength = Buffer.byteLength(secondPage, "latin1");
 
     objects.push(
       [
@@ -950,8 +852,7 @@ function buildPdfDocument(
         "/Resources << /Font << /F1 4 0 R /F2 5 0 R >> >>",
         "/Contents 8 0 R >>",
       ].join(" "),
-      `<< /Length ${secondLength} >>\nstream\n` +
-        `${secondPage}\nendstream`,
+      `<< /Length ${secondLength} >>\nstream\n` + `${secondPage}\nendstream`,
     );
   }
 
@@ -993,45 +894,33 @@ export function buildInvoicePdf(
   invoiceId: string,
   data: Record<string, unknown>,
 ): InvoicePdfResult {
+  // Paid activation dates supersede the provisional dates on the open invoice.
+  data = {...data,
+    periodStartAt: data.activatedPeriodStartAt || data.periodStartAt,
+    periodEndAt: data.activatedPeriodEndAt || data.periodEndAt,
+  };
   const issuer = issuerSnapshot(data.issuerSnapshot);
-  const customer = customerSnapshot(
-    data.customerBillingSnapshot,
-  );
+  const customer = customerSnapshot(data.customerBillingSnapshot);
 
-  const invoiceNumber = normalizeText(
-    data.invoiceNumber,
-    invoiceId,
-    100,
-  );
+  const invoiceNumber = normalizeText(data.invoiceNumber, invoiceId, 100);
   const companyName = normalizeText(
     data.companyName,
     customer.invoiceCompanyName,
     120,
   );
-  const currency = normalizeText(
-    data.currency,
-    "CHF",
-    20,
-  );
-  const seatLimit =
-    typeof data.seatLimit === "number" ?
-      data.seatLimit :
-      0;
+  const currency = normalizeText(data.currency, "CHF", 20);
+  const seatLimit = typeof data.seatLimit === "number" ? data.seatLimit : 0;
   const monthlyRate =
-    typeof data.monthlyRate === "number" ?
-      data.monthlyRate :
-      0;
+    typeof data.monthlyRate === "number" ? data.monthlyRate : 0;
   const annualAmount =
-    typeof data.annualAmount === "number" ?
-      data.annualAmount :
-      0;
+    typeof data.annualAmount === "number" ? data.annualAmount : 0;
   const reference = normalizeText(
     data.reference,
     customer.customerReference,
     120,
   );
-  const activationOnPayment =
-    data.activationOnPayment === true;
+  const activationOnPayment = data.activationOnPayment === true &&
+    !toDate(data.activatedPeriodStartAt);
 
   const firstPage = buildInvoicePage(
     issuer,
@@ -1048,28 +937,21 @@ export function buildInvoicePdf(
   );
 
   const hasSwissQrPage =
+    annualAmount > 0 &&
     customerCountryCode(customer) === "CH" &&
     currency === "CHF" &&
     /^CH\d{19}$/.test(compactIban(issuer.iban));
 
   const secondPage = hasSwissQrPage ?
-    buildSwissQrPage(
-      issuer,
-      customer,
-      invoiceNumber,
-      annualAmount,
-    ) :
+    buildSwissQrPage(issuer, customer, invoiceNumber, annualAmount) :
     null;
 
-  const buffer = buildPdfDocument(
-    firstPage,
-    secondPage,
-  );
+  const buffer = buildPdfDocument(firstPage, secondPage);
 
   return {
     base64: buffer.toString("base64"),
-    filename:
-      `PolymApp-Rechnung-${invoiceNumber.replace(/[^A-Za-z0-9_-]/g, "-")}.pdf`,
+    filename: "PolymApp-Rechnung-" +
+      `${invoiceNumber.replace(/[^A-Za-z0-9_-]/g, "-")}.pdf`,
     mimeType: "application/pdf",
   };
 }

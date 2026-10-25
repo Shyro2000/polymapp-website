@@ -1,3 +1,4 @@
+import {requireCompanyAccess} from "../shared/companyAccess";
 import {createHash} from "node:crypto";
 import {FieldValue, Timestamp} from "firebase-admin/firestore";
 import {HttpsError, onCall} from "firebase-functions/https";
@@ -11,28 +12,19 @@ import {
 
 export const inviteCompanyMember = onCall(async (request) => {
   if (!request.auth) {
-    throw new HttpsError(
-      "unauthenticated",
-      "Du musst angemeldet sein.",
-    );
+    throw new HttpsError("unauthenticated", "Du musst angemeldet sein.");
   }
 
   const rawEmail: unknown = request.data?.email;
   const rawRole: unknown = request.data?.role;
 
   if (typeof rawEmail !== "string") {
-    throw new HttpsError(
-      "invalid-argument",
-      "Die E-Mail-Adresse fehlt.",
-    );
+    throw new HttpsError("invalid-argument", "Die E-Mail-Adresse fehlt.");
   }
 
   const email = normalizeEmail(rawEmail);
 
-  if (
-    email.length > 254 ||
-    !EMAIL_PATTERN.test(email)
-  ) {
+  if (email.length > 254 || !EMAIL_PATTERN.test(email)) {
     throw new HttpsError(
       "invalid-argument",
       "Die E-Mail-Adresse ist ungültig.",
@@ -74,32 +66,22 @@ export const inviteCompanyMember = onCall(async (request) => {
 
     const companyId = userSnapshot.get("companyId");
 
-    if (
-      typeof companyId !== "string" ||
-      companyId.length === 0
-    ) {
+    if (typeof companyId !== "string" || companyId.length === 0) {
       throw new HttpsError(
         "failed-precondition",
         "Der Benutzer gehört keiner Firma an.",
       );
     }
 
-    const companyRef = db
-      .collection("companies")
-      .doc(companyId);
+    const companyRef = db.collection("companies").doc(companyId);
 
-    const memberRef = companyRef
-      .collection("members")
-      .doc(uid);
+    const memberRef = companyRef.collection("members").doc(uid);
 
     const companySnapshot = await transaction.get(companyRef);
     const memberSnapshot = await transaction.get(memberRef);
 
     if (!companySnapshot.exists) {
-      throw new HttpsError(
-        "not-found",
-        "Die Firma wurde nicht gefunden.",
-      );
+      throw new HttpsError("not-found", "Die Firma wurde nicht gefunden.");
     }
 
     if (!memberSnapshot.exists) {
@@ -123,6 +105,8 @@ export const inviteCompanyMember = onCall(async (request) => {
       );
     }
 
+    requireCompanyAccess(companySnapshot.data() || {});
+
     const callerRole = memberSnapshot.get("role");
     const isOwner = callerRole === "owner";
     const isAdmin = callerRole === "admin";
@@ -142,8 +126,7 @@ export const inviteCompanyMember = onCall(async (request) => {
     }
 
     const seatLimit = companySnapshot.get("seatLimit");
-    const activeMemberCount =
-      companySnapshot.get("activeMemberCount");
+    const activeMemberCount = companySnapshot.get("activeMemberCount");
 
     if (
       !Number.isInteger(seatLimit) ||
@@ -175,10 +158,8 @@ export const inviteCompanyMember = onCall(async (request) => {
       .where("companyId", "==", companyId)
       .where("status", "==", "pending");
 
-    const existingMemberSnapshot =
-      await transaction.get(existingMemberQuery);
-    const pendingSnapshot =
-      await transaction.get(pendingQuery);
+    const existingMemberSnapshot = await transaction.get(existingMemberQuery);
+    const pendingSnapshot = await transaction.get(pendingQuery);
 
     if (!existingMemberSnapshot.empty) {
       throw new HttpsError(
@@ -215,9 +196,7 @@ export const inviteCompanyMember = onCall(async (request) => {
       );
     }
 
-    if (
-      activeMemberCount + activePendingCount >= seatLimit
-    ) {
+    if (activeMemberCount + activePendingCount >= seatLimit) {
       throw new HttpsError(
         "resource-exhausted",
         "Alle verfügbaren Firmenplätze sind belegt.",

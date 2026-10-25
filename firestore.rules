@@ -22,6 +22,22 @@ service cloud.firestore {
         ).data.status == "active";
     }
 
+    function hasCompanyLicense(companyId) {
+      let company = get(/databases/$(database)/documents/companies/$(companyId)).data;
+      return company.status == "active"
+        && company.get("billingStatus", "") != "suspended"
+        && (
+          (company.get("accessMode", "") == "pilot"
+            && (company.get("pilotValidUntil", null) == null
+              || company.pilotValidUntil >= request.time))
+          || (company.get("accessMode", "") == "paid"
+            && company.get("billingValidFrom", null) is timestamp
+            && company.get("billingValidUntil", null) is timestamp
+            && company.billingValidFrom <= request.time
+            && company.billingValidUntil >= request.time)
+        );
+    }
+
     function hasCompanyRole(companyId, allowedRoles) {
       return isActiveCompanyMember(companyId)
         && get(
@@ -238,11 +254,11 @@ allow delete:
       match /machines/{machineId} {
 
         allow read:
-          if isActiveCompanyMember(companyId);
+          if isActiveCompanyMember(companyId) && hasCompanyLicense(companyId);
 
         // Editor darf keine Maschinen erstellen oder verändern.
         allow create, update, delete:
-          if hasCompanyRole(
+          if hasCompanyLicense(companyId) && hasCompanyRole(
             companyId,
             ["owner", "admin"]
           );
@@ -251,10 +267,10 @@ allow delete:
         match /werkzeuge/{toolId} {
 
           allow read:
-            if isActiveCompanyMember(companyId);
+            if isActiveCompanyMember(companyId) && hasCompanyLicense(companyId);
 
           allow create, update, delete:
-            if hasCompanyRole(
+            if hasCompanyLicense(companyId) && hasCompanyRole(
               companyId,
               ["owner", "admin", "editor"]
             );

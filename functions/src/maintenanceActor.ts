@@ -1,3 +1,4 @@
+import {requireCompanyAccess} from "./shared/companyAccess";
 import {getFirestore} from "firebase-admin/firestore";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 
@@ -39,8 +40,10 @@ export const getMaintenanceActor = onCall(
     // UID und E-Mail stammen nur aus dem geprüften Anmeldetoken.
     // Andere Mitglieder oder eigene Namen können nicht angefordert werden.
     const uid = request.auth.uid;
-    const email = typeof request.auth.token.email === "string" ?
-      request.auth.token.email : "";
+    const email =
+      typeof request.auth.token.email === "string" ?
+        request.auth.token.email :
+        "";
 
     // Erst beim Aufruf abrufen: Die bestehenden Functions haben dann die
     // gemeinsame firebase.ts bereits geladen und Firebase initialisiert.
@@ -49,6 +52,8 @@ export const getMaintenanceActor = onCall(
     const company = db.collection("companies").doc(companyId);
 
     return db.runTransaction<MaintenanceActorSnapshot>(async (tx) => {
+      const companySnapshot = await tx.get(company);
+      requireCompanyAccess(companySnapshot.data() || {});
       const member = await tx.get(company.collection("members").doc(uid));
       const membership = member.data() || {};
       if (
@@ -59,21 +64,21 @@ export const getMaintenanceActor = onCall(
       ) {
         throw new HttpsError(
           "permission-denied",
-          "Keine aktive Mitgliedschaft in dieser Firma."
+          "Keine aktive Mitgliedschaft in dieser Firma.",
         );
       }
 
       const profileDocument = await tx.get(
-        company.collection("memberAdminData").doc(uid)
+        company.collection("memberAdminData").doc(uid),
       );
       const profile = profileDocument.data() || {};
 
       // Unverändert übernehmen, damit die Firestore-Regeln diese Werte beim
       // Speichern der Bestätigung prüfen können. Die Anzeige trimmt Leerraum.
-      const firstName = typeof profile.firstName === "string" ?
-        profile.firstName : "";
-      const lastName = typeof profile.lastName === "string" ?
-        profile.lastName : "";
+      const firstName =
+        typeof profile.firstName === "string" ? profile.firstName : "";
+      const lastName =
+        typeof profile.lastName === "string" ? profile.lastName : "";
       if (
         email.length > 320 ||
         firstName.length > 200 ||
@@ -81,7 +86,7 @@ export const getMaintenanceActor = onCall(
       ) {
         throw new HttpsError(
           "failed-precondition",
-          "Die gespeicherten Namens- oder E-Mail-Felder sind zu lang."
+          "Die gespeicherten Namens- oder E-Mail-Felder sind zu lang.",
         );
       }
 
@@ -90,5 +95,5 @@ export const getMaintenanceActor = onCall(
       // Wartungsereignis; spätere Profiländerungen ändern es nicht.
       return {uid, email, firstName, lastName, nameSource: "company"};
     });
-  }
+  },
 );
