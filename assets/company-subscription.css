@@ -1,0 +1,13 @@
+.subscription-panel { border: 1px solid #ddd; border-left: 4px solid #b80000; padding: 18px; border-radius: 6px; margin: 18px 0; background: #fafafa; }
+.subscription-panel h3 { margin-top: 0; }
+.subscription-panel [hidden] { display: none !important; }
+.subscription-panel .subscription-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(170px,1fr)); gap: 12px; margin: 14px 0; }
+.subscription-panel .subscription-summary p { margin: 0; }
+.subscription-panel .subscription-summary strong { display: block; }
+.subscription-panel .button-row { margin: 12px 0; }
+.subscription-panel select { width: 100%; max-width: 430px; padding: 10px; font-size: 16px; }
+.subscription-panel .subscription-quote { border: 1px solid #ccc; padding: 12px; margin: 14px 0; background: white; }
+.subscription-panel ul { padding-left: 20px; }
+.subscription-panel table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.subscription-panel td,.subscription-panel th { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+.creation-tariff-note { margin: 8px 0 16px; padding: 12px; background: #fff4df; border: 1px solid #ead1a0; border-radius: 4px; }

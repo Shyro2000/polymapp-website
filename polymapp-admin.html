@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <script>
+    if (location.hostname === "www.polymapp.ch") {
+      location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
+    }
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta
@@ -620,6 +625,7 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/account-menu.css">
 </head>
 
 <body>
@@ -631,7 +637,6 @@
 
   <nav>
     <a href="index.html">Startseite</a>
-    <a href="accountverwaltung.html">Accountverwaltung</a>
     <a href="firmenverwaltung.html">Firmenverwaltung</a>
     <a href="polymapp-admin.html" class="active">Administration</a>
   </nav>
@@ -680,6 +685,7 @@
     </section>
 
     <section id="adminPanel" class="hidden">
+      <section id="companyAdminExtras" class="panel"></section>
       <div class="summary-grid">
         <div class="summary-item">
           <span class="summary-label">Aktive Firmen</span>
@@ -717,6 +723,7 @@
               <label for="billingFilter">Abo-Status</label>
               <select id="billingFilter">
                 <option value="all">Alle</option>
+                <option value="pilot">Kostenlose Aufbauphase</option>
                 <option value="active">Aktiv</option>
                 <option value="payment_pending">Zahlung offen</option>
                 <option value="overdue">Überfällig</option>
@@ -937,20 +944,16 @@
     <p><strong>PolymApp</strong> – Interne Administration</p>
     <p>
       <a href="index.html">Startseite</a> ·
-      <a href="accountverwaltung.html">Accountverwaltung</a> ·
       <a href="firmenverwaltung.html">Firmenverwaltung</a>
     </p>
     <p>© 2024–<span id="year"></span> PolymApp</p>
   </footer>
 
   <script type="module">
-    import {
-      initializeApp
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {renderCompanyAdminExtras} from "./assets/company-admin.js";
+  import {app, auth} from "./assets/website-auth.js";
 
     import {
-      getAuth,
-      connectAuthEmulator,
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
@@ -965,15 +968,6 @@
       httpsCallable
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC2zXg4w6aJf1ct-1Yj2kFwAPujQEbPA3E",
-      authDomain: "twyt-80c82.firebaseapp.com",
-      projectId: "twyt-80c82",
-      storageBucket: "twyt-80c82.firebasestorage.app",
-      messagingSenderId: "64966382407",
-      appId: "1:64966382407:web:6739c6a7afa83eb7877262",
-      measurementId: "G-0QQYN8BKQD"
-    };
 
     const PRICE_TIERS = Object.freeze({
       10: 1.5,
@@ -1001,7 +995,6 @@
       500
     ]);
 
-    const app = initializeApp(firebaseConfig);
 
     const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(
       window.location.hostname
@@ -1016,13 +1009,9 @@
       });
     }
 
-    const auth = getAuth(app);
     const functions = getFunctions(app, "europe-west1");
 
     if (isLocalDevelopment) {
-      connectAuthEmulator(auth, "http://127.0.0.1:9099", {
-        disableWarnings: true
-      });
       connectFunctionsEmulator(functions, "127.0.0.1", 5001);
     }
 
@@ -1150,6 +1139,7 @@
 
     function normalizeBillingStatus(value) {
       switch (value) {
+        case "pilot":
         case "active":
         case "payment_pending":
         case "overdue":
@@ -1162,6 +1152,7 @@
 
     function billingStatusLabel(value) {
       switch (normalizeBillingStatus(value)) {
+        case "pilot": return "Kostenlose Aufbauphase";
         case "active":
           return "Aktiv";
         case "payment_pending":
@@ -1271,6 +1262,9 @@
             : "unknown",
         seatLimit,
         activeMemberCount,
+        accessMode: rawCompany?.accessMode,
+        creditBalanceCents: Number(rawCompany?.creditBalanceCents || 0),
+        pendingChange: rawCompany?.pendingChange || null,
         billingStatus: normalizeBillingStatus(rawCompany?.billingStatus),
         billingDetailsReady: rawCompany?.billingDetailsReady === true,
         billingValidUntilMs:
@@ -1317,6 +1311,10 @@
         seatLimit: Number(rawInvoice?.seatLimit || 0),
         monthlyRate: Number(rawInvoice?.monthlyRate || 0),
         annualAmount: Number(rawInvoice?.annualAmount || 0),
+        kind: rawInvoice?.kind || "annual",
+        settledByCredit: rawInvoice?.settledByCredit === true,
+        grossAmountCents: Number(rawInvoice?.grossAmountCents || 0),
+        creditUsedCents: Number(rawInvoice?.creditUsedCents || 0),
         currency:
           typeof rawInvoice?.currency === "string"
             ? rawInvoice.currency
@@ -1354,7 +1352,8 @@
       return new Intl.DateTimeFormat("de-CH", {
         day: "2-digit",
         month: "2-digit",
-        year: "numeric"
+        year: "numeric",
+        timeZone: "UTC"
       }).format(new Date(timestampMs));
     }
 
@@ -1613,7 +1612,7 @@
 
         const annualSub = document.createElement("span");
         annualSub.className = "price-sub";
-        annualSub.textContent = annualPrice === null
+        annualSub.textContent = company.accessMode === "pilot" ? "Einführungspreis · aktuell kostenlos" : annualPrice === null
           ? "Unbekannte Tarifstufe"
           : "fix pro Jahr";
 
@@ -1645,7 +1644,7 @@
           ? "Rechnung erstellen"
           : "Rechnungsdaten fehlen";
         invoiceButton.disabled =
-          annualPrice === null ||
+          company.accessMode !== "paid" || annualPrice === null ||
           !company.billingDetailsReady;
         invoiceButton.title = company.billingDetailsReady
           ? "Jahresrechnung erstellen"
@@ -1761,7 +1760,7 @@
       for (const company of [...companies].sort((a, b) =>
         a.name.localeCompare(b.name, "de", {sensitivity: "base"})
       )) {
-        if (getMonthlyRate(company.seatLimit) === null) {
+        if (company.accessMode !== "paid" || getMonthlyRate(company.seatLimit) === null) {
           continue;
         }
 
@@ -1817,8 +1816,11 @@
         ? `${company.name} · Verlängerung nach ${formatDate(company.billingValidUntilMs)}${renewalHint}`
         : `${company.name} · Erstaktivierung nach Zahlungseingang`;
 
-      invoicePreviewPrice.textContent =
-        annualPrice === null
+      invoicePreviewPrice.textContent = company.pendingChange
+        ? `Tariferhöhung auf ${company.pendingChange.targetSeatLimit} Plätze: CHF ${(company.pendingChange.amountDueCents / 100).toFixed(2)} nach Gutschriften`
+        : company.creditBalanceCents > 0
+          ? `Jahrespreis CHF ${annualPrice.toFixed(2)} · Gutschrift CHF ${(company.creditBalanceCents / 100).toFixed(2)} wird automatisch verrechnet`
+        : annualPrice === null
           ? "Kein gültiger Tarif"
           : `${formatCurrency(annualPrice)} / 12 Monate`;
 
@@ -2051,7 +2053,7 @@
         statusBadge.className =
           `status-badge ${paymentStatusClass(invoice.status)}`;
         statusBadge.textContent =
-          paymentStatusLabel(invoice.status);
+          invoice.settledByCredit ? "Mit Gutschrift verrechnet" : paymentStatusLabel(invoice.status);
         statusCell.append(statusBadge);
 
         if (invoice.status === "paid" && invoice.paidAtMs) {
@@ -2118,6 +2120,7 @@
       try {
         const result = await getAdminCompaniesCall();
 
+        renderCompanyAdminExtras(result.data, loadCompanies);
         const rawCompanies = Array.isArray(result?.data?.companies)
           ? result.data.companies
           : [];
@@ -2209,5 +2212,6 @@
       await loadCompanies();
     });
   </script>
+  <script type="module" src="assets/account-menu.js"></script>
 </body>
 </html>

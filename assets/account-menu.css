@@ -1,0 +1,20 @@
+header { position: relative; padding-top: 72px; }
+.account-menu { position: absolute; top: 12px; left: 16px; z-index: 100; text-align: left; font-size: 14px; line-height: 1.5; }
+.account-menu summary { display: flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; color: #fff; padding: 7px 10px; border: 1px solid #ffffffb0; border-radius: 6px; background: #00000014; }
+.account-menu summary::-webkit-details-marker { display: none; }
+.account-menu svg { width: 21px; height: 21px; flex-shrink: 0; }
+.account-menu summary:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+.account-menu-panel { width: min(320px, calc(100vw - 40px)); margin-top: 8px; padding: 18px; box-sizing: border-box; background: #fff; color: #222; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 6px 24px #0003; }
+.account-menu-panel [hidden] { display: none !important; }
+.account-menu-panel p { margin: 0 0 12px; overflow-wrap: anywhere; }
+.account-menu-panel form { display: block; }
+.account-menu-panel label { display: block; font-size: 14px; margin: 0 0 4px; }
+.account-menu-panel input[type=email], .account-menu-panel input[type=password] { width: 100%; max-width: none; padding: 10px; margin: 0 0 12px; box-sizing: border-box; border: 1px solid #aaa; border-radius: 4px; font-size: 16px; }
+.account-menu-panel .remember-label { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; }
+.account-menu-panel input[type=checkbox] { width: auto; margin: 0; }
+.account-menu-panel button { padding: 10px 16px; border: 0; border-radius: 4px; background: #b80000; color: white; cursor: pointer; font-size: 14px; width: auto; }
+.account-menu-panel button:disabled { opacity: .6; cursor: wait; }
+.account-menu-panel a { display: block; color: #a00000; padding: 6px 0; text-decoration: underline; }
+.account-menu-error { color: #a00000; margin-top: 10px !important; }
+.remember-login { display: flex; align-items: center; gap: 8px; margin: 12px 0; font-size: 14px; }
+@media (max-width: 420px) { .account-menu { left: 10px; } .account-menu summary { gap: 5px; padding: 7px; } .language-switch { right: 8px; } }
