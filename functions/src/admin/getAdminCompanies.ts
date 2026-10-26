@@ -1,3 +1,4 @@
+import {getAuth} from "firebase-admin/auth";
 import {Timestamp} from "firebase-admin/firestore";
 import {HttpsError, onCall} from "firebase-functions/https";
 import {db} from "../firebase";
@@ -90,6 +91,23 @@ export const getAdminCompanies = onCall(async (request) => {
       .get(),
     db.collection("systemSettings").doc("companyProgram").get(),
   ]);
+
+  const ownerUids = [...new Set(companiesSnapshot.docs
+    .map((document) => readString(document.get("ownerUid")))
+    .filter((ownerUid) => ownerUid.length > 0))];
+  const ownerEmails = new Map<string, string>();
+
+  for (let offset = 0; offset < ownerUids.length; offset += 100) {
+    const ownerBatch = ownerUids
+      .slice(offset, offset + 100)
+      .map((ownerUid) => ({uid: ownerUid}));
+
+    const owners = await getAuth().getUsers(ownerBatch);
+
+    for (const owner of owners.users) {
+      ownerEmails.set(owner.uid, owner.email || "");
+    }
+  }
 
   const billingDetailsByCompany = new Map<string, Record<string, unknown>>();
 
@@ -225,6 +243,7 @@ export const getAdminCompanies = onCall(async (request) => {
       pendingChange: subscription?.get("pendingChange") || null,
       id: document.id,
       name: readString(data.name),
+      ownerEmail: ownerEmails.get(ownerUid) || "",
       status: readString(data.status, "unknown"),
       seatLimit: readNumber(data.seatLimit),
       activeMemberCount: readNumber(data.activeMemberCount),

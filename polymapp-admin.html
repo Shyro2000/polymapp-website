@@ -397,6 +397,22 @@
       font-weight: bold;
     }
 
+    .owner-contact {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      background: #666;
+      color: #fff;
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+
+    .owner-contact:hover,
+    .owner-contact:focus-visible {
+      background: #444;
+    }
+
     .company-id {
       display: block;
       margin-top: 3px;
@@ -1262,6 +1278,9 @@
             : "unknown",
         seatLimit,
         activeMemberCount,
+        ownerEmail: typeof rawCompany?.ownerEmail === "string"
+          ? rawCompany.ownerEmail.trim()
+          : "",
         accessMode: rawCompany?.accessMode,
         creditBalanceCents: Number(rawCompany?.creditBalanceCents || 0),
         pendingChange: rawCompany?.pendingChange || null,
@@ -1579,6 +1598,26 @@
         companyId.textContent = company.id;
 
         companyCell.append(companyName, companyId);
+
+        const ownerEmail = document.createElement("span");
+        ownerEmail.className = "company-id";
+        ownerEmail.textContent = company.ownerEmail
+          ? `Owner: ${company.ownerEmail}`
+          : "Owner-E-Mail nicht verfügbar";
+        companyCell.append(ownerEmail);
+
+        if (company.ownerEmail) {
+          const contactLink = document.createElement("a");
+          contactLink.className = "owner-contact";
+          contactLink.textContent = "Owner kontaktieren";
+          contactLink.href = `mailto:${encodeURIComponent(company.ownerEmail)}`;
+          contactLink.setAttribute(
+            "aria-label",
+            `Owner von ${company.name} kontaktieren: ${company.ownerEmail}`
+          );
+          companyCell.append(contactLink);
+        }
+
 
         const membersCell = document.createElement("td");
         const membersBadge = document.createElement("span");
