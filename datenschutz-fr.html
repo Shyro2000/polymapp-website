@@ -110,9 +110,9 @@
     html { scroll-behavior: smooth; }
     body { color: #252525; overflow-wrap: anywhere; }
     .container { padding: 28px 22px; }
-    h1 { font-size: 1.9rem; line-height: 1.25; margin-bottom: 8px; }
-    h2 { font-size: 1.35rem; line-height: 1.35; margin-top: 32px; }
-    h3 { font-size: 1.05rem; margin-top: 24px; }
+    main h1 { font-size: 1.9rem; line-height: 1.25; margin-bottom: 8px; }
+    main h2 { font-size: 1.35rem; line-height: 1.35; margin-top: 32px; }
+    main h3 { font-size: 1.05rem; margin-top: 24px; }
     .document-date { color: #666; margin-top: 0; }
     main a { color: #a90000; text-underline-offset: 2px; }
     main li { margin: 10px 0; }
@@ -121,14 +121,12 @@
     details p { margin-bottom: 0; }
     :focus-visible { outline: 3px solid #1769aa; outline-offset: 4px; }
     @media (max-width: 600px) {
-      header { padding-top: 55px; }
-      .header-logo { max-width: 300px; }
       nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
       nav a { margin: 0; }
       nav a:not(:last-child)::after { content: none; }
       .container { padding: 20px 16px; }
-      h1 { font-size: 1.6rem; }
-      h2 { font-size: 1.22rem; }
+      main h1 { font-size: 1.6rem; }
+      main h2 { font-size: 1.22rem; }
       main ul { padding-left: 23px; }
     }
     @media print {
