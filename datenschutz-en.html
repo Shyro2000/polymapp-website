@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
   <script>
     if (location.hostname === "www.polymapp.ch") {
       location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
     }
   </script>
-    <meta name="description" content="PolymApp - Privacy policy for app usage.">
+  <meta name="description" content="Privacy policy for the PolymApp Android and iOS app and the polymapp.ch website.">
 
-    <link rel="alternate" hreflang="de" href="https://polymapp.ch/datenschutz.html">
+  <link rel="alternate" hreflang="de" href="https://polymapp.ch/datenschutz.html">
 <link rel="alternate" hreflang="en" href="https://polymapp.ch/datenschutz-en.html">
 <link rel="alternate" hreflang="fr" href="https://polymapp.ch/datenschutz-fr.html">
 
@@ -22,8 +23,7 @@
 <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
 <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
 
-  <meta charset="UTF-8">
-  <title>Privacy Policy - PolymApp</title>
+  <title>Privacy Policy | PolymApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { 
@@ -106,10 +106,44 @@
       font-weight: bold;
     }
 
+
+    html { scroll-behavior: smooth; }
+    body { color: #252525; overflow-wrap: anywhere; }
+    .container { padding: 28px 22px; }
+    h1 { font-size: 1.9rem; line-height: 1.25; margin-bottom: 8px; }
+    h2 { font-size: 1.35rem; line-height: 1.35; margin-top: 32px; }
+    h3 { font-size: 1.05rem; margin-top: 24px; }
+    .document-date { color: #666; margin-top: 0; }
+    main a { color: #a90000; text-underline-offset: 2px; }
+    main li { margin: 10px 0; }
+    address { font-style: normal; line-height: 1.7; }
+    summary { cursor: pointer; font-weight: bold; }
+    details p { margin-bottom: 0; }
+    :focus-visible { outline: 3px solid #1769aa; outline-offset: 4px; }
+    @media (max-width: 600px) {
+      header { padding-top: 55px; }
+      .header-logo { max-width: 300px; }
+      nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      nav a { margin: 0; }
+      nav a:not(:last-child)::after { content: none; }
+      .container { padding: 20px 16px; }
+      h1 { font-size: 1.6rem; }
+      h2 { font-size: 1.22rem; }
+      main ul { padding-left: 23px; }
+    }
+    @media print {
+      header, nav, footer { display: none; }
+      .container { max-width: none; padding: 0; }
+      h2 { break-after: avoid; }
+      a { color: inherit; }
+    }
+
   </style>
+  <link rel="canonical" href="https://polymapp.ch/datenschutz-en.html">
   <link rel="stylesheet" href="assets/account-menu.css">
 </head>
 <body>
+
 <header>
   <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
   <h2>Privacy Policy</h2>
@@ -127,104 +161,76 @@
   <a href="kontakt-en.html">Contact</a>
 </nav>
 
-<div class="container">
-  <h2>About PolymApp</h2>
-  <p>
-    PolymApp is the comprehensive app for technical professionals that makes your work easier. 
-    It offers features like tolerance calculators, thread calculations, and analysis of technical drawings. 
-    All provided data has been created as accurately as possible; however, no guarantee can be given for its accuracy.
-  </p>
+<main class="container">
+  <h1>Privacy Policy</h1>
+  <p class="document-date">Last updated: 26 October 2026</p>
+  <p>This Privacy Policy applies to the PolymApp Android and iOS app and to <a href="https://polymapp.ch/">polymapp.ch</a>, including account and company management. It explains which personal data we process when providing these services.</p>
 
-  <h2>General Information</h2>
-  <p>
-    Protecting your personal data is very important to me. This privacy policy explains what data is collected from you, how it is used, and what rights you have regarding your data.
-  </p>
+  <section aria-labelledby="controller">
+    <h2 id="controller">1. Data controller</h2>
+    <address>PolymApp – Fabian Schatzmann<br>Solistr. 52, 8180 Bülach, Switzerland<br><a href="mailto:info@polymapp.ch">info@polymapp.ch</a></address>
+  </section>
 
-  <h2>Responsible Party</h2>
-  <p>
-    The responsible party for data processing is:<br>
-    PolymApp<br>
-    info@polymapp.ch
-  </p>
+  <section aria-labelledby="account-data">
+    <h2 id="account-data">2. User account and app data</h2>
+    <p>For sign-in, synchronisation and access to features, we process login credentials, email address, user ID, account settings and access entitlements. Personal settings, customisations, machines and tool lists are associated with your account when you use the relevant storage features.</p>
+    <p>We store device identifiers to manage trial access and prevent repeated use of trials. When someone signs up through a referral, the referred account and its feature activations are associated with the referring user.</p>
+    <p>The camera is used for local text recognition, without storing recordings or transmitting image or text content to PolymApp or third parties.</p>
+    <p>We use Google Analytics for Firebase in the Android and iOS app to analyse the app's reach and usage and improve our services. This involves processing and transmitting to Google usage events, such as first opens and sessions, app and device information, technical identifiers and approximate geographic information. The reports show, among other things, active users and frequency of use.</p>
+  </section>
 
-  <h2>Data Collection and Processing</h2>
-  <p>
-    Using the PolymApp app does not require you to provide personal data. During the trial period, no personal data is collected or stored.
-  </p>
+  <section aria-labelledby="company-data">
+    <h2 id="company-data">3. Company accounts and shared content</h2>
+    <p>To support collaboration within a company, we store the company name, owner association, memberships, roles and invitations. Members or their company provide email addresses and, where applicable, names, departments, employment status and internal notes.</p>
+    <p>Company machines, tool lists and maintenance data are accessible to authorised members according to their role. Maintenance entries may contain the date and time, user ID, email address and name of the person performing the work. Administrative member data and internal notes are restricted to the owner and company administrators. Imported private machines become available to authorised members in the company area.</p>
+    <p>The company is responsible for the employee data and operational content it records. Where we provide this content on its behalf, we act as a data processor. PolymApp remains responsible for account operation, security and its own billing.</p>
+  </section>
 
-  <h2>Subscription and Payment Information</h2>
-  <p>
-    If you choose a paid subscription after the trial period, certain data will be collected to manage the payment and subscription. This includes:
-  </p>
-  <ul>
-    <li>Name</li>
-    <li>Email address</li>
-  </ul>
-  <p>
-    This data is used exclusively for managing the subscription and is protected in accordance with applicable data protection laws.
-  </p>
+  <section aria-labelledby="subscriptions">
+    <h2 id="subscriptions">4. Subscriptions and billing</h2>
+    <p>Individual app subscriptions are handled through Google Play or the Apple App Store. These providers process the necessary subscription and payment data under their privacy notices. PolymApp uses subscription status to enable access.</p>
+    <p>Company subscriptions are managed directly by PolymApp. We process the plan, number of employee seats, subscription term, access status, contact person, billing address, billing email address, invoices, payment status and plan credits. Billing details are collected when a company is created, including during the free setup phase.</p>
+    <p>Within the company, financial data is restricted to the owner; company administrators can see access status and capacity. The PolymApp operator uses the necessary company and contact details for support and billing. Entitlements and plan charges are determined partly automatically. You can request a review by a person via email.</p>
+  </section>
 
-  <h2>Purpose of Data Processing</h2>
-  <p>The data you provide is used for the following purposes:</p>
-  <ul>
-    <li>Providing and improving the PolymApp app</li>
-    <li>Managing and processing subscriptions</li>
-    <li>Communicating with you regarding the use of the app and your subscription</li>
-  </ul>
+  <section aria-labelledby="website">
+    <h2 id="website">5. Website and contact</h2>
+    <p>Website visits generate technical access data, particularly the IP address, page requested, time of access, and browser and device information. This data is used to provide the website, maintain security and troubleshoot errors. When you register through account management, ipapi.co determines your country from your IP address; the country code is stored in your user profile.</p>
+    <p>The website uses local storage mechanisms for sign-in, settings and referral attribution. With “Stay signed in” enabled, your login persists after you close the browser; otherwise, it is limited to the session or tab. You can sign out and delete website data in your browser. Security services may use additional cookies or similar storage mechanisms.</p>
+    <p>When you contact us, we process your email address, message and delivery information to respond. The contact form sends your details to us through FormSubmit.</p>
+  </section>
 
-  <h2>User Account</h2>
-  <p>
-    The app allows you to create a user account. Only the email address you provide is stored for login purposes. 
-    Additionally, any settings and customizations you make within the app are linked to your user account and stored.<br>
-    This data is used solely to secure and restore your individual settings within the app. No data is shared with third parties.<br>
-    You can delete your user account at any time directly in the app. In that case, all stored data will be permanently removed.
-  </p>
+  <section aria-labelledby="providers">
+    <h2 id="providers">6. Service providers and processing abroad</h2>
+    <p>The following providers receive the data necessary to deliver their services:</p>
+    <ul>
+      <li><a href="https://firebase.google.com/support/privacy">Google Firebase / Google Cloud</a> for authentication, storage and server-side functions; <a href="https://firebase.google.com/docs/app-check">App Check</a> and <a href="https://cloud.google.com/recaptcha/docs/faq">reCAPTCHA</a> to prevent abuse using technical connection, device and interaction data.</li>
+      <li><a href="https://support.google.com/analytics/answer/6004245?hl=en">Google Analytics for Firebase</a> for statistical analysis of app usage.</li>
+      <li><a href="https://www.ionos.de/terms-gtc/datenschutzerklaerung/">IONOS</a> for website hosting, access logs and email.</li>
+      <li><a href="https://ipapi.co/privacy/">ipapi.co (Kloudend, Inc.)</a> to determine the country at registration.</li>
+      <li><a href="https://formsubmit.co/privacy.pdf">FormSubmit</a> to forward contact enquiries.</li>
+      <li><a href="https://policies.google.com/privacy?hl=en">Google Play</a> and the <a href="https://www.apple.com/de/legal/privacy/data/de/app-store/">Apple App Store</a> to handle individual app subscriptions.</li>
+    </ul>
+    <p>The Firestore database uses the European multi-region eur3, with locations in Belgium, the Netherlands and Finland. Other services also process data outside Switzerland: Firebase Authentication processes data in the USA; the Cloud Functions we use run in Belgium. Analytics data may also be processed outside Switzerland. The provider of ipapi.co is based in the USA.</p>
+    <p>Further disclosures may take place where necessary to meet legal obligations or enforce legal claims.</p>
+  </section>
 
-  <h2>Photos and Uploaded Documents</h2>
-  <p>
-    Certain features of the app allow you to take photos, upload images, or upload documents. 
-    These files are not stored on the smartphone and are only available while the relevant app feature is open.<br>
-    When leaving the feature, the files are automatically deleted from the history. Neither photos nor uploaded documents are transmitted to PolymApp or third parties.
-  </p>
+  <section aria-labelledby="retention">
+    <h2 id="retention">7. Retention and deletion</h2>
+    <p>There is currently no regular automatic deletion of stored account and company data. Invoices and accounting records subject to statutory retention requirements must generally be retained for ten years from the end of the financial year.</p>
+    <p>Account deletion removes the authentication account and personal user profile, including its associated subordinate data. You may first need to leave your company or transfer ownership. Shared company and maintenance entries, separate billing records and necessary supporting records are not automatically deleted as a result.</p>
+    <p>For trial device identifiers, the link to the account is removed; the identifier initially remains stored. Analytics is subject to the retention rules configured in the Analytics property. These do not cover all aggregated reports. Technical logs and backups are also subject to the respective providers' retention rules.</p>
+  </section>
 
-  <h2>Data Sharing with Third Parties</h2>
-  <p>
-    Your data will not be shared with third parties without your explicit consent, unless required to fulfill contractual obligations or legal requirements.
-  </p>
+  <section aria-labelledby="rights">
+    <h2 id="rights">8. Legal bases and your rights</h2>
+    <p>The Swiss Federal Act on Data Protection applies in particular. Where the GDPR applies, we process data to perform contracts, comply with legal obligations or pursue legitimate interests in operation, security and responding to enquiries. Consent, where required, can be withdrawn with effect for the future.</p>
+    <p>Under applicable law, you may request access, rectification and deletion and, where applicable, the provision or transfer of your data, restriction of processing, or exercise your right to object. Please write to <a href="mailto:info@polymapp.ch">info@polymapp.ch</a>. Where your company is responsible for the data, we involve the company. Legal obligations may prevent deletion.</p>
+    <p>You may contact the <a href="https://www.edoeb.admin.ch/">Federal Data Protection and Information Commissioner (FDPIC)</a> or the competent data protection supervisory authority.</p>
+  </section>
 
-  <h2>Data Retention</h2>
-  <p>
-    I store your data only as long as necessary to fulfill the purposes mentioned above or as required by legal retention periods.
-  </p>
-
-  <h2>Your Rights</h2>
-  <p>You have the right to:</p>
-  <ul>
-    <li>Access the data stored about you</li>
-    <li>Request correction of incorrect data</li>
-    <li>Request deletion of your data, provided there are no legal retention obligations</li>
-    <li>Request restriction of the processing of your data</li>
-    <li>Object to the processing of your data</li>
-    <li>Receive your data in a structured, commonly used, and machine-readable format (data portability)</li>
-    <li>File a complaint with a supervisory authority</li>
-  </ul>
-
-  <h2>Contact</h2>
-  <p>
-    If you have questions about the processing of your data, this privacy policy, or feedback regarding the app, 
-    you can contact me at any time via the contact form or at the following email address:<br>
-    info@polymapp.ch
-  </p>
-
-  <h2>Changes to this Privacy Policy</h2>
-  <p>
-    I reserve the right to modify this privacy policy as needed to comply with legal requirements or to reflect changes in the app. 
-    The current privacy policy can always be found in the app.
-  </p>
-
-  <p>Last updated: 07.08.2025</p>
-
-</div>
+  <p>We update this policy when our data processing changes. The current version is available on the website.</p>
+</main>
 
 <footer>
   <p><strong>PolymApp</strong> - Privacy Policy</p>
@@ -239,7 +245,6 @@
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
 </script>
-
   <script type="module" src="assets/account-menu.js"></script>
 </body>
 </html>

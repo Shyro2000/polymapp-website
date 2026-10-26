@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta charset="UTF-8">
   <script>
     if (location.hostname === "www.polymapp.ch") {
       location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
     }
   </script>
-    <meta name="description" content="PolymApp - Politique de confidentialité relative à l'utilisation de l'application.">
+  <meta name="description" content="Politique de confidentialité pour l'application PolymApp sur Android et iOS et le site polymapp.ch.">
 
-    <link rel="alternate" hreflang="de" href="https://polymapp.ch/datenschutz.html">
+  <link rel="alternate" hreflang="de" href="https://polymapp.ch/datenschutz.html">
 <link rel="alternate" hreflang="en" href="https://polymapp.ch/datenschutz-en.html">
 <link rel="alternate" hreflang="fr" href="https://polymapp.ch/datenschutz-fr.html">
 
@@ -22,8 +23,7 @@
 <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
 <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
 
-  <meta charset="UTF-8">
-  <title>Politique de confidentialité - PolymApp</title>
+  <title>Politique de confidentialité | PolymApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { 
@@ -106,7 +106,40 @@
       font-weight: bold;
     }
 
+
+    html { scroll-behavior: smooth; }
+    body { color: #252525; overflow-wrap: anywhere; }
+    .container { padding: 28px 22px; }
+    h1 { font-size: 1.9rem; line-height: 1.25; margin-bottom: 8px; }
+    h2 { font-size: 1.35rem; line-height: 1.35; margin-top: 32px; }
+    h3 { font-size: 1.05rem; margin-top: 24px; }
+    .document-date { color: #666; margin-top: 0; }
+    main a { color: #a90000; text-underline-offset: 2px; }
+    main li { margin: 10px 0; }
+    address { font-style: normal; line-height: 1.7; }
+    summary { cursor: pointer; font-weight: bold; }
+    details p { margin-bottom: 0; }
+    :focus-visible { outline: 3px solid #1769aa; outline-offset: 4px; }
+    @media (max-width: 600px) {
+      header { padding-top: 55px; }
+      .header-logo { max-width: 300px; }
+      nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      nav a { margin: 0; }
+      nav a:not(:last-child)::after { content: none; }
+      .container { padding: 20px 16px; }
+      h1 { font-size: 1.6rem; }
+      h2 { font-size: 1.22rem; }
+      main ul { padding-left: 23px; }
+    }
+    @media print {
+      header, nav, footer { display: none; }
+      .container { max-width: none; padding: 0; }
+      h2 { break-after: avoid; }
+      a { color: inherit; }
+    }
+
   </style>
+  <link rel="canonical" href="https://polymapp.ch/datenschutz-fr.html">
   <link rel="stylesheet" href="assets/account-menu.css">
 </head>
 <body>
@@ -128,105 +161,76 @@
   <a href="kontakt-fr.html">Contact</a>
 </nav>
 
-<div class="container">
-  <h2>À propos de PolymApp</h2>
-  <p>
-    PolymApp est l'application complète pour les professionnels techniques qui facilite votre travail. 
-    Elle offre des fonctionnalités telles que le calcul des tolérances, le calcul des filetages et l'analyse de plans techniques. 
-    Toutes les données fournies ont été créées aussi précisément que possible ; toutefois, aucune garantie ne peut être donnée quant à leur exactitude.
-  </p>
+<main class="container">
+  <h1>Politique de confidentialité</h1>
+  <p class="document-date">Mise à jour : 26 octobre 2026</p>
+  <p>Cette politique de confidentialité s'applique à l'application PolymApp pour Android et iOS ainsi qu'à <a href="https://polymapp.ch/">polymapp.ch</a>, y compris la gestion des comptes et des entreprises. Elle explique quelles données personnelles nous traitons dans le cadre de ces services.</p>
 
-  <h2>Informations générales</h2>
-  <p>
-    La protection de vos données personnelles est très importante pour moi. Cette politique de confidentialité explique quelles données sont collectées, comment elles sont utilisées et quels sont vos droits concernant vos données.
-  </p>
+  <section aria-labelledby="responsable">
+    <h2 id="responsable">1. Responsable du traitement</h2>
+    <address>PolymApp – Fabian Schatzmann<br>Solistr. 52, 8180 Bülach, Suisse<br><a href="mailto:info@polymapp.ch">info@polymapp.ch</a></address>
+  </section>
 
-  <h2>Responsable</h2>
-  <p>
-    Le responsable du traitement des données est :<br>
-    PolymApp<br>
-    info@polymapp.ch
-  </p>
+  <section aria-labelledby="donnees-compte">
+    <h2 id="donnees-compte">2. Compte utilisateur et données de l'application</h2>
+    <p>Pour la connexion, la synchronisation et l'activation des fonctionnalités, nous traitons les données de connexion, l'adresse e-mail, l'identifiant utilisateur, les paramètres du compte et les droits d'utilisation. Les paramètres personnels, personnalisations, machines et listes d'outils sont associés à votre compte lorsque vous utilisez les fonctions d'enregistrement correspondantes.</p>
+    <p>Nous conservons des identifiants d'appareil pour gérer les accès d'essai et prévenir leur utilisation répétée. En cas de parrainage, les comptes parrainés et les activations de fonctionnalités sont associés au parrain.</p>
+    <p>La caméra sert à la reconnaissance locale de texte, sans enregistrer de prises de vue ni transmettre d'images ou de textes reconnus à PolymApp ou à des tiers.</p>
+    <p>Dans l'application Android et iOS, nous utilisons Google Analytics for Firebase pour analyser la diffusion et l'utilisation de l'application et améliorer notre offre. Des événements d'utilisation, tels que la première ouverture et les sessions, des informations sur l'application et l'appareil, des identifiants techniques et une localisation géographique approximative sont traités et transmis à Google. Les rapports indiquent notamment le nombre d'utilisateurs actifs et la fréquence d'utilisation.</p>
+  </section>
 
-  <h2>Collecte et traitement des données</h2>
-  <p>
-    L'utilisation de l'application PolymApp ne nécessite pas la fourniture de données personnelles. 
-    Pendant la période d'essai, aucune donnée personnelle n'est collectée ni stockée.
-  </p>
+  <section aria-labelledby="donnees-entreprise">
+    <h2 id="donnees-entreprise">3. Comptes d'entreprise et contenus partagés</h2>
+    <p>Pour permettre la collaboration au sein d'une entreprise, nous enregistrons son nom, l'attribution du rôle de propriétaire, les affiliations, les rôles et les invitations. Les membres ou leur entreprise fournissent des adresses e-mail et, le cas échéant, des noms, services, statuts d'emploi et notes internes.</p>
+    <p>Les machines, listes d'outils et données de maintenance de l'entreprise sont accessibles aux membres autorisés selon leur rôle. Les entrées de maintenance peuvent contenir la date et l'heure, l'identifiant utilisateur, l'adresse e-mail et le nom de la personne ayant effectué les travaux. Les données administratives des membres et les notes internes sont réservées au propriétaire et aux administrateurs de l'entreprise. Les machines privées importées deviennent accessibles aux membres autorisés dans l'espace de l'entreprise.</p>
+    <p>L'entreprise est responsable des données de ses collaborateurs et des contenus professionnels qu'elle enregistre. Lorsque nous mettons ces contenus à disposition pour son compte, nous agissons en tant que sous-traitant. PolymApp reste responsable du fonctionnement des comptes, de la sécurité et de sa propre facturation.</p>
+  </section>
 
-  <h2>Abonnement et informations de paiement</h2>
-  <p>
-    Si vous choisissez un abonnement payant après la période d'essai, certaines données seront collectées pour gérer le paiement et l'abonnement. Cela comprend :
-  </p>
-  <ul>
-    <li>Nom</li>
-    <li>Adresse e-mail</li>
-  </ul>
-  <p>
-    Ces données sont utilisées exclusivement pour gérer l'abonnement et sont protégées conformément aux lois sur la protection des données en vigueur.
-  </p>
+  <section aria-labelledby="abonnements">
+    <h2 id="abonnements">4. Abonnements et facturation</h2>
+    <p>Les abonnements individuels à l'application sont gérés par Google Play ou l'App Store d'Apple. Ces prestataires traitent les données d'abonnement et de paiement nécessaires conformément à leurs informations de confidentialité. PolymApp utilise le statut de l'abonnement pour activer l'accès.</p>
+    <p>Les abonnements d'entreprise sont gérés directement par PolymApp. Nous traitons à cette fin le tarif, le nombre de places pour les collaborateurs, la durée, le statut d'accès, la personne de contact, l'adresse de facturation, l'adresse e-mail de facturation, les factures, le statut des paiements et les avoirs liés au tarif. Les données de facturation sont recueillies dès la création de l'entreprise, y compris pendant la phase de mise en place gratuite.</p>
+    <p>Au sein de l'entreprise, les données financières sont réservées au propriétaire ; les administrateurs voient le statut d'accès et la capacité. L'exploitant de PolymApp utilise les coordonnées et données d'entreprise nécessaires à l'assistance et à la facturation. Les droits d'accès et les montants des tarifs sont déterminés en partie automatiquement. Vous pouvez demander une vérification par une personne en nous écrivant par e-mail.</p>
+  </section>
 
-  <h2>Finalité du traitement des données</h2>
-  <p>Les données que vous fournissez sont utilisées pour les finalités suivantes :</p>
-  <ul>
-    <li>Fournir et améliorer l'application PolymApp</li>
-    <li>Gérer et traiter les abonnements</li>
-    <li>Communiquer avec vous concernant l'utilisation de l'application et de votre abonnement</li>
-  </ul>
+  <section aria-labelledby="site">
+    <h2 id="site">5. Site web et contact</h2>
+    <p>Lors de la consultation du site, des données techniques d'accès sont traitées, notamment l'adresse IP, la page demandée, l'heure ainsi que des informations sur le navigateur et l'appareil. Elles servent à fournir le site, assurer sa sécurité et corriger les erreurs. Lors de l'inscription via la gestion du compte, ipapi.co détermine votre pays à partir de votre adresse IP ; le code du pays est enregistré dans votre profil utilisateur.</p>
+    <p>Le site utilise des mécanismes de stockage local pour la connexion, les paramètres et l'attribution des parrainages. Avec l'option « Rester connecté » activée, la connexion est conservée après la fermeture du navigateur ; sinon, elle est limitée à la session ou à l'onglet. Vous pouvez vous déconnecter et supprimer les données du site dans votre navigateur. Les services de sécurité peuvent utiliser des cookies supplémentaires ou des mécanismes de stockage similaires.</p>
+    <p>Lorsque vous nous contactez, nous traitons votre adresse e-mail, votre message et les informations d'acheminement pour vous répondre. Le formulaire de contact nous transmet vos informations par l'intermédiaire de FormSubmit.</p>
+  </section>
 
-  <h2>Compte utilisateur</h2>
-  <p>
-    L'application permet de créer un compte utilisateur. Seule l'adresse e-mail fournie est enregistrée à des fins de connexion. 
-    De plus, tous les paramètres et personnalisations effectués dans l'application sont liés à votre compte utilisateur et enregistrés.<br>
-    Ces données sont utilisées uniquement pour sauvegarder et restaurer vos paramètres individuels dans l'application. Aucune donnée n'est partagée avec des tiers.<br>
-    Vous pouvez supprimer votre compte utilisateur à tout moment directement dans l'application. Dans ce cas, toutes les données stockées seront définitivement supprimées.
-  </p>
+  <section aria-labelledby="prestataires">
+    <h2 id="prestataires">6. Prestataires et traitement à l'étranger</h2>
+    <p>Les prestataires suivants reçoivent les données nécessaires à leurs services :</p>
+    <ul>
+      <li><a href="https://firebase.google.com/support/privacy">Google Firebase / Google Cloud</a> pour l'authentification, le stockage et les fonctions côté serveur ; <a href="https://firebase.google.com/docs/app-check">App Check</a> et <a href="https://cloud.google.com/recaptcha/docs/faq">reCAPTCHA</a> pour prévenir les abus à l'aide de données techniques de connexion, d'appareil et d'interaction.</li>
+      <li><a href="https://support.google.com/analytics/answer/6004245?hl=fr">Google Analytics for Firebase</a> pour l'analyse statistique de l'utilisation de l'application.</li>
+      <li><a href="https://www.ionos.de/terms-gtc/datenschutzerklaerung/">IONOS</a> pour l'hébergement du site, les journaux d'accès et les e-mails.</li>
+      <li><a href="https://ipapi.co/privacy/">ipapi.co (Kloudend, Inc.)</a> pour déterminer le pays lors de l'inscription.</li>
+      <li><a href="https://formsubmit.co/privacy.pdf">FormSubmit</a> pour transmettre les demandes de contact.</li>
+      <li><a href="https://policies.google.com/privacy?hl=fr">Google Play</a> et l'<a href="https://www.apple.com/de/legal/privacy/data/de/app-store/">App Store d'Apple</a> pour gérer les abonnements individuels à l'application.</li>
+    </ul>
+    <p>La base de données Firestore utilise la multirégion européenne eur3, avec des sites en Belgique, aux Pays-Bas et en Finlande. D'autres services traitent également des données hors de Suisse : Firebase Authentication traite des données aux États-Unis ; les Cloud Functions utilisées fonctionnent en Belgique. Les données Analytics peuvent également être traitées hors de Suisse. Le prestataire d'ipapi.co a son siège aux États-Unis.</p>
+    <p>D'autres communications de données peuvent avoir lieu lorsqu'elles sont nécessaires au respect d'obligations légales ou à la défense de droits en justice.</p>
+  </section>
 
-  <h2>Photos et documents téléchargés</h2>
-  <p>
-    Certaines fonctionnalités de l'application vous permettent de prendre des photos, de les télécharger ou de télécharger des documents. 
-    Ces fichiers ne sont pas stockés sur le smartphone et sont disponibles uniquement tant que la fonctionnalité correspondante de l'application est ouverte.<br>
-    Lorsque vous quittez la fonctionnalité, les fichiers sont automatiquement supprimés de l'historique. Ni les photos ni les documents téléchargés ne sont transmis à PolymApp ou à des tiers.
-  </p>
+  <section aria-labelledby="conservation">
+    <h2 id="conservation">7. Conservation et suppression</h2>
+    <p>Les données enregistrées des comptes et des entreprises ne font actuellement pas l'objet d'une suppression automatique régulière. Les factures et pièces comptables soumises à une obligation légale de conservation doivent en principe être conservées pendant dix ans à compter de la fin de l'exercice concerné.</p>
+    <p>La suppression du compte entraîne celle du compte d'authentification et du profil utilisateur personnel, y compris les données subordonnées qui lui sont associées. Il peut être nécessaire de quitter l'entreprise ou d'en transférer préalablement la propriété. Les entrées partagées d'entreprise et de maintenance, les documents de facturation conservés séparément et les justificatifs nécessaires ne sont pas automatiquement supprimés à cette occasion.</p>
+    <p>Pour les identifiants d'appareil utilisés pour les essais, le lien avec le compte est supprimé ; l'identifiant reste dans un premier temps conservé. Les données Analytics sont soumises aux règles de conservation configurées dans la propriété Analytics. Ces règles ne couvrent pas tous les rapports agrégés. Les journaux techniques et sauvegardes sont également soumis aux règles de conservation des prestataires concernés.</p>
+  </section>
 
-  <h2>Transmission de données à des tiers</h2>
-  <p>
-    Vos données ne seront pas transmises à des tiers sans votre consentement explicite, sauf si cela est nécessaire pour respecter des obligations contractuelles ou légales.
-  </p>
+  <section aria-labelledby="droits">
+    <h2 id="droits">8. Bases juridiques et vos droits</h2>
+    <p>La loi fédérale suisse sur la protection des données s'applique notamment. Dans la mesure où le RGPD s'applique, nous traitons les données pour exécuter les contrats, respecter les obligations légales ou poursuivre des intérêts légitimes liés au fonctionnement, à la sécurité et au traitement des demandes. Un consentement requis peut être retiré pour l'avenir.</p>
+    <p>Dans le cadre du droit applicable, vous pouvez demander l'accès à vos données, leur rectification et leur suppression ainsi que, le cas échéant, leur remise ou leur transfert, la limitation du traitement ou exercer votre droit d'opposition. Écrivez à <a href="mailto:info@polymapp.ch">info@polymapp.ch</a>. Si votre entreprise est responsable des données concernées, nous l'associons à la démarche. Des obligations légales peuvent s'opposer à la suppression.</p>
+    <p>Vous pouvez vous adresser au <a href="https://www.edoeb.admin.ch/">Préposé fédéral à la protection des données et à la transparence (PFPDT)</a> ou à l'autorité de contrôle compétente en matière de protection des données.</p>
+  </section>
 
-  <h2>Durée de conservation</h2>
-  <p>
-    Je conserve vos données uniquement aussi longtemps que nécessaire pour atteindre les finalités mentionnées ci-dessus ou conformément aux obligations légales de conservation.
-  </p>
-
-  <h2>Vos droits</h2>
-  <p>Vous avez le droit de :</p>
-  <ul>
-    <li>Accéder aux données vous concernant</li>
-    <li>Demander la correction de données inexactes</li>
-    <li>Demander la suppression de vos données, sauf si des obligations légales de conservation s'y opposent</li>
-    <li>Demander la limitation du traitement de vos données</li>
-    <li>S'opposer au traitement de vos données</li>
-    <li>Recevoir vos données dans un format structuré, couramment utilisé et lisible par machine (portabilité des données)</li>
-    <li>Déposer une plainte auprès d'une autorité de contrôle</li>
-  </ul>
-
-  <h2>Contact</h2>
-  <p>
-    Si vous avez des questions sur le traitement de vos données, sur cette politique de confidentialité ou des retours concernant l'application, 
-    vous pouvez me contacter à tout moment via le formulaire de contact ou à l'adresse e-mail suivante :<br>
-    info@polymapp.ch
-  </p>
-
-  <h2>Modifications de cette politique de confidentialité</h2>
-  <p>
-    Je me réserve le droit de modifier cette politique de confidentialité si nécessaire afin de respecter les exigences légales ou de refléter les changements dans l'application. 
-    La politique de confidentialité actuelle est toujours disponible dans l'application.
-  </p>
-
-  <p>Dernière mise à jour : 07.08.2025</p>
-
-</div>
+  <p>Nous adaptons cette politique en cas de modification de nos traitements de données. La version actuelle est disponible sur le site.</p>
+</main>
 
 <footer>
   <p><strong>PolymApp</strong> - Politique de confidentialité</p>
@@ -241,7 +245,6 @@
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
 </script>
-
   <script type="module" src="assets/account-menu.js"></script>
 </body>
 </html>

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <meta charset="UTF-8">
   <script>
     if (location.hostname === "www.polymapp.ch") {
       location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
     }
   </script>
-  <meta name="description" content="PolymApp - Datenschutzerklärung zur Appnutzung.">
+  <meta name="description" content="Datenschutzerklärung für die Android- und iOS-App PolymApp und die Website polymapp.ch.">
 
   <link rel="alternate" hreflang="de" href="https://polymapp.ch/datenschutz.html">
 <link rel="alternate" hreflang="en" href="https://polymapp.ch/datenschutz-en.html">
@@ -22,8 +23,7 @@
 <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
 <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
 
-  <meta charset="UTF-8">
-  <title>Datenschutzerklärung - PolymApp</title>
+  <title>Datenschutzerklärung | PolymApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { 
@@ -106,7 +106,40 @@
       font-weight: bold;
     }
 
+
+    html { scroll-behavior: smooth; }
+    body { color: #252525; overflow-wrap: anywhere; }
+    .container { padding: 28px 22px; }
+    h1 { font-size: 1.9rem; line-height: 1.25; margin-bottom: 8px; }
+    h2 { font-size: 1.35rem; line-height: 1.35; margin-top: 32px; }
+    h3 { font-size: 1.05rem; margin-top: 24px; }
+    .document-date { color: #666; margin-top: 0; }
+    main a { color: #a90000; text-underline-offset: 2px; }
+    main li { margin: 10px 0; }
+    address { font-style: normal; line-height: 1.7; }
+    summary { cursor: pointer; font-weight: bold; }
+    details p { margin-bottom: 0; }
+    :focus-visible { outline: 3px solid #1769aa; outline-offset: 4px; }
+    @media (max-width: 600px) {
+      header { padding-top: 55px; }
+      .header-logo { max-width: 300px; }
+      nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      nav a { margin: 0; }
+      nav a:not(:last-child)::after { content: none; }
+      .container { padding: 20px 16px; }
+      h1 { font-size: 1.6rem; }
+      h2 { font-size: 1.22rem; }
+      main ul { padding-left: 23px; }
+    }
+    @media print {
+      header, nav, footer { display: none; }
+      .container { max-width: none; padding: 0; }
+      h2 { break-after: avoid; }
+      a { color: inherit; }
+    }
+
   </style>
+  <link rel="canonical" href="https://polymapp.ch/datenschutz.html">
   <link rel="stylesheet" href="assets/account-menu.css">
 </head>
 <body>
@@ -128,105 +161,81 @@
   <a href="kontakt.html">Kontakt</a>
 </nav>
 
-<div class="container">
-  <h2>Über PolymApp</h2>
-  <p>
-    PolymApp ist die umfassende App für technische Berufe, die Ihnen das Leben erleichtert. Sie bietet Funktionen wie Toleranzrechner, Gewindeberechnungen und die Analyse von technischen Zeichnungen. Alle bereitgestellten Daten wurden so genau wie möglich erstellt; dennoch kann keine Gewährleistung für deren Richtigkeit gegeben werden.
-  </p>
+<main class="container">
+  <h1>Datenschutzerklärung</h1>
+  <p class="document-date">Stand: 26. Oktober 2026</p>
+  <p>Diese Datenschutzerklärung gilt für die Android- und iOS-App PolymApp sowie für <a href="https://polymapp.ch/">polymapp.ch</a>, einschliesslich Account- und Firmenverwaltung. Sie erläutert, welche Personendaten wir für die jeweiligen Angebote bearbeiten.</p>
 
-	<h2>Allgemeine Hinweise</h2>
-  <p>
-    Der Schutz Ihrer persönlichen Daten ist mir ein wichtiges Anliegen. In dieser Datenschutzerklärung informiere ich Sie darüber, welche Daten von Ihnen erfasst werden, wie diese verwendet werden und welche Rechte Sie in Bezug auf Ihre Daten haben.
-  </p>
+  <section aria-labelledby="verantwortlicher">
+    <h2 id="verantwortlicher">1. Verantwortlicher</h2>
+    <address>PolymApp – Fabian Schatzmann<br>Solistr. 52, 8180 Bülach, Schweiz<br><a href="mailto:info@polymapp.ch">info@polymapp.ch</a></address>
+  </section>
 
-  	<h2>Verantwortlich</h2>
-  <p>
-    Verantwortlich für die Datenverarbeitung ist:<br>
-PolymApp<br>
-info@polymapp.ch
-  </p>
+  <section aria-labelledby="kontodaten">
+    <h2 id="kontodaten">2. Benutzerkonto und App-Daten</h2>
+    <p>Für Anmeldung, Synchronisierung und Freischaltung bearbeiten wir Anmeldedaten, E-Mail-Adresse, Benutzerkennung, Kontoeinstellungen und Nutzungsberechtigungen. Persönliche Einstellungen, eigene Anpassungen, Maschinen und Werkzeuglisten werden bei Nutzung der entsprechenden Speicherfunktionen Ihrem Konto zugeordnet.</p>
+    <p>Zur Verwaltung von Testzugängen und zum Schutz vor Mehrfachnutzung speichern wir Gerätekennungen. Bei Empfehlungen werden geworbene Konten und Freischaltungen dem Einladenden zugeordnet.</p>
+    <p>Die Kamera dient der lokalen Texterkennung, ohne Aufnahmen zu speichern oder Bild- und Textinhalte an PolymApp oder Dritte zu übertragen.</p>
+    <p>In der Android- und iOS-App verwenden wir Google Analytics for Firebase, um Verbreitung und Nutzung der App auszuwerten und das Angebot zu verbessern. Dabei werden Nutzungsereignisse, etwa erstmaliges Öffnen und Sitzungen, App- und Geräteangaben, technische Kennungen und eine ungefähre geografische Zuordnung verarbeitet und an Google übermittelt. Die Auswertungen zeigen unter anderem aktive Nutzer und die Nutzungshäufigkeit.</p>
+  </section>
 
-  	<h2>Erhebung und Verarbeitung von Daten</h2>
-  <p>
-    Für die Nutzung meiner App "PolymApp" ist es nicht erforderlich, dass Sie persönliche Daten angeben. Während des Testzeitraums werden keine personenbezogenen Daten von Ihnen erfasst oder gespeichert.
-  </p>
+  <section aria-labelledby="firmendaten">
+    <h2 id="firmendaten">3. Firmenkonten und gemeinsame Inhalte</h2>
+    <p>Für die Zusammenarbeit in einer Firma speichern wir Firmenname, Inhaberzuordnung, Mitgliedschaften, Rollen und Einladungen. Mitglieder oder ihre Firma stellen dazu E-Mail-Adressen und gegebenenfalls Namen, Abteilungen, Beschäftigungsstatus und interne Notizen bereit.</p>
+    <p>Firmenmaschinen, Werkzeuglisten und Wartungsdaten sind berechtigten Mitgliedern entsprechend ihrer Rolle zugänglich. Wartungseinträge können Zeitpunkt, Benutzerkennung, E-Mail-Adresse und Namen der ausführenden Person enthalten. Administrative Mitgliederdaten und interne Notizen sind dem Inhaber und Firmenadministratoren vorbehalten. Importierte private Maschinen werden im Firmenbereich für berechtigte Mitglieder verfügbar.</p>
+    <p>Für Mitarbeiterdaten und betriebliche Inhalte, welche die Firma erfasst, ist die Firma verantwortlich. Soweit wir diese Inhalte in ihrem Auftrag bereitstellen, handeln wir als Auftragsbearbeiter. Für Kontobetrieb, Sicherheit und eigene Abrechnung bleibt PolymApp verantwortlich.</p>
+  </section>
 
- <h2>Abonnement und Zahlungsinformationen</h2>
-<p>
-  Sollten Sie sich nach dem Testzeitraum für ein kostenpflichtiges Abonnement entscheiden, werden bestimmte Daten erhoben, um die Zahlung und das Abonnement zu verwalten. Dazu gehören:
-</p>
-<ul>
-  <li>Name</li>
-  <li>E-Mail-Adresse</li>
-</ul>
-<p>
-  Diese Daten werden ausschließlich für die Abwicklung des Abonnements verwendet und in Übereinstimmung mit den geltenden Datenschutzgesetzen geschützt.
-</p>
+  <section aria-labelledby="abonnements">
+    <h2 id="abonnements">4. Abonnements und Abrechnung</h2>
+    <p>Private App-Abos werden über Google Play beziehungsweise den Apple App Store abgewickelt. Die Anbieter bearbeiten die erforderlichen Abo- und Zahlungsdaten nach ihren Datenschutzhinweisen. PolymApp verwendet den Abostatus zur Freischaltung.</p>
+    <p>Firmenabos werden direkt durch PolymApp verwaltet. Dafür bearbeiten wir Tarif, Mitarbeiterplätze, Laufzeit, Freigabestatus, Ansprechpartner, Rechnungsanschrift, Rechnungs-E-Mail-Adresse, Rechnungen, Zahlungsstatus und Tarifgutschriften. Rechnungsdaten werden bereits bei der Firmenerstellung während der kostenlosen Aufbauphase erfasst.</p>
+    <p>Innerhalb der Firma sind Finanzdaten dem Inhaber vorbehalten; Firmenadministratoren sehen Freigabestatus und Kapazität. Der PolymApp-Betreiber nutzt die erforderlichen Firmen- und Kontaktdaten zur Betreuung und Abrechnung. Berechtigungen und Tarifbeträge werden teilweise automatisch ermittelt. Eine persönliche Überprüfung können Sie per E-Mail verlangen.</p>
+  </section>
 
-<h2>Zweck der Datenverarbeitung</h2>
-<p>Die von Ihnen zur Verfügung gestellten Daten werden für folgende Zwecke verwendet:</p>
-<ul>
-  <li>Bereitstellung und Verbesserung der App "PolymApp"</li>
-  <li>Verwaltung und Abwicklung von Abonnements</li>
-  <li>Kommunikation mit Ihnen im Zusammenhang mit der Nutzung der App und des Abonnements</li>
-</ul>
+  <section aria-labelledby="website">
+    <h2 id="website">5. Website und Kontakt</h2>
+    <p>Beim Websitebesuch fallen technische Zugriffsdaten an, insbesondere IP-Adresse, aufgerufene Seite, Zeitpunkt sowie Browser- und Geräteangaben. Sie dienen der Bereitstellung, Sicherheit und Fehlerbehebung. Bei der Registrierung über die Accountverwaltung ermittelt ipapi.co anhand Ihrer IP-Adresse das Land; der Ländercode wird im Benutzerprofil gespeichert.</p>
+    <p>Für Anmeldung, Einstellungen und Empfehlungszuordnung verwendet die Website lokale Speicher. Mit «Angemeldet bleiben» bleibt der Login über das Schliessen des Browsers hinaus erhalten; andernfalls ist er auf die Sitzung beziehungsweise den Tab begrenzt. Sie können sich abmelden und Website-Daten im Browser löschen. Sicherheitsdienste können zusätzliche Cookies oder vergleichbare Speicher verwenden.</p>
+    <p>Bei Kontaktanfragen bearbeiten wir Ihre E-Mail-Adresse, Nachricht und Zustellinformationen zur Beantwortung. Das Kontaktformular übermittelt Ihre Angaben über FormSubmit an uns.</p>
+  </section>
 
+  <section aria-labelledby="dienstleister">
+    <h2 id="dienstleister">6. Dienstleister und Bearbeitung im Ausland</h2>
+    <p>Folgende Anbieter erhalten die für ihre Leistungen erforderlichen Daten:</p>
+    <ul>
+      <li><a href="https://firebase.google.com/support/privacy">Google Firebase / Google Cloud</a> für Anmeldung, Speicherung und serverseitige Funktionen; <a href="https://firebase.google.com/docs/app-check">App Check</a> und <a href="https://cloud.google.com/recaptcha/docs/faq">reCAPTCHA</a> zum Missbrauchsschutz anhand technischer Verbindungs-, Geräte- und Interaktionsdaten.</li>
+      <li><a href="https://support.google.com/analytics/answer/6004245?hl=de">Google Analytics for Firebase</a> zur statistischen Auswertung der App-Nutzung.</li>
+      <li><a href="https://www.ionos.de/terms-gtc/datenschutzerklaerung/">IONOS</a> für Websitehosting, Zugriffsprotokolle und E-Mail.</li>
+      <li><a href="https://ipapi.co/privacy/">ipapi.co (Kloudend, Inc.)</a> zur Länderermittlung bei der Registrierung.</li>
+      <li><a href="https://formsubmit.co/privacy.pdf">FormSubmit</a> zur Weiterleitung von Kontaktanfragen.</li>
+      <li><a href="https://policies.google.com/privacy?hl=de">Google Play</a> und <a href="https://www.apple.com/de/legal/privacy/data/de/app-store/">Apple App Store</a> zur Abwicklung privater App-Abos.</li>
+    </ul>
+    <p>Die Firestore-Datenbank nutzt die europäische Mehrfachregion eur3 mit Standorten in Belgien, den Niederlanden und Finnland. Andere Dienste bearbeiten Daten auch ausserhalb der Schweiz: Firebase Authentication verarbeitet Daten in den USA; die verwendeten Cloud Functions laufen in Belgien. Auch bei Analytics ist eine Verarbeitung ausserhalb der Schweiz möglich. Der Anbieter von ipapi.co hat seinen Sitz in den USA.</p>
+    <p>Weitere Bekanntgaben erfolgen, soweit sie zur Erfüllung gesetzlicher Pflichten oder zur Durchsetzung von Rechtsansprüchen erforderlich sind.</p>
+  </section>
 
-  	<h2>Benutzerkonto</h2>
-  <p>
-    In der App besteht die Möglichkeit, ein Benutzerkonto zu erstellen. Dabei wird ausschließlich die von Ihnen angegebene E-Mail-Adresse zum Zweck des Logins gespeichert. Zusätzlich werden alle Einstellungen und Anpassungen, die Sie innerhalb der App vornehmen, Ihrem Benutzerkonto zugeordnet und gespeichert.<br>
-Diese Daten werden ausschließlich zur Sicherung und Wiederherstellung Ihrer individuellen Einstellungen innerhalb der App verwendet. Eine Weitergabe an Dritte erfolgt nicht.<br>
-Sie können Ihr Benutzerkonto jederzeit selbstständig direkt in der App löschen. In diesem Fall werden alle gespeicherten Daten dauerhaft entfernt.
-  </p>
+  <section aria-labelledby="speicherdauer">
+    <h2 id="speicherdauer">7. Speicherdauer und Löschung</h2>
+    <p>Für gespeicherte Konto- und Firmendaten besteht derzeit keine regelmässige automatische Löschung. Für aufbewahrungspflichtige Rechnungen und Buchungsbelege gilt grundsätzlich eine Frist von zehn Jahren ab Ende des Geschäftsjahres.</p>
+    <p>Bei der Kontolöschung werden das Anmeldekonto und das persönliche Benutzerprofil samt zugehörigen Unterdaten entfernt. Zuvor kann ein Firmenaustritt oder eine Inhaberübertragung erforderlich sein. Geteilte Firmen- und Wartungseinträge sowie separate Rechnungsunterlagen und erforderliche Nachweise werden dadurch nicht automatisch gelöscht.</p>
+    <p>Bei Testgerätekennungen wird die Kontozuordnung entfernt; die Kennung bleibt zunächst bestehen. Bei Analytics gelten die in der Analytics-Property eingestellten Aufbewahrungsregeln. Diese erfassen nicht sämtliche zusammengefassten Berichte. Technische Protokolle und Sicherungen unterliegen zusätzlich den Aufbewahrungsregeln der jeweiligen Anbieter.</p>
+  </section>
 
-  	<h2>Fotos und hochgeladene Dokumente</h2>
-  <p>
-    In bestimmten Funktionen der App haben Sie die Möglichkeit, Fotos aufzunehmen, hochzuladen oder Dokumente hochzuladen. Diese Dateien werden nicht auf dem Smartphone gespeichert und sind nur verfügbar, solange die entsprechende Funktion der App geöffnet ist.<br>
-Beim Verlassen der Funktion werden die Dateien automatisch aus dem Verlauf gelöscht. Weder die Fotos noch die hochgeladenen Dokumente werden an PolymApp oder Dritte weitergeleitet.
-  </p>
+  <section aria-labelledby="rechte">
+    <h2 id="rechte">8. Rechtsgrundlagen und Ihre Rechte</h2>
+    <p>Es gilt insbesondere das schweizerische Datenschutzgesetz. Soweit die DSGVO anwendbar ist, bearbeiten wir Daten zur Vertragserfüllung, aufgrund gesetzlicher Pflichten oder berechtigter Interessen an Betrieb, Sicherheit und Anfragebearbeitung. Erforderliche Einwilligungen können für die Zukunft widerrufen werden.</p>
+    <p>Im Rahmen des anwendbaren Rechts können Sie Auskunft, Berichtigung und Löschung sowie gegebenenfalls Datenherausgabe, Übertragung, Einschränkung oder Widerspruch verlangen. Schreiben Sie dazu an <a href="mailto:info@polymapp.ch">info@polymapp.ch</a>. Bei Daten, für welche Ihre Firma verantwortlich ist, beziehen wir diese ein. Gesetzliche Pflichten können einer Löschung entgegenstehen.</p>
+    <p>Sie können sich an den <a href="https://www.edoeb.admin.ch/">Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB)</a> beziehungsweise die zuständige Datenschutzaufsichtsbehörde wenden.</p>
+  </section>
 
-  	<h2>Datenweitergabe an Dritte</h2>
-  <p>
-    Ihre Daten werden ohne Ihre ausdrückliche Zustimmung nicht an Dritte weitergegeben, es sei denn, dies ist zur Erfüllung vertraglicher Verpflichtungen oder gesetzlicher Anforderungen notwendig.
-  </p>
-
-  	<h2>Speicherdauer</h2>
-  <p>
-    Ich speichere Ihre Daten nur so lange, wie dies zur Erfüllung der oben genannten Zwecke erforderlich ist oder wie es die gesetzlichen Aufbewahrungsfristen vorsehen.
-  </p>
-
-    	<h2>Ihre Rechte</h2>
-<p>Sie haben das Recht:</p>
-<ul>
-  <li>Auskunft über die bei mir gespeicherten Daten zu erhalten</li>
-  <li>Berichtigung unrichtiger Daten zu verlangen</li>
-  <li>Die Löschung Ihrer Daten zu verlangen, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen</li>
-  <li>Die Einschränkung der Verarbeitung Ihrer Daten zu verlangen</li>
-  <li>Der Verarbeitung Ihrer Daten zu widersprechen</li>
-  <li>Ihre Daten in einem strukturierten, gängigen und maschinenlesbaren Format zu erhalten (Datenübertragbarkeit)</li>
-  <li>Eine Beschwerde bei einer Aufsichtsbehörde einzureichen</li>
-</ul>
+  <p>Bei Änderungen unserer Datenbearbeitung passen wir diese Erklärung an. Die aktuelle Fassung finden Sie auf der Website.</p>
 
 
-    	<h2>Kontakt</h2>
-  <p>
-    Wenn Sie Fragen zur Verarbeitung Ihrer Daten, zu dieser Datenschutzerklärung oder Feedback zur App haben, können Sie mich jederzeit über das Kontaktformular, sowie unter der folgenden E-Mail-Adresse erreichen:<br>
-info@polymapp.ch
-  </p>
-
-    	<h2>Änderungen dieser Datenschutzerklärung</h2>
-  <p>
-    Ich behalte mir das Recht vor, diese Datenschutzerklärung bei Bedarf anzupassen, um rechtlichen Anforderungen zu genügen oder um Änderungen meiner Leistungen in der Datenschutzerklärung umzusetzen. Die jeweils aktuelle Datenschutzerklärung finden Sie in der App.
-  </p>
-  <p>
-
-Stand: 07.08.2025
-  </p>
-
-</div>
+</main>
 
 <footer>
-  <p><strong>PolymApp</strong> - Datenschutzerklärung</p>
+  <p><strong>PolymApp</strong> – Datenschutzerklärung</p>
   <p>
     <a href="index.html">Startseite</a> ·
     <a href="about.html">Über mich</a> ·
