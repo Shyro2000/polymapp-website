@@ -18,3 +18,20 @@ header { position: relative; padding-top: 72px; }
 .account-menu-error { color: #a00000; margin-top: 10px !important; }
 .remember-login { display: flex; align-items: center; gap: 8px; margin: 12px 0; font-size: 14px; }
 @media (max-width: 420px) { .account-menu { left: 10px; } .account-menu summary { gap: 5px; padding: 7px; } .language-switch { right: 8px; } }
+
+.auth-mfa-dialog { width: min(430px, calc(100vw - 40px)); max-height: calc(100dvh - 40px); overflow: auto; box-sizing: border-box; padding: 24px; border: 1px solid #bbb; border-radius: 10px; color: #222; background: #fff; text-align: left; font: 16px/1.5 Arial, sans-serif; }
+.auth-mfa-dialog::backdrop { background: #0008; }
+.auth-mfa-dialog form { display: block; margin: 0; padding: 0; }
+.auth-mfa-dialog h2 { color: #a00000; font-size: 1.3rem; margin: 0 0 12px; }
+.auth-mfa-dialog label { display: block; margin: 12px 0 5px; }
+.auth-mfa-dialog input, .auth-mfa-dialog select { width: 100%; box-sizing: border-box; padding: 10px; font: inherit; border: 1px solid #888; border-radius: 4px; }
+.auth-mfa-dialog [hidden] { display: none !important; }
+.auth-mfa-dialog [data-error] { color: #a00000; }
+.auth-mfa-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.auth-mfa-dialog button { border: 0; border-radius: 4px; padding: 10px 15px; background: #b80000; color: #fff; cursor: pointer; font: inherit; }
+.auth-mfa-dialog button[data-cancel] { background: #555; }
+.auth-mfa-dialog button:disabled { opacity: .6; cursor: wait; }
+.auth-mfa-qr { width: min(240px, 100%); margin: 14px auto; }
+.auth-mfa-qr svg { width: 100%; height: auto; display: block; }
+.auth-mfa-key { display: block; overflow-wrap: anywhere; user-select: all; padding: 10px; border: 1px solid #ddd; background: #f5f5f5; }
+@media print { .auth-mfa-dialog { display: none; } }

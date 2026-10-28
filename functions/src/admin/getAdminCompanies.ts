@@ -1,3 +1,4 @@
+import {requireAdminMfa} from "../shared/adminAccess";
 import {getAuth} from "firebase-admin/auth";
 import {Timestamp} from "firebase-admin/firestore";
 import {HttpsError, onCall} from "firebase-functions/https";
@@ -58,15 +59,7 @@ export const getAdminCompanies = onCall(async (request) => {
     throw new HttpsError("unauthenticated", "Du musst angemeldet sein.");
   }
 
-  const uid = request.auth.uid;
-  const userSnapshot = await db.collection("users").doc(uid).get();
-
-  if (!userSnapshot.exists || userSnapshot.get("systemAdmin") !== true) {
-    throw new HttpsError(
-      "permission-denied",
-      "Kein Zugriff auf die PolymApp-Administration.",
-    );
-  }
+  await requireAdminMfa(request.auth);
 
   const [
     companiesSnapshot,

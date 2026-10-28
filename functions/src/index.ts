@@ -52,3 +52,5 @@ export {
   markCompanyNotificationRead,
   updateCompanyProgram,
 } from "./admin/companyProgram";
+
+export {getAdminAccess} from "./admin/adminSecurity";

@@ -469,13 +469,12 @@
 </footer>
 
 <script type="module">
+  import {signInWithMfa, reauthenticateWithMfa} from "./assets/auth-mfa.js";
   import {app, auth, choosePersistence} from "./assets/website-auth.js";
   import {
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
     onAuthStateChanged,
     EmailAuthProvider,
-    reauthenticateWithCredential,
     deleteUser,
     signOut,
     sendPasswordResetEmail
@@ -883,7 +882,7 @@
     try {
       setStatus("Signing in ...", "success", 2500);
       await choosePersistence(document.getElementById("loginRemember").checked);
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithMfa(email, password);
       loginForm.reset();
       setStatus("Signed in successfully.", "success", 3000);
     } catch (error) {
@@ -954,7 +953,7 @@
       setStatus("Verifying and deleting account ...", "success", 3000);
 
       const credential = EmailAuthProvider.credential(user.email, password);
-      await reauthenticateWithCredential(user, credential);
+      await reauthenticateWithMfa(user, credential);
       await user.getIdToken(true);
 
       await deletePolymAppAccountCall();

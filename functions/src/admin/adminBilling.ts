@@ -1,3 +1,4 @@
+import {requireAdminMfa} from "../shared/adminAccess";
 import {
   readServicePeriods,
   tariffPrice,
@@ -16,22 +17,6 @@ import {
   PRICE_TIERS,
 } from "./billingConfig";
 import {buildInvoicePdf} from "./invoicePdf";
-
-/**
- * Verifies that the caller is a PolymApp system admin.
- * @param {string} uid Firebase Authentication uid.
- * @return {Promise<void>} Resolves for authorized admins.
- */
-async function requireSystemAdmin(uid: string): Promise<void> {
-  const userSnapshot = await db.collection("users").doc(uid).get();
-
-  if (!userSnapshot.exists || userSnapshot.get("systemAdmin") !== true) {
-    throw new HttpsError(
-      "permission-denied",
-      "Kein Zugriff auf die PolymApp-Administration.",
-    );
-  }
-}
 
 /**
  * Parses a YYYY-MM-DD date.
@@ -171,7 +156,7 @@ export const createCompanyInvoice = onCall(async (request) => {
   }
 
   const adminUid = request.auth.uid;
-  await requireSystemAdmin(adminUid);
+  await requireAdminMfa(request.auth);
 
   const companyId = normalizeText(request.data?.companyId, "", 200);
 
@@ -512,7 +497,7 @@ export const markCompanyInvoicePaid = onCall(async (request) => {
   }
 
   const adminUid = request.auth.uid;
-  await requireSystemAdmin(adminUid);
+  await requireAdminMfa(request.auth);
 
   const invoiceId = normalizeText(request.data?.invoiceId, "", 200);
   const paymentReference = normalizeText(
@@ -769,7 +754,7 @@ export const cancelCompanyInvoice = onCall(async (request) => {
   }
 
   const adminUid = request.auth.uid;
-  await requireSystemAdmin(adminUid);
+  await requireAdminMfa(request.auth);
 
   const invoiceId = normalizeText(request.data?.invoiceId, "", 200);
 
@@ -891,7 +876,7 @@ export const updateAdminBillingSettings = onCall(async (request) => {
   }
 
   const adminUid = request.auth.uid;
-  await requireSystemAdmin(adminUid);
+  await requireAdminMfa(request.auth);
 
   const settings = validatedIssuerSettings(request.data?.settings);
 
@@ -920,7 +905,7 @@ export const getCompanyInvoicePdf = onCall(async (request) => {
     throw new HttpsError("unauthenticated", "Du musst angemeldet sein.");
   }
 
-  await requireSystemAdmin(request.auth.uid);
+  await requireAdminMfa(request.auth);
 
   const invoiceId = normalizeText(request.data?.invoiceId, "", 200);
 

@@ -665,6 +665,8 @@
       Interne Übersicht aller PolymApp-Firmenaccounts für Tarif-, Zahlungs- und Abrechnungskontrolle.
     </p>
 
+    <section id="adminMfaPanel" class="panel hidden"></section>
+
     <section id="loadingPanel" class="panel">
       <h2>Daten werden geladen</h2>
       <p class="empty-state">
@@ -966,11 +968,13 @@
   </footer>
 
   <script type="module">
+    import {getAdminAccess, renderAdminMfaSetup} from "./assets/auth-mfa.js";
     import {renderCompanyAdminExtras} from "./assets/company-admin.js";
   import {app, auth} from "./assets/website-auth.js";
 
     import {
-      onAuthStateChanged
+      onIdTokenChanged,
+      signOut
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     import {
@@ -1056,6 +1060,8 @@
       "getCompanyInvoicePdf"
     );
 
+    const adminMfaPanel = document.getElementById("adminMfaPanel");
+    let adminViewEpoch = 0;
     const loadingPanel = document.getElementById("loadingPanel");
     const loginPanel = document.getElementById("loginPanel");
     const accessDeniedPanel = document.getElementById("accessDeniedPanel");
@@ -1225,6 +1231,7 @@
     }
 
     function showOnly(panel) {
+      adminMfaPanel.classList.add("hidden");
       loadingPanel.classList.add("hidden");
       loginPanel.classList.add("hidden");
       accessDeniedPanel.classList.add("hidden");
@@ -2154,10 +2161,13 @@
     }
 
     async function loadCompanies() {
+      const viewEpoch = adminViewEpoch;
+      const viewUid = auth.currentUser?.uid;
       refreshButton.disabled = true;
 
       try {
         const result = await getAdminCompaniesCall();
+        if (viewEpoch !== adminViewEpoch || viewUid !== auth.currentUser?.uid) return;
 
         renderCompanyAdminExtras(result.data, loadCompanies);
         const rawCompanies = Array.isArray(result?.data?.companies)
@@ -2190,6 +2200,13 @@
         renderPayments();
         showOnly(adminPanel);
       } catch (error) {
+        if (viewEpoch !== adminViewEpoch || viewUid !== auth.currentUser?.uid) return;
+        if (error?.details?.reason === "admin_mfa_required") {
+          showOnly(adminMfaPanel);
+          try { renderAdminMfaSetup(adminMfaPanel, await getAdminAccess()); }
+          catch { showOnly(accessDeniedPanel); }
+          return;
+        }
         console.error("Admin-Firmen konnten nicht geladen werden:", error);
 
         if (
@@ -2236,19 +2253,31 @@
 
     renderTariffs();
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        showOnly(loginPanel);
-        return;
+    onIdTokenChanged(auth, async (user) => {
+      const epoch = ++adminViewEpoch;
+      showOnly(user ? loadingPanel : loginPanel);
+      if (!user) return;
+      try {
+        const access = await getAdminAccess();
+        if (epoch !== adminViewEpoch || auth.currentUser?.uid !== user.uid) return;
+        if (!access.isAdmin) { showOnly(accessDeniedPanel); return; }
+        if (!access.mfaVerified) {
+          renderAdminMfaSetup(adminMfaPanel, access);
+          showOnly(adminMfaPanel);
+          return;
+        }
+        await loadCompanies();
+      } catch (error) {
+        if (epoch !== adminViewEpoch) return;
+        if (error?.code === "functions/unauthenticated" ||
+            error?.code === "auth/user-token-expired") {
+          await signOut(auth);
+          showOnly(loginPanel);
+          return;
+        }
+        showOnly(backendMissingPanel);
+        setStatus(error?.message || "Adminzugang konnte nicht geprüft werden.", "error", 7000);
       }
-
-      loadingPanel.classList.remove("hidden");
-      loginPanel.classList.add("hidden");
-      accessDeniedPanel.classList.add("hidden");
-      backendMissingPanel.classList.add("hidden");
-      adminPanel.classList.add("hidden");
-
-      await loadCompanies();
     });
   </script>
   <script type="module" src="assets/account-menu.js"></script>

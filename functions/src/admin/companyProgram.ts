@@ -1,26 +1,13 @@
+import {requireAdminMfa} from "../shared/adminAccess";
 import {FieldValue, Timestamp} from "firebase-admin/firestore";
 import {HttpsError, onCall} from "firebase-functions/https";
 import {db} from "../firebase";
-
-/**
- * Confirms platform administration; company administrators do not qualify.
- * @param {string} uid Authenticated caller identifier.
- */
-async function requireAdmin(uid: string): Promise<void> {
-  const user = await db.collection("users").doc(uid).get();
-  if (user.get("systemAdmin") !== true) {
-    throw new HttpsError(
-      "permission-denied",
-      "Kein Zugriff auf die Administration.",
-    );
-  }
-}
 
 export const markCompanyNotificationRead = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Bitte anmelden.");
   }
-  await requireAdmin(request.auth.uid);
+  await requireAdminMfa(request.auth);
   const id = request.data?.notificationId;
   if (typeof id !== "string" || !/^[\w-]{1,240}$/.test(id)) {
     throw new HttpsError("invalid-argument", "Ungültige Meldung.");
@@ -45,7 +32,7 @@ export const migrateCompanySubscriptions = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "Bitte anmelden.");
     }
-    await requireAdmin(request.auth.uid);
+    await requireAdminMfa(request.auth);
     const companies = await db.collection("companies").get();
     let migrated = 0;
     for (const document of companies.docs) {
@@ -102,7 +89,7 @@ export const updateCompanyProgram = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Bitte anmelden.");
   }
-  await requireAdmin(request.auth.uid);
+  await requireAdminMfa(request.auth);
   if (typeof request.data?.paidEnrollmentEnabled !== "boolean") {
     throw new HttpsError("invalid-argument", "Ungültiger Einführungsstatus.");
   }
