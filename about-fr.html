@@ -95,6 +95,7 @@
     }
     .about-photo {
       flex: 0 0 220px;
+      position: relative;
     }
     .about-photo img {
   width: 100%;
@@ -105,6 +106,13 @@
   opacity: 1;
   transition: opacity 1s ease-in-out;
 }
+    .about-photo img.slideshow-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
     .about-text {
       flex: 1;
     }
@@ -216,26 +224,60 @@
   ];
 
   let currentImage = 0;
-
   const imageElement = document.getElementById("slideshow-image");
+  const overlay = imageElement.cloneNode();
+  overlay.removeAttribute("id");
+  overlay.classList.add("slideshow-overlay");
+  imageElement.parentNode.appendChild(overlay);
 
-  setInterval(() => {
+  // Bilder im Voraus laden, damit auch der erste Wechsel weich verläuft.
+  const preloadedImages = images.map(src => {
+    const image = new Image();
+    image.src = src;
+    return image;
+  });
 
-    // Ausblenden
-    imageElement.style.opacity = 0;
+  let activeImage = imageElement;
+  let hiddenImage = overlay;
 
-    setTimeout(() => {
+  async function changeImage() {
+    const nextIndex = (currentImage + 1) % images.length;
+    const preload = preloadedImages[nextIndex];
+    try {
+      if (!preload.complete) {
+        await new Promise((resolve, reject) => {
+          preload.addEventListener("load", resolve, { once: true });
+          preload.addEventListener("error", reject, { once: true });
+        });
+      }
+      if (!preload.naturalWidth) return;
+      if (preload.decode) await preload.decode();
+    } catch { return; }
 
-      // Bild wechseln
-      currentImage = (currentImage + 1) % images.length;
-      imageElement.src = images[currentImage];
+    hiddenImage.src = images[nextIndex];
+    hiddenImage.style.transition = "none";
+    hiddenImage.style.opacity = "0";
+    hiddenImage.style.zIndex = "2";
+    void hiddenImage.offsetWidth;
+    hiddenImage.style.transition = "opacity 1s ease-in-out";
+    hiddenImage.style.opacity = "1";
 
-      // Wieder einblenden
-      imageElement.style.opacity = 1;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    activeImage.style.transition = "none";
+    activeImage.style.opacity = "0";
+    activeImage.style.zIndex = "1";
+    [activeImage, hiddenImage] = [hiddenImage, activeImage];
+    currentImage = nextIndex;
+  }
 
-    }, 1000); // gleich wie transition Dauer
-
-  }, 5000);
+  async function runSlideshow() {
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    while (true) {
+      await changeImage();
+      await new Promise(resolve => setTimeout(resolve, 4000));
+    }
+  }
+  runSlideshow();
 </script>
 
   <script type="module" src="assets/account-menu.js"></script>
