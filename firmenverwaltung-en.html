@@ -959,6 +959,11 @@
                 </tr>
 <tr><th scope="row">Activate/deactivate machines in the machine database</th><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td><td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td></tr>
 </tbody>
+<tbody><tr class="permission-section"><th scope="rowgroup" colspan="5">G and M codes</th></tr>
+<tr><th scope="row">View shared company code lists</th><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td></tr>
+<tr><th scope="row">Create, edit and delete G and M codes</th><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td></tr>
+<tr><th scope="row">Copy private G/M code lists to the company</th><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td><td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td></tr>
+</tbody>
 <tbody><tr class="permission-section"><th scope="rowgroup" colspan="5">Maintenance plans</th></tr>
 <tr><th scope="row">View maintenance plans and history of active machines</th><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td></tr>
 <tr><th scope="row">Perform and confirm maintenance</th><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td></tr>
@@ -1040,7 +1045,7 @@
           class="compact-disclosure management-card"
           style="margin-top: 18px;"
         >
-          <summary>Copy private machines to the company</summary>
+          <summary>Copy private machines and G/M codes to the company</summary>
           <p>
             Select up to 20 private machines. The private originals will remain
             unchanged. Tool lists, maintenance plans and the full maintenance
@@ -1074,6 +1079,13 @@
               <div id="companyMachineList" class="machine-list">
                 <p class="empty-state">Loading company machines …</p>
               </div>
+            </div>
+          </div>
+          <div class="code-import-area" style="margin-top: 18px;">
+            <h3>My private G/M code lists</h3>
+            <p>Only your changes are copied. The built-in lists remain available; private lists reappear if you leave the company.</p>
+            <div id="privateCodeList" class="machine-list">
+              <p class="empty-state">No private changes available for import.</p>
             </div>
           </div>
         </details>
@@ -1270,7 +1282,7 @@
   </button>
 
   <p class="notice notice-warning">
-    All company machines, tool lists, maintenance plans and maintenance history, member data and invitations will be permanently deleted. Your personal account, private machines and their maintenance data will be retained.
+    All company machines, tool lists, maintenance plans and maintenance history, G/M code lists, member data and invitations will be permanently deleted. Your personal account, private machines and their maintenance data will be retained.
   </p>
 </details>
 
@@ -1846,6 +1858,12 @@
       {timeout: 210000}
     );
 
+    const listPrivateCodeListsCall = httpsCallable(
+      functions, "listPrivateCodeListsForImport"
+    );
+    const importPrivateCodeListsCall = httpsCallable(
+      functions, "importPrivateCodeListsToCompany", {timeout: 210000}
+    );
     const loadingPanel = document.getElementById("loadingPanel");
     const loginPanel = document.getElementById("loginPanel");
     const invitationsPanel = document.getElementById("invitationsPanel");
@@ -1926,6 +1944,7 @@
     const deleteCompanyDescription = document.getElementById("deleteCompanyDescription");
     const privateMachineList = document.getElementById("privateMachineList");
     const companyMachineList = document.getElementById("companyMachineList");
+    const privateCodeList = document.getElementById("privateCodeList");
     const machineSelectionCount = document.getElementById(
       "machineSelectionCount"
     );
@@ -1959,6 +1978,8 @@
     let currentMemberProfiles = new Map();
     let currentPrivateMachines = new Map();
     let currentCompanyMachines = new Map();
+    let currentPrivateCodeLists = [];
+    let selectedPrivateCodeFiles = new Set();
     let selectedPrivateMachineIds = new Set();
     let currentActiveInvitationCount = null;
     let statusTimer = null;
@@ -2404,13 +2425,13 @@
     function roleText(role) {
       switch (role) {
         case "owner":
-          return "You manage the company, members, roles, machines and tool lists.";
+          return "You manage the company, members, roles, machines and tool lists. You can edit company codes.";
         case "admin":
-          return "You manage members, machines and tool lists. Only the owner can assign admin rights.";
+          return "You manage members, machines and tool lists. Only the owner can assign admin rights. You can edit company codes.";
         case "editor":
-          return "You can create, edit and delete tools. Machine data remains read-only.";
+          return "You can create, edit and delete tools. Machine data remains read-only. You can edit company codes.";
         case "viewer":
-          return "You can view company machines and tool lists, but cannot change them.";
+          return "You can view company machines and tool lists, but cannot change them. G/M codes are read-only for you.";
         default:
           return "The company role could not be loaded.";
       }
@@ -2450,6 +2471,8 @@
       currentPrivateMachines = new Map();
       currentCompanyMachines = new Map();
       selectedPrivateMachineIds = new Set();
+      currentPrivateCodeLists = [];
+      selectedPrivateCodeFiles = new Set();
       currentActiveInvitationCount = null;
       currentCompany = null;
       currentMembership = null;
@@ -2552,6 +2575,8 @@
         currentPrivateMachines = new Map();
         currentCompanyMachines = new Map();
         selectedPrivateMachineIds = new Set();
+        currentPrivateCodeLists = [];
+        selectedPrivateCodeFiles = new Set();
         return;
       }
 
@@ -2641,6 +2666,8 @@
 
       if (!companyFeaturesActive()) return;
 
+      loadPrivateCodeLists(companyId);
+
       unsubscribePrivateMachines = onSnapshot(
         collection(db, "users", currentUser.uid, "machines"),
         (snapshot) => {
@@ -2707,6 +2734,65 @@
         container.style.maxHeight = `${Math.ceil(height)}px`;
         container.style.overflowY = "auto";
       });
+    }
+
+    async function loadPrivateCodeLists(companyId) {
+      try {
+        const result = await listPrivateCodeListsCall();
+        if (managedCompanyId !== companyId || !currentUser) return;
+        currentPrivateCodeLists = result.data?.lists || [];
+        renderPrivateCodeLists();
+      } catch (error) {
+        if (managedCompanyId === companyId) setStatus(mapFunctionError(error), "error", 7000);
+      }
+    }
+
+    function renderPrivateCodeLists() {
+      const available = new Set(currentPrivateCodeLists
+        .filter((entry) => !entry.alreadyImported && !entry.tooManyChanges)
+        .map((entry) => entry.filename));
+      for (const filename of selectedPrivateCodeFiles) {
+        if (!available.has(filename)) selectedPrivateCodeFiles.delete(filename);
+      }
+      privateCodeList.replaceChildren();
+      if (currentPrivateCodeLists.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty-state";
+        empty.textContent = 'No private changes available for import.';
+        privateCodeList.append(empty);
+      }
+      for (const entry of currentPrivateCodeLists) {
+        const label = document.createElement("label");
+        label.className = "machine-choice";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = entry.filename;
+        checkbox.disabled = entry.alreadyImported || entry.tooManyChanges;
+        checkbox.checked = selectedPrivateCodeFiles.has(entry.filename);
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) {
+            if (selectedPrivateCodeFiles.size >= 20) {
+              checkbox.checked = false;
+              return;
+            }
+            selectedPrivateCodeFiles.add(entry.filename);
+          } else selectedPrivateCodeFiles.delete(entry.filename);
+          updateMachineImportButton();
+        });
+        const text = document.createElement("span");
+        const name = document.createElement("span");
+        name.className = "machine-name";
+        name.textContent = entry.filename;
+        const meta = document.createElement("span");
+        meta.className = "machine-meta";
+        meta.textContent = entry.alreadyImported ? 'Already in the company' :
+          entry.tooManyChanges ? 'Too many changes for one import' :
+          `${entry.changeCount} changes`;
+        text.append(name, meta);
+        label.append(checkbox, text);
+        privateCodeList.append(label);
+      }
+      updateMachineImportButton();
     }
 
     function renderMachineImport() {
@@ -2836,9 +2922,11 @@
     }
 
     function updateMachineImportButton() {
-      const selectedCount = selectedPrivateMachineIds.size;
+      const selectedCount = selectedPrivateMachineIds.size +
+        selectedPrivateCodeFiles.size;
       machineSelectionCount.textContent =
-        `${selectedCount} of a maximum of 20 selected`;
+        `Machines: ${selectedPrivateMachineIds.size} / 20 · Code lists: ${selectedPrivateCodeFiles.size} / 20`;
+      importMachinesButton.textContent = 'Copy selection';
       importMachinesButton.disabled = selectedCount === 0;
       importMachinesButton.classList.toggle("unavailable", selectedCount === 0);
     }
@@ -3468,7 +3556,7 @@ deleteCompanyButton.addEventListener(
     const confirmed = window.confirm(
       `Really delete company “${companyName}”?\n\n` +
       "All company machines, tool lists, maintenance plans, " +
-      "maintenance history, member data and invitations will be " +
+      "maintenance history, G/M code lists, member data and invitations will be " +
       "permanently deleted.\n\n" +
       "Your personal account, private machines " +
       "and their maintenance data will be retained.",
@@ -3523,45 +3611,34 @@ deleteCompanyButton.addEventListener(
 
     importMachinesButton.addEventListener("click", async () => {
       const machineIds = [...selectedPrivateMachineIds];
-
-      if (machineIds.length === 0) {
-        setStatus("Please select at least one machine.", "error");
+      const codeFilenames = [...selectedPrivateCodeFiles];
+      if (machineIds.length + codeFilenames.length === 0) {
+        setStatus('Please select at least one machine or code list.', "error");
         return;
       }
-
-      const confirmed = window.confirm(
-        `Copy ${machineIds.length} machine(s), including their tool lists, ` +
-        "maintenance plans and history, to the company?\n\n" +
-        "The private originals will remain unchanged."
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
+      if (!window.confirm('Copy selected machines and G/M code lists to the company? Private originals remain available.')) return;
       importMachinesButton.disabled = true;
-      importMachinesButton.classList.remove("unavailable");
-
+      let importedMachines = 0;
+      let importedCodes = 0;
       try {
-        const result = await importPrivateMachinesCall({machineIds});
-        const importedCount = result.data?.importedMachines?.length || 0;
-        const skippedCount =
-          result.data?.alreadyImportedMachineIds?.length || 0;
-
-        selectedPrivateMachineIds = new Set();
+        if (machineIds.length) {
+          const machineResult = await importPrivateMachinesCall({machineIds});
+          importedMachines = machineResult.data?.importedMachines?.length || 0;
+          selectedPrivateMachineIds = new Set();
+        }
+        if (codeFilenames.length) {
+          const codeResult = await importPrivateCodeListsCall({codeFilenames});
+          importedCodes = codeResult.data?.importedCodeFilenames?.length || 0;
+          selectedPrivateCodeFiles = new Set();
+        }
         updateMachineImportButton();
         dismissMachineImportNotice();
-
-        const skippedText = skippedCount > 0
-          ? ` ${skippedCount} existing machine(s) were skipped.`
-          : "";
-        setStatus(
-          `${importedCount} machine(s) were copied.${skippedText}`,
-          "success",
-          7000
-        );
+        loadPrivateCodeLists(currentCompanyId);
+        setStatus(`${importedMachines} / ${importedCodes}: Machine(s) and G/M code list(s) copied.`, "success", 7000);
       } catch (error) {
-        setStatus(mapFunctionError(error), "error", 7000);
+        const message = importedMachines > 0 ?
+          'Machines were copied; G/M code lists could not be imported: ' + mapFunctionError(error) : mapFunctionError(error);
+        setStatus(message, "error", 7000);
         updateMachineImportButton();
       }
     });

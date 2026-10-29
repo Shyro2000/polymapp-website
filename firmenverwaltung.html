@@ -960,6 +960,11 @@
                 </tr>
 <tr><th scope="row">Maschinen in der Maschinendatenbank aktiv/inaktiv setzen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td></tr>
 </tbody>
+<tbody><tr class="permission-section"><th scope="rowgroup" colspan="5">G- und M-Codes</th></tr>
+<tr><th scope="row">Gemeinsame Firmen-Codelisten ansehen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td></tr>
+<tr><th scope="row">G- und M-Codes erstellen, bearbeiten und löschen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td></tr>
+<tr><th scope="row">Private G-/M-Codelisten in die Firma kopieren</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td><td><span class="permission-no" role="img" aria-label="Nicht erlaubt">✕</span></td></tr>
+</tbody>
 <tbody><tr class="permission-section"><th scope="rowgroup" colspan="5">Wartungspläne</th></tr>
 <tr><th scope="row">Wartungspläne und Historie aktiver Maschinen ansehen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td></tr>
 <tr><th scope="row">Wartungen ausführen und bestätigen</th><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td><td><span class="permission-yes" role="img" aria-label="Erlaubt">✓</span></td></tr>
@@ -1041,7 +1046,7 @@
           class="compact-disclosure management-card"
           style="margin-top: 18px;"
         >
-          <summary>Private Maschinen in die Firma kopieren</summary>
+          <summary>Private Maschinen und G-/M-Codes in die Firma kopieren</summary>
           <p>
             Wählen Sie bis zu 20 private Maschinen aus. Die privaten Originale
             bleiben erhalten. Werkzeuglisten, Wartungspläne und die gesamte
@@ -1076,6 +1081,13 @@
               <div id="companyMachineList" class="machine-list">
                 <p class="empty-state">Firmenmaschinen werden geladen …</p>
               </div>
+            </div>
+          </div>
+          <div class="code-import-area" style="margin-top: 18px;">
+            <h3>Meine privaten G-/M-Codelisten</h3>
+            <p>Nur eigene Änderungen werden kopiert. Die App-Vorlagen bleiben erhalten; private Listen bleiben auch nach einem Firmenaustritt verfügbar.</p>
+            <div id="privateCodeList" class="machine-list">
+              <p class="empty-state">Keine privaten Änderungen zum Import vorhanden.</p>
             </div>
           </div>
         </details>
@@ -1860,6 +1872,12 @@
       {timeout: 210000}
     );
 
+    const listPrivateCodeListsCall = httpsCallable(
+      functions, "listPrivateCodeListsForImport"
+    );
+    const importPrivateCodeListsCall = httpsCallable(
+      functions, "importPrivateCodeListsToCompany", {timeout: 210000}
+    );
     const loadingPanel = document.getElementById("loadingPanel");
     const loginPanel = document.getElementById("loginPanel");
     const invitationsPanel = document.getElementById("invitationsPanel");
@@ -1940,6 +1958,7 @@
     const deleteCompanyDescription = document.getElementById("deleteCompanyDescription");
     const privateMachineList = document.getElementById("privateMachineList");
     const companyMachineList = document.getElementById("companyMachineList");
+    const privateCodeList = document.getElementById("privateCodeList");
     const machineSelectionCount = document.getElementById(
       "machineSelectionCount"
     );
@@ -1973,6 +1992,8 @@
     let currentMemberProfiles = new Map();
     let currentPrivateMachines = new Map();
     let currentCompanyMachines = new Map();
+    let currentPrivateCodeLists = [];
+    let selectedPrivateCodeFiles = new Set();
     let selectedPrivateMachineIds = new Set();
     let currentActiveInvitationCount = null;
     let statusTimer = null;
@@ -2418,13 +2439,13 @@
     function roleText(role) {
       switch (role) {
         case "owner":
-          return "Sie verwalten die Firma, Mitglieder, Rollen, Maschinen und Werkzeuglisten.";
+          return "Sie verwalten die Firma, Mitglieder, Rollen, Maschinen und Werkzeuglisten. Sie können Firmen-Codes bearbeiten.";
         case "admin":
-          return "Sie verwalten Mitglieder sowie Maschinen und Werkzeuglisten. Administratorrechte vergibt nur der Inhaber.";
+          return "Sie verwalten Mitglieder sowie Maschinen und Werkzeuglisten. Administratorrechte vergibt nur der Inhaber. Sie können Firmen-Codes bearbeiten.";
         case "editor":
-          return "Sie dürfen Werkzeuge erstellen, bearbeiten und löschen. Maschinendaten bleiben unveränderbar.";
+          return "Sie dürfen Werkzeuge erstellen, bearbeiten und löschen. Maschinendaten bleiben unveränderbar. Sie können Firmen-Codes bearbeiten.";
         case "viewer":
-          return "Sie können Firmenmaschinen und Werkzeuglisten ansehen, aber nicht verändern.";
+          return "Sie können Firmenmaschinen und Werkzeuglisten ansehen, aber nicht verändern. G-/M-Codes sind für Sie lesbar.";
         default:
           return "Die Firmenrolle konnte nicht geladen werden.";
       }
@@ -2464,6 +2485,8 @@
       currentPrivateMachines = new Map();
       currentCompanyMachines = new Map();
       selectedPrivateMachineIds = new Set();
+      currentPrivateCodeLists = [];
+      selectedPrivateCodeFiles = new Set();
       currentActiveInvitationCount = null;
       currentCompany = null;
       currentMembership = null;
@@ -2566,6 +2589,8 @@
         currentPrivateMachines = new Map();
         currentCompanyMachines = new Map();
         selectedPrivateMachineIds = new Set();
+        currentPrivateCodeLists = [];
+        selectedPrivateCodeFiles = new Set();
         return;
       }
 
@@ -2655,6 +2680,8 @@
 
       if (!companyFeaturesActive()) return;
 
+      loadPrivateCodeLists(companyId);
+
       unsubscribePrivateMachines = onSnapshot(
         collection(db, "users", currentUser.uid, "machines"),
         (snapshot) => {
@@ -2721,6 +2748,65 @@
         container.style.maxHeight = `${Math.ceil(height)}px`;
         container.style.overflowY = "auto";
       });
+    }
+
+    async function loadPrivateCodeLists(companyId) {
+      try {
+        const result = await listPrivateCodeListsCall();
+        if (managedCompanyId !== companyId || !currentUser) return;
+        currentPrivateCodeLists = result.data?.lists || [];
+        renderPrivateCodeLists();
+      } catch (error) {
+        if (managedCompanyId === companyId) setStatus(mapFunctionError(error), "error", 7000);
+      }
+    }
+
+    function renderPrivateCodeLists() {
+      const available = new Set(currentPrivateCodeLists
+        .filter((entry) => !entry.alreadyImported && !entry.tooManyChanges)
+        .map((entry) => entry.filename));
+      for (const filename of selectedPrivateCodeFiles) {
+        if (!available.has(filename)) selectedPrivateCodeFiles.delete(filename);
+      }
+      privateCodeList.replaceChildren();
+      if (currentPrivateCodeLists.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty-state";
+        empty.textContent = 'Keine privaten Änderungen zum Import vorhanden.';
+        privateCodeList.append(empty);
+      }
+      for (const entry of currentPrivateCodeLists) {
+        const label = document.createElement("label");
+        label.className = "machine-choice";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = entry.filename;
+        checkbox.disabled = entry.alreadyImported || entry.tooManyChanges;
+        checkbox.checked = selectedPrivateCodeFiles.has(entry.filename);
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) {
+            if (selectedPrivateCodeFiles.size >= 20) {
+              checkbox.checked = false;
+              return;
+            }
+            selectedPrivateCodeFiles.add(entry.filename);
+          } else selectedPrivateCodeFiles.delete(entry.filename);
+          updateMachineImportButton();
+        });
+        const text = document.createElement("span");
+        const name = document.createElement("span");
+        name.className = "machine-name";
+        name.textContent = entry.filename;
+        const meta = document.createElement("span");
+        meta.className = "machine-meta";
+        meta.textContent = entry.alreadyImported ? 'Bereits in der Firma vorhanden' :
+          entry.tooManyChanges ? 'Zu viele Änderungen für einen Import' :
+          `${entry.changeCount} Änderungen`;
+        text.append(name, meta);
+        label.append(checkbox, text);
+        privateCodeList.append(label);
+      }
+      updateMachineImportButton();
     }
 
     function renderMachineImport() {
@@ -2850,9 +2936,11 @@
     }
 
     function updateMachineImportButton() {
-      const selectedCount = selectedPrivateMachineIds.size;
+      const selectedCount = selectedPrivateMachineIds.size +
+        selectedPrivateCodeFiles.size;
       machineSelectionCount.textContent =
-        `${selectedCount} von maximal 20 ausgewählt`;
+        `Maschinen: ${selectedPrivateMachineIds.size} / 20 · Codelisten: ${selectedPrivateCodeFiles.size} / 20`;
+      importMachinesButton.textContent = 'Auswahl kopieren';
       importMachinesButton.disabled = selectedCount === 0;
       importMachinesButton.classList.toggle("unavailable", selectedCount === 0);
     }
@@ -3482,7 +3570,8 @@ deleteCompanyButton.addEventListener(
     const confirmed = window.confirm(
       `Firma „${companyName}“ wirklich löschen?\n\n` +
       "Alle Firmenmaschinen, Werkzeuglisten, Wartungspläne, " +
-      "Wartungshistorien, Mitgliederdaten und Einladungen werden " +
+      "Wartungshistorien, G-/M-Codelisten, Mitgliederdaten und " +
+      "Einladungen werden " +
       "unwiderruflich gelöscht.\n\n" +
       "Ihr persönlicher Account, Ihre privaten Maschinen " +
       "und deren Wartungsdaten bleiben erhalten.",
@@ -3537,45 +3626,34 @@ deleteCompanyButton.addEventListener(
 
     importMachinesButton.addEventListener("click", async () => {
       const machineIds = [...selectedPrivateMachineIds];
-
-      if (machineIds.length === 0) {
-        setStatus("Bitte wählen Sie mindestens eine Maschine aus.", "error");
+      const codeFilenames = [...selectedPrivateCodeFiles];
+      if (machineIds.length + codeFilenames.length === 0) {
+        setStatus('Bitte wählen Sie mindestens eine Maschine oder Codeliste aus.', "error");
         return;
       }
-
-      const confirmed = window.confirm(
-        `${machineIds.length} Maschine(n) inklusive Werkzeuglisten, ` +
-        "Wartungsplänen und Historie in die Firma kopieren?\n\n" +
-        "Die privaten Originale bleiben erhalten."
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
+      if (!window.confirm('Maschine(n) und G-/M-Codeliste(n) in die Firma kopieren? Die privaten Originale bleiben erhalten.')) return;
       importMachinesButton.disabled = true;
-      importMachinesButton.classList.remove("unavailable");
-
+      let importedMachines = 0;
+      let importedCodes = 0;
       try {
-        const result = await importPrivateMachinesCall({machineIds});
-        const importedCount = result.data?.importedMachines?.length || 0;
-        const skippedCount =
-          result.data?.alreadyImportedMachineIds?.length || 0;
-
-        selectedPrivateMachineIds = new Set();
+        if (machineIds.length) {
+          const machineResult = await importPrivateMachinesCall({machineIds});
+          importedMachines = machineResult.data?.importedMachines?.length || 0;
+          selectedPrivateMachineIds = new Set();
+        }
+        if (codeFilenames.length) {
+          const codeResult = await importPrivateCodeListsCall({codeFilenames});
+          importedCodes = codeResult.data?.importedCodeFilenames?.length || 0;
+          selectedPrivateCodeFiles = new Set();
+        }
         updateMachineImportButton();
         dismissMachineImportNotice();
-
-        const skippedText = skippedCount > 0
-          ? ` ${skippedCount} bereits vorhandene Maschine(n) wurden übersprungen.`
-          : "";
-        setStatus(
-          `${importedCount} Maschine(n) wurden kopiert.${skippedText}`,
-          "success",
-          7000
-        );
+        loadPrivateCodeLists(currentCompanyId);
+        setStatus(`${importedMachines} / ${importedCodes}: Maschine(n) und G-/M-Codeliste(n) kopiert.`, "success", 7000);
       } catch (error) {
-        setStatus(mapFunctionError(error), "error", 7000);
+        const message = importedMachines > 0 ?
+          'Maschinen wurden kopiert; der Import der G-/M-Codelisten ist fehlgeschlagen: ' + mapFunctionError(error) : mapFunctionError(error);
+        setStatus(message, "error", 7000);
         updateMachineImportButton();
       }
     });

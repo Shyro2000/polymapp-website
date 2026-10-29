@@ -217,60 +217,37 @@
     "images/polymapp_presentation.jpg"
   ];
 
-  let currentImage = 0;
   const imageElement = document.getElementById("slideshow-image");
   const overlay = imageElement.cloneNode();
   overlay.removeAttribute("id");
   overlay.classList.add("slideshow-overlay");
+  overlay.src = images[1];
   imageElement.parentNode.appendChild(overlay);
 
-  // Bilder im Voraus laden, damit auch der erste Wechsel weich verläuft.
-  const preloadedImages = images.map(src => {
-    const image = new Image();
-    image.src = src;
-    return image;
-  });
-
-  let activeImage = imageElement;
-  let hiddenImage = overlay;
-
-  async function changeImage() {
-    const nextIndex = (currentImage + 1) % images.length;
-    const preload = preloadedImages[nextIndex];
-    try {
-      if (!preload.complete) {
-        await new Promise((resolve, reject) => {
-          preload.addEventListener("load", resolve, { once: true });
-          preload.addEventListener("error", reject, { once: true });
-        });
-      }
-      if (!preload.naturalWidth) return;
-      if (preload.decode) await preload.decode();
-    } catch { return; }
-
-    hiddenImage.src = images[nextIndex];
-    hiddenImage.style.transition = "none";
-    hiddenImage.style.opacity = "0";
-    hiddenImage.style.zIndex = "2";
-    void hiddenImage.offsetWidth;
-    hiddenImage.style.transition = "opacity 1s ease-in-out";
-    hiddenImage.style.opacity = "1";
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    activeImage.style.transition = "none";
-    activeImage.style.opacity = "0";
-    activeImage.style.zIndex = "1";
-    [activeImage, hiddenImage] = [hiddenImage, activeImage];
-    currentImage = nextIndex;
-  }
+  // Die beiden Bilder behalten ihre feste Ebenenreihenfolge.
+  // Nur die Deckkraft des oberen Bildes wird animiert.
+  const secondImage = new Image();
+  secondImage.src = images[1];
 
   async function runSlideshow() {
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    while (true) {
-      await changeImage();
-      await new Promise(resolve => setTimeout(resolve, 4000));
-    }
+    try {
+      if (!secondImage.complete) {
+        await new Promise((resolve, reject) => {
+          secondImage.addEventListener("load", resolve, { once: true });
+          secondImage.addEventListener("error", reject, { once: true });
+        });
+      }
+      if (!secondImage.naturalWidth) return;
+      if (secondImage.decode) await secondImage.decode();
+    } catch { return; }
+
+    let showSecondImage = false;
+    setInterval(() => {
+      showSecondImage = !showSecondImage;
+      overlay.style.opacity = showSecondImage ? "1" : "0";
+    }, 5000);
   }
+
   runSlideshow();
 </script>
 
