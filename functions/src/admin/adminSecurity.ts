@@ -1,7 +1,13 @@
 import {onCall} from "firebase-functions/https";
-import {readAdminAccess} from "../shared/adminAccess";
+import {
+  readAdminAccess,
+  requireAdminMfa,
+} from "../shared/adminAccess";
 
-// This bootstrap endpoint exposes no business data or authenticator secret.
 export const getAdminAccess = onCall(async (request) => {
   return readAdminAccess(request.auth);
+});
+
+export const touchAdminSession = onCall(async (request) => {
+  return requireAdminMfa(request.auth);
 });

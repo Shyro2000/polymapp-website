@@ -53,4 +53,4 @@ export {
   updateCompanyProgram,
 } from "./admin/companyProgram";
 
-export {getAdminAccess} from "./admin/adminSecurity";
+export {getAdminAccess, touchAdminSession} from "./admin/adminSecurity";

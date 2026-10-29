@@ -1,3 +1,4 @@
+import {startAdminIdleLogout} from "./admin-idle.js";
 import {initializeApp, getApp, getApps} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {getAuth, connectAuthEmulator, setPersistence, browserLocalPersistence,
   browserSessionPersistence} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -17,3 +18,6 @@ auth.languageCode = document.documentElement.lang || "de";
 export async function choosePersistence(remember) {
   await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
 }
+
+// Admin inactivity timeout also applies across page changes and browser restarts.
+startAdminIdleLogout(auth, app);
