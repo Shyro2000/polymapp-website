@@ -250,6 +250,65 @@ allow delete:
           if false;
       }
 
+      // Gemeinsame G-/M-Code-Änderungen (Vorlagen liegen in der App).
+      match /code_changes/{filename} {
+        function canEditCompanyCodes() {
+          return hasCompanyLicense(companyId) && hasCompanyRole(
+            companyId, ["owner", "admin", "editor"]);
+        }
+
+        allow read:
+          if isActiveCompanyMember(companyId) && hasCompanyLicense(companyId);
+
+        allow create:
+          if canEditCompanyCodes()
+          && filename.matches('^[a-zA-Z0-9_.-]{1,200}$')
+          && request.resource.data.keys().hasOnly(["filename"])
+          && request.resource.data.filename == filename;
+
+        allow update:
+          if canEditCompanyCodes()
+          && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(["filename"])
+          && request.resource.data.filename == filename;
+
+        allow delete: if false;
+
+        match /changes/{changeId} {
+          function validCodeChange() {
+            return hasCompanyLicense(companyId)
+              && hasCompanyRole(companyId, ["owner", "admin", "editor"])
+              && changeId.matches('^[0-9a-f]{64}$')
+              && request.resource.data.keys().hasAll([
+                "action", "originalCode", "code", "function", "example"
+              ])
+              && request.resource.data.keys().hasOnly([
+                "action", "originalCode", "code", "function", "example"
+              ])
+              && request.resource.data.action in ["add", "update", "delete"]
+              && request.resource.data.originalCode is string
+              && request.resource.data.originalCode.size() > 0
+              && request.resource.data.originalCode.size() <= 100
+              && request.resource.data.code is string
+              && request.resource.data.code.size() <= 100
+              && request.resource.data.function is string
+              && request.resource.data.function.size() <= 4000
+              && request.resource.data.example is string
+              && request.resource.data.example.size() <= 4000;
+          }
+
+          allow read:
+            if isActiveCompanyMember(companyId) && hasCompanyLicense(companyId);
+
+          allow create: if validCodeChange();
+
+          allow update: if validCodeChange()
+            && resource.data.originalCode == request.resource.data.originalCode;
+
+          allow delete: if false;
+        }
+      }
+
       // Firmenmaschinen
       match /machines/{machineId} {
 
@@ -312,6 +371,236 @@ allow delete:
       allow write:
         if false;
     }
+
+    // BEGIN POLYMAPP MAINTENANCE V2
+    // Neue, ausdrücklich begrenzte Unterkollektionen. Bestehende Regeln bleiben erhalten.
+    function maintenanceCanRead(ownerCollection, ownerId) {
+      return (ownerCollection == "users" && isOwnUser(ownerId))
+        || (ownerCollection == "companies" && isActiveCompanyMember(ownerId)
+          && hasCompanyLicense(ownerId));
+    }
+
+    function maintenanceCanManage(ownerCollection, ownerId) {
+      return (ownerCollection == "users" && isOwnUser(ownerId))
+        || (ownerCollection == "companies" && hasCompanyLicense(ownerId)
+          && hasCompanyRole(ownerId, ["owner", "admin"]));
+    }
+
+    function maintenanceMachinePath(c, o, m) {
+      return /databases/$(database)/documents/$(c)/$(o)/machines/$(m);
+    }
+    function maintenancePlanPath(c, o, m, p) {
+      return /databases/$(database)/documents/$(c)/$(o)/machines/$(m)/maintenancePlans/$(p);
+    }
+    function maintenanceLockPath(c, o, m, p) {
+      return /databases/$(database)/documents/$(c)/$(o)/machines/$(m)/maintenanceLocks/$(p);
+    }
+    function maintenanceEventPath(c, o, m, e) {
+      return /databases/$(database)/documents/$(c)/$(o)/machines/$(m)/maintenanceEvents/$(e);
+    }
+
+    function maintenanceId(id) {
+      return id is string && id.matches('^[A-Za-z0-9_-]{1,128}$');
+    }
+    function maintenanceText(value, maxSize) {
+      return value is string && value.size() <= maxSize;
+    }
+
+    // Only a newly written actor is checked against its current source.
+    // Reading history never requires the original person's profile/membership.
+    function maintenanceMatchesUserActor(actor) {
+      let path = /databases/$(database)/documents/users/$(request.auth.uid);
+      let profile = exists(path) ? get(path).data : {};
+      let first = profile.get("firstName", "");
+      let last = profile.get("lastName", "");
+      return actor.firstName == (first is string ? first : "")
+        && actor.lastName == (last is string ? last : "");
+    }
+
+    function maintenanceMatchesCompanyActor(companyId, actor) {
+      let path = /databases/$(database)/documents/companies/$(companyId)/memberAdminData/$(request.auth.uid);
+      let profile = exists(path) ? get(path).data : {};
+      let first = profile.get("firstName", "");
+      let last = profile.get("lastName", "");
+      return actor.firstName == (first is string ? first : "")
+        && actor.lastName == (last is string ? last : "");
+    }
+
+    function maintenanceActor(ownerCollection, ownerId, actor) {
+      return actor is map
+        && actor.keys().hasAll(["uid", "email", "firstName", "lastName"])
+        && actor.keys().hasOnly(["uid", "email", "firstName", "lastName", "nameSource"])
+        && actor.uid == request.auth.uid
+        && actor.email == request.auth.token.get("email", "")
+        && maintenanceText(actor.email, 320)
+        && maintenanceText(actor.firstName, 200)
+        && maintenanceText(actor.lastName, 200)
+        && actor.get("nameSource", "profile") in ["company", "profile"]
+        && (actor.get("nameSource", "profile") == "company"
+          ? (ownerCollection == "companies" && maintenanceMatchesCompanyActor(ownerId, actor))
+          // Existing Android/iOS versions send the users/{uid} name.
+          // Keep that exact previously allowed format valid during rollout.
+          : maintenanceMatchesUserActor(actor));
+    }
+
+    function maintenanceInterval(d) {
+      return d.schemaVersion == 2
+        && d.intervalCount is int && d.intervalCount >= 1 && d.intervalCount <= 1000
+        && d.intervalUnit in ["DAYS", "WEEKS", "MONTHS", "YEARS"]
+        && ((d.intervalUnit in ["DAYS", "WEEKS"] && d.period == "WEEKLY")
+          || (d.intervalUnit == "MONTHS" && d.period == "MONTHLY")
+          || (d.intervalUnit == "YEARS" && d.period == "YEARLY"));
+    }
+    function maintenanceSchedule(c, o, m, p, d) {
+      // Only a newly set override needs the current execution lock. Deletion and
+      // unrelated edits preserve an older, already consumed override unchanged.
+      let path = maintenancePlanPath(c, o, m, p);
+      let old = exists(path) ? get(path).data : {};
+      return d.get("schemaVersion", 1) == 1
+        || (d.dueOverrideAt == 0 && d.dueOverrideLockVersion == -1)
+        || (d.dueOverrideAt > 0 && d.dueOverrideLockVersion == maintenanceLockVersion(c, o, m, p))
+        || (exists(path) && d.dueOverrideAt == old.get("dueOverrideAt", 0)
+          && d.dueOverrideLockVersion == old.get("dueOverrideLockVersion", -1));
+    }
+    function maintenanceValidPlan(d) {
+      return d.keys().hasAll(["title", "instructions", "period", "firstDueAt", "revision", "deleted", "updatedAt"])
+        && d.keys().hasOnly(["title", "instructions", "period", "firstDueAt", "revision", "deleted", "updatedAt",
+          "schemaVersion", "intervalCount", "intervalUnit", "warningDays", "dueOverrideAt", "dueOverrideLockVersion"])
+        && ((d.get("schemaVersion", 1) == 1 && !d.keys().hasAny(["intervalCount", "intervalUnit", "warningDays", "dueOverrideAt", "dueOverrideLockVersion"]))
+          || (maintenanceInterval(d)
+            && d.warningDays is int && d.warningDays >= 0 && d.warningDays <= 3650
+            && d.dueOverrideAt is int && d.dueOverrideAt >= 0 && d.dueOverrideAt < 253402214400000
+            && d.dueOverrideLockVersion is int && d.dueOverrideLockVersion >= -1))
+        && maintenanceText(d.title, 160) && d.title.size() > 0
+        && maintenanceText(d.instructions, 8000) && d.instructions.size() > 0
+        && d.period in ["WEEKLY", "MONTHLY", "YEARLY"]
+        && d.firstDueAt is int && d.firstDueAt > 0 && d.firstDueAt < 4102444800000
+        && d.revision is int && d.revision > 0
+        && d.deleted is bool
+        && d.updatedAt == request.time;
+    }
+
+    function maintenanceLockVersion(c, o, m, p) {
+      let path = maintenanceLockPath(c, o, m, p);
+      return exists(path) ? get(path).data.version : 0;
+    }
+
+    function maintenanceLinkedLock(c, o, m, p, e, operation) {
+      let next = getAfter(maintenanceLockPath(c, o, m, p)).data;
+      return next.eventId == e && next.operation == operation
+        && next.updatedAt == request.time
+        && next.version == maintenanceLockVersion(c, o, m, p) + 1;
+    }
+
+    function maintenanceValidEvent(c, o, m, eventId) {
+      let d = request.resource.data;
+      let plan = get(maintenancePlanPath(c, o, m, d.planId)).data;
+      return d.keys().hasAll(["planId", "planTitle", "planInstructions", "period", "planRevision",
+          "machineName", "note", "actor", "confirmedAt", "revokedAt", "revokedBy", "revokeReason"])
+        && d.keys().hasOnly(["planId", "planTitle", "planInstructions", "period", "planRevision",
+          "machineName", "note", "actor", "confirmedAt", "revokedAt", "revokedBy", "revokeReason",
+          "schemaVersion", "intervalCount", "intervalUnit"])
+        && ((plan.get("schemaVersion", 1) == 1 && !d.keys().hasAny(["schemaVersion", "intervalCount", "intervalUnit"]))
+          || (plan.get("schemaVersion", 1) == 2 && maintenanceInterval(d)
+            && d.intervalCount == plan.intervalCount && d.intervalUnit == plan.intervalUnit))
+        && get(maintenanceMachinePath(c, o, m)).data.get("maintenanceInactive", false) == false
+        && maintenanceId(d.planId) && maintenanceId(eventId)
+        && plan.deleted == false
+        && d.planTitle == plan.title && d.planInstructions == plan.instructions
+        && d.period == plan.period && d.planRevision == plan.revision
+        && maintenanceText(d.machineName, 1000) && maintenanceText(d.note, 2000)
+        && maintenanceActor(c, o, d.actor)
+        && d.confirmedAt == request.time
+        && d.revokedAt == null && d.revokedBy == null && d.revokeReason == ""
+        && maintenanceLinkedLock(c, o, m, d.planId, eventId, "confirm");
+    }
+
+    function maintenanceValidRevoke(c, o, m, eventId) {
+      let before = resource.data;
+      let after = request.resource.data;
+      return before.revokedAt == null
+        && after.diff(before).affectedKeys().hasOnly(["revokedAt", "revokedBy", "revokeReason"])
+        && after.revokedAt == request.time
+        && maintenanceActor(c, o, after.revokedBy)
+        && maintenanceText(after.revokeReason, 1000) && after.revokeReason.size() > 0
+        && (
+          maintenanceCanManage(c, o)
+          || (before.actor.uid == request.auth.uid
+            && request.time >= before.confirmedAt
+            && request.time <= before.confirmedAt + duration.value(24, "h"))
+        )
+        && maintenanceLinkedLock(c, o, m, before.planId, eventId, "revoke");
+    }
+
+    function maintenanceValidLock(c, o, m, planId) {
+      let d = request.resource.data;
+      let eventPath = maintenanceEventPath(c, o, m, d.eventId);
+      let eventAfter = getAfter(eventPath).data;
+      return d.keys().hasAll(["version", "eventId", "operation", "updatedAt"])
+        && d.keys().hasOnly(["version", "eventId", "operation", "updatedAt"])
+        && maintenanceId(planId) && maintenanceId(d.eventId)
+        && d.version is int && d.version == maintenanceLockVersion(c, o, m, planId) + 1
+        && d.updatedAt == request.time
+        && eventAfter.planId == planId
+        && (
+          (d.operation == "confirm" && !exists(eventPath)
+            && eventAfter.confirmedAt == request.time && eventAfter.revokedAt == null
+            && eventAfter.actor.uid == request.auth.uid)
+          || (d.operation == "revoke" && exists(eventPath)
+            && get(eventPath).data.revokedAt == null
+            && eventAfter.revokedAt == request.time && eventAfter.revokedBy.uid == request.auth.uid)
+        );
+    }
+
+    match /{ownerCollection}/{ownerId}/machines/{machineId}/maintenanceSettings/{settingId} {
+      allow read: if maintenanceCanRead(ownerCollection, ownerId);
+      allow create: if maintenanceCanManage(ownerCollection, ownerId)
+        && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
+        && settingId == "config"
+        && request.resource.data.keys().hasAll(["version", "initializedAt"])
+        && request.resource.data.keys().hasOnly(["version", "initializedAt"])
+        && request.resource.data.version == 1
+        && request.resource.data.initializedAt == request.time;
+      allow update, delete: if false;
+    }
+
+    match /{ownerCollection}/{ownerId}/machines/{machineId}/maintenancePlans/{planId} {
+      allow read: if maintenanceCanRead(ownerCollection, ownerId);
+      allow create: if maintenanceCanManage(ownerCollection, ownerId)
+        && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
+        && getAfter(/databases/$(database)/documents/$(ownerCollection)/$(ownerId)/machines/$(machineId)/maintenanceSettings/config).data.version == 1
+        && maintenanceId(planId) && maintenanceValidPlan(request.resource.data)
+        && maintenanceSchedule(ownerCollection, ownerId, machineId, planId, request.resource.data)
+        && request.resource.data.revision == 1 && request.resource.data.deleted == false;
+      allow update: if maintenanceCanManage(ownerCollection, ownerId)
+        && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
+        && maintenanceValidPlan(request.resource.data) && resource.data.deleted == false
+        && request.resource.data.get("schemaVersion", 1) >= resource.data.get("schemaVersion", 1)
+        && maintenanceSchedule(ownerCollection, ownerId, machineId, planId, request.resource.data)
+        && request.resource.data.revision == resource.data.revision + 1;
+      // Löschen wird als deleted=true gespeichert, damit die Historie erhalten bleibt.
+      allow delete: if false;
+    }
+
+    match /{ownerCollection}/{ownerId}/machines/{machineId}/maintenanceEvents/{eventId} {
+      allow read: if maintenanceCanRead(ownerCollection, ownerId);
+      allow create: if maintenanceCanRead(ownerCollection, ownerId)
+        && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
+        && maintenanceValidEvent(ownerCollection, ownerId, machineId, eventId);
+      allow update: if maintenanceCanRead(ownerCollection, ownerId)
+        && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
+        && maintenanceValidRevoke(ownerCollection, ownerId, machineId, eventId);
+      allow delete: if false;
+    }
+
+    match /{ownerCollection}/{ownerId}/machines/{machineId}/maintenanceLocks/{planId} {
+      allow read: if maintenanceCanRead(ownerCollection, ownerId);
+      allow create, update: if maintenanceCanRead(ownerCollection, ownerId)
+        && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
+        && maintenanceValidLock(ownerCollection, ownerId, machineId, planId);
+      allow delete: if false;
+    }
+    // END POLYMAPP MAINTENANCE V2
 
     // Alles andere verbieten
     match /{document=**} {

@@ -18,6 +18,10 @@ export {
   importPrivateMachinesToCompany,
 } from "./company/importPrivateMachinesToCompany";
 export {
+  listPrivateCodeListsForImport,
+  importPrivateCodeListsToCompany,
+} from "./company/importPrivateCodeListsToCompany";
+export {
   updateCompanyMemberAdminData,
 } from "./company/updateCompanyMemberAdminData";
 export {updateCompanyName} from "./company/updateCompanyName";
