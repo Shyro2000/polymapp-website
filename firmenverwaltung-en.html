@@ -1087,6 +1087,20 @@
             <div id="privateCodeList" class="machine-list">
               <p class="empty-state">No private changes available for import.</p>
             </div>
+            <div id="codeImportModeRow" class="hidden" style="margin-top: 14px;">
+              <fieldset>
+                <legend>If a code list already exists in the company:</legend>
+                <label style="display: block; margin: 8px 0;">
+                  <input type="radio" name="existingCodeMode" value="merge" checked>
+                  Keep existing entries and add missing ones only
+                </label>
+                <label style="display: block; margin: 8px 0;">
+                  <input type="radio" name="existingCodeMode" value="replace">
+                  Replace the company list with my private changes
+                </label>
+                <p class="machine-meta">Replacing removes company changes that are absent from your private list. The built-in templates and your private changes remain available.</p>
+              </fieldset>
+            </div>
           </div>
         </details>
       </div>
@@ -1945,6 +1959,7 @@
     const privateMachineList = document.getElementById("privateMachineList");
     const companyMachineList = document.getElementById("companyMachineList");
     const privateCodeList = document.getElementById("privateCodeList");
+    const codeImportModeRow = document.getElementById("codeImportModeRow");
     const machineSelectionCount = document.getElementById(
       "machineSelectionCount"
     );
@@ -2747,9 +2762,29 @@
       }
     }
 
+    function readableCodeListName(filename) {
+      const match = /^(fanuc|heidenhain|siemens)_([gm])_code_(mill|turn)_(.+)_(de|en|fr)\.json$/i.exec(filename);
+      if (!match) return filename;
+      const [, manufacturer, codeType, process, rawVersion, language] = match;
+      let version = rawVersion;
+      if (manufacturer.toLowerCase() === "fanuc") {
+        const model = /^(30i|31i|32i)_b(?:_([abc]))?$/i.exec(rawVersion);
+        if (model) version = `${model[1]}-Model B${model[2] ? "-" + model[2].toUpperCase() : ""}`;
+      } else if (manufacturer.toLowerCase() === "heidenhain") {
+        version = rawVersion.replace(/^itnc_(\d+)$/i, "iTNC $1")
+          .replace(/^tnc_(\d+)$/i, "TNC $1");
+      } else if (manufacturer.toLowerCase() === "siemens") {
+        version = ({"828d": "828D", "840sl": "840 SL", "840di": "840Di"})[rawVersion.toLowerCase()] || rawVersion;
+      }
+      const languageLabel = {de: "German", en: "English", fr: "French"}[language.toLowerCase()];
+      return [manufacturer.toUpperCase(), `${codeType.toUpperCase()}-Codes`,
+        process === "mill" ? "Milling" : "Turning", version,
+        languageLabel].join(" · ");
+    }
+
     function renderPrivateCodeLists() {
       const available = new Set(currentPrivateCodeLists
-        .filter((entry) => !entry.alreadyImported && !entry.tooManyChanges)
+        .filter((entry) => !entry.tooManyChanges)
         .map((entry) => entry.filename));
       for (const filename of selectedPrivateCodeFiles) {
         if (!available.has(filename)) selectedPrivateCodeFiles.delete(filename);
@@ -2767,7 +2802,7 @@
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.value = entry.filename;
-        checkbox.disabled = entry.alreadyImported || entry.tooManyChanges;
+        checkbox.disabled = entry.tooManyChanges;
         checkbox.checked = selectedPrivateCodeFiles.has(entry.filename);
         checkbox.addEventListener("change", () => {
           if (checkbox.checked) {
@@ -2782,10 +2817,10 @@
         const text = document.createElement("span");
         const name = document.createElement("span");
         name.className = "machine-name";
-        name.textContent = entry.filename;
+        name.textContent = readableCodeListName(entry.filename);
         const meta = document.createElement("span");
         meta.className = "machine-meta";
-        meta.textContent = entry.alreadyImported ? 'Already in the company' :
+        meta.textContent = entry.alreadyImported ? 'Already in the company – available for another import' :
           entry.tooManyChanges ? 'Too many changes for one import' :
           `${entry.changeCount} changes`;
         text.append(name, meta);
@@ -2924,6 +2959,9 @@
     function updateMachineImportButton() {
       const selectedCount = selectedPrivateMachineIds.size +
         selectedPrivateCodeFiles.size;
+      const selectedExisting = currentPrivateCodeLists.some((entry) =>
+        entry.alreadyImported && selectedPrivateCodeFiles.has(entry.filename));
+      codeImportModeRow.classList.toggle("hidden", !selectedExisting);
       machineSelectionCount.textContent =
         `Machines: ${selectedPrivateMachineIds.size} / 20 · Code lists: ${selectedPrivateCodeFiles.size} / 20`;
       importMachinesButton.textContent = 'Copy selection';
@@ -3616,7 +3654,13 @@ deleteCompanyButton.addEventListener(
         setStatus('Please select at least one machine or code list.', "error");
         return;
       }
-      if (!window.confirm('Copy selected machines and G/M code lists to the company? Private originals remain available.')) return;
+      const selectedExisting = currentPrivateCodeLists.some((entry) =>
+        entry.alreadyImported && selectedPrivateCodeFiles.has(entry.filename));
+      const existingMode = selectedExisting ?
+        document.querySelector('input[name="existingCodeMode"]:checked')?.value || "merge" : "merge";
+      const confirmation = selectedExisting && existingMode === "replace" ?
+        'Replace company code lists with your private changes? Existing company changes in those lists may be lost. Private originals remain available.' : 'Import selected machines and G/M code lists? Private originals will remain available.';
+      if (!window.confirm(confirmation)) return;
       importMachinesButton.disabled = true;
       let importedMachines = 0;
       let importedCodes = 0;
@@ -3627,14 +3671,18 @@ deleteCompanyButton.addEventListener(
           selectedPrivateMachineIds = new Set();
         }
         if (codeFilenames.length) {
-          const codeResult = await importPrivateCodeListsCall({codeFilenames});
-          importedCodes = codeResult.data?.importedCodeFilenames?.length || 0;
+          const codeResult = await importPrivateCodeListsCall({codeFilenames, existingMode});
+          const result = codeResult.data || {};
+          importedCodes = (result.importedCodeFilenames?.length || 0) +
+            (result.mergedCodeFilenames?.length || 0) +
+            (result.replacedCodeFilenames?.length || 0) +
+            (result.unchangedCodeFilenames?.length || 0);
           selectedPrivateCodeFiles = new Set();
         }
         updateMachineImportButton();
         dismissMachineImportNotice();
         loadPrivateCodeLists(currentCompanyId);
-        setStatus(`${importedMachines} / ${importedCodes}: Machine(s) and G/M code list(s) copied.`, "success", 7000);
+        setStatus(`${importedMachines} / ${importedCodes} machine(s) and G/M code list(s) processed.`, "success", 7000);
       } catch (error) {
         const message = importedMachines > 0 ?
           'Machines were copied; G/M code lists could not be imported: ' + mapFunctionError(error) : mapFunctionError(error);
