@@ -474,6 +474,28 @@
       margin-top: 4px;
     }
 
+    #codeImportModeRow .code-import-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    #codeImportModeRow .code-import-option input[type="radio"] {
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      margin: 3px 0 0;
+      padding: 0;
+    }
+
+    #codeImportModeRow .code-import-option span {
+      min-width: 0;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
     .machine-choice.disabled {
       color: var(--muted);
       background: #f1f1f1;
@@ -1092,13 +1114,13 @@
             <div id="codeImportModeRow" class="hidden" style="margin-top: 14px;">
               <fieldset>
                 <legend>Wenn die Codeliste bereits in der Firma vorhanden ist:</legend>
-                <label style="display: block; margin: 8px 0;">
+                <label class="code-import-option">
                   <input type="radio" name="existingCodeMode" value="merge" checked>
-                  Bestehende Einträge behalten, nur fehlende ergänzen
+                  <span>Bestehende Einträge behalten, nur fehlende ergänzen</span>
                 </label>
-                <label style="display: block; margin: 8px 0;">
+                <label class="code-import-option">
                   <input type="radio" name="existingCodeMode" value="replace">
-                  Firmenliste durch meine privaten Änderungen ersetzen
+                  <span>Firmenliste durch meine privaten Änderungen ersetzen</span>
                 </label>
                 <p class="machine-meta">Beim Ersetzen gehen Firmenänderungen verloren, die nicht in Ihrer privaten Liste stehen. Die App-Vorlagen und Ihre privaten Änderungen bleiben erhalten.</p>
               </fieldset>
