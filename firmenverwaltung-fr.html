@@ -474,34 +474,73 @@
       margin-top: 4px;
     }
 
-    #codeImportModeRow .code-import-option {
+    #codeImportSection .code-import-option {
       display: flex;
       align-items: flex-start;
       gap: 10px;
       margin: 10px 0;
       cursor: pointer;
     }
-
-    #codeImportModeRow .code-import-option input[type="radio"] {
-      flex: 0 0 auto;
+    #codeImportSection .code-import-option input {
+      flex: 0 0 18px;
       width: 18px;
       height: 18px;
-      margin: 3px 0 0;
       padding: 0;
+      margin: 3px 0 0;
     }
-
-    #codeImportModeRow .code-import-option span {
+    #codeImportSection .code-import-option span {
       min-width: 0;
       line-height: 1.5;
       overflow-wrap: anywhere;
     }
+    .code-preview-dialog {
+      width: min(850px, calc(100% - 24px));
+      max-height: 90dvh;
+      padding: 0;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+    .code-preview-dialog::backdrop { background: #0008; }
+    .code-preview-content { padding: 18px; }
+    .code-preview-dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
+    .code-preview-dialog h3 { margin: 18px 0 8px; font-size: 1rem; }
+    .code-preview-status { min-height: 1.5em; margin: 10px 0; }
+    .code-preview-status.error { color: #a51b1b; }
+    .code-preview-entry { margin: 8px 0 12px; }
+    .code-preview-entry > summary { cursor: pointer; padding: 7px 0; }
+    .code-preview-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 0.88rem; }
+    .code-preview-table th, .code-preview-table td {
+      border: 1px solid #ddd;
+      padding: 6px 8px;
+      vertical-align: top;
+      text-align: left;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .code-preview-table thead th { background: #f4f4f4; }
+    .code-preview-table th:first-child { width: 22%; }
+    .code-preview-table td.is-changed { background: #eaf6ed; }
+    .code-preview-kept > summary { cursor: pointer; padding: 10px 0; }
+    .code-preview-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 18px;
+      border-top: 1px solid #ddd;
+      background: #fff;
+      position: sticky;
+      bottom: 0;
+    }
+    .code-preview-dialog [hidden] { display: none !important; }
+    #codeImportUpdateRow[hidden] { display: none; }
+    @media (max-width: 480px) {
+      .code-preview-content { padding: 12px; }
+      .code-preview-table th, .code-preview-table td { padding: 5px; }
+      .code-preview-actions button { flex: 1 1 140px; padding: 10px; }
+    }
 
-    #codeImportReportButton[hidden] { display: none; }
-    .code-report-dialog { width: min(900px, calc(100% - 24px)); max-height: 85vh; overflow: auto; border: 1px solid #bbb; border-radius: 8px; padding: 20px; box-sizing: border-box; }
-    .code-report-dialog::backdrop { background: #0008; }
-    .code-report-entry { border-top: 1px solid #ddd; margin-top: 14px; padding-top: 12px; }
-    .code-report-values { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; }
-    .code-report-values pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; margin: 5px 0; }
     .machine-choice.disabled {
       color: var(--muted);
       background: #f1f1f1;
@@ -1074,7 +1113,7 @@
           class="compact-disclosure management-card"
           style="margin-top: 18px;"
         >
-          <summary>Copier des machines et codes G/M privés dans l’entreprise</summary>
+          <summary>Copier des machines privées dans l’entreprise</summary>
           <p>
             Sélectionnez jusqu’à 20 machines privées. Les originaux privés restent
             inchangés. Les listes d’outils, les plans de maintenance et tout
@@ -1111,25 +1150,29 @@
               </div>
             </div>
           </div>
-          <div class="code-import-area" style="margin-top: 18px;">
-            <h3>Mes listes privées de codes G/M</h3>
-            <p>Seules vos modifications sont copiées. Les listes intégrées restent disponibles ; les listes privées réapparaissent si vous quittez l’entreprise.</p>
+        </details>
+
+        <details id="codeImportSection" class="compact-disclosure management-card" style="margin-top: 18px;">
+          <summary>Copier des codes G/M privés dans l’entreprise</summary>
+          <div class="code-import-area">
+            <p>Sélectionnez jusqu’à 20 listes de codes privées et vérifiez les modifications avant l’importation. Vos originaux privés sont conservés.</p>
             <div id="privateCodeList" class="machine-list">
               <p class="empty-state">Aucune modification privée à importer.</p>
             </div>
             <div id="codeImportModeRow" class="hidden" style="margin-top: 14px;">
               <fieldset>
                 <legend>Si une liste de codes existe déjà dans l’entreprise :</legend>
-                <label class="code-import-option"><input type="radio" name="existingCodeMode" value="merge" checked><span>Compléter : conserver les entrées supplémentaires et restaurer les codes manquants ou supprimés</span></label>
-                <label class="code-import-option"><input type="radio" name="existingCodeMode" value="replace"><span>Remplacer la liste de l’entreprise par mes modifications privées</span></label>
+                <label class="code-import-option"><input type="radio" name="existingCodeMode" value="merge" checked><span>Ajouter les codes privés à la liste de l’entreprise</span></label>
+                <label class="code-import-option"><input type="radio" name="existingCodeMode" value="replace"><span>Remplacer la liste de l’entreprise par ma liste de codes privée</span></label>
                 <p class="machine-meta">Le remplacement supprime les modifications de l’entreprise absentes de votre liste privée. Les modèles intégrés et vos modifications privées restent disponibles.</p>
               </fieldset>
             </div>
-            <label class="code-import-option" style="display:flex;align-items:flex-start;gap:10px;margin-top:12px;">
-              <input id="codeImportUpdateExisting" type="checkbox" checked style="width:18px;height:18px;flex:0 0 auto;margin-top:3px;">
-              <span>Reprendre également les modifications privées des codes existants (code, titre, description et suppressions)</span>
+            <label id="codeImportUpdateRow" class="code-import-option">
+              <input id="codeImportUpdateExisting" type="checkbox" checked>
+              <span>Mettre également à jour les codes existants de l’entreprise avec ma version privée – y compris les codes, titres, descriptions modifiés et les entrées supprimées</span>
             </label>
-            <button id="codeImportReportButton" type="button" hidden>Ouvrir le rapport d’import</button>
+            <p id="codeSelectionCount" class="selection-count">0 sélectionné(s) sur un maximum de 20</p>
+            <button id="previewCodesButton" type="button" disabled>Vérifier les modifications</button>
           </div>
         </details>
       </div>
@@ -1539,10 +1582,19 @@
     <p>© 2024–<span id="year"></span> PolymApp</p>
   </footer>
 
-  <dialog id="codeImportReportDialog" class="code-report-dialog" aria-labelledby="codeImportReportTitle">
-  <h2 id="codeImportReportTitle">Rapport d’import</h2>
-  <button type="button" id="codeImportReportClose">Fermer</button>
-  <div id="codeImportReportBody"></div>
+  <dialog id="codePreviewDialog" class="code-preview-dialog" aria-labelledby="codePreviewTitle" aria-describedby="codePreviewIntro">
+  <div class="code-preview-content">
+    <h2 id="codePreviewTitle">Que va changer l’importation ?</h2>
+    <p id="codePreviewIntro">Vérifiez les modifications. La liste de l’entreprise ne sera modifiée qu’en cliquant sur « Importer maintenant ».</p>
+    <p id="codePreviewMode" class="machine-meta"></p>
+    <p id="codePreviewStatus" class="code-preview-status" role="status" aria-live="polite"></p>
+    <div id="codePreviewBody"></div>
+  </div>
+  <div class="code-preview-actions">
+    <button id="cancelCodePreview" class="secondary" type="button">Annuler</button>
+    <button id="refreshCodePreview" class="secondary" type="button">Actualiser l’aperçu</button>
+    <button id="confirmCodeImport" type="button" disabled>Importer maintenant</button>
+  </div>
 </dialog>
 <script type="module">
     import {setupCreationTariffs, selectedCreationTariff, updateSubscriptionUI,
@@ -1909,6 +1961,9 @@
     const listPrivateCodeListsCall = httpsCallable(
       functions, "listPrivateCodeListsForImport"
     );
+    const previewPrivateCodeListsCall = httpsCallable(
+      functions, "previewPrivateCodeListsToCompany", {timeout: 210000}
+    );
     const importPrivateCodeListsCall = httpsCallable(
       functions, "importPrivateCodeListsToCompany", {timeout: 210000}
     );
@@ -1993,6 +2048,9 @@
     const privateMachineList = document.getElementById("privateMachineList");
     const companyMachineList = document.getElementById("companyMachineList");
     const privateCodeList = document.getElementById("privateCodeList");
+    const codeImportSection = document.getElementById("codeImportSection");
+    const previewCodesButton = document.getElementById("previewCodesButton");
+    const codeSelectionCount = document.getElementById("codeSelectionCount");
     const codeImportModeRow = document.getElementById("codeImportModeRow");
     const machineSelectionCount = document.getElementById(
       "machineSelectionCount"
@@ -2030,6 +2088,10 @@
     let currentPrivateCodeLists = [];
     let selectedPrivateCodeFiles = new Set();
     let selectedPrivateMachineIds = new Set();
+    let machinesImportBusy = false;
+    let codesImportBusy = false;
+    let codePreviewGeneration = 0;
+    let pendingCodePreview = null;
     let currentActiveInvitationCount = null;
     let statusTimer = null;
     let verificationEmailSent = false;
@@ -2522,6 +2584,7 @@
       selectedPrivateMachineIds = new Set();
       currentPrivateCodeLists = [];
       selectedPrivateCodeFiles = new Set();
+      invalidateCodePreview();
       currentActiveInvitationCount = null;
       currentCompany = null;
       currentMembership = null;
@@ -2626,6 +2689,7 @@
         selectedPrivateMachineIds = new Set();
         currentPrivateCodeLists = [];
         selectedPrivateCodeFiles = new Set();
+        invalidateCodePreview();
         return;
       }
 
@@ -2642,6 +2706,8 @@
       const licenceActive = companyFeaturesActive();
       const hasFreeSeat = licenceActive && seatLimit > 0 && reservedSeats < seatLimit;
       machineImportSection.classList.toggle("hidden", !licenceActive);
+      codeImportSection.classList.toggle("hidden", !licenceActive);
+      if (!licenceActive) invalidateCodePreview();
       if (!licenceActive) {
         machineImportNotice.classList.add("hidden");
         unsubscribeCompanyMachines?.(); unsubscribePrivateMachines?.();
@@ -2991,16 +3057,20 @@
     }
 
     function updateMachineImportButton() {
-      const selectedCount = selectedPrivateMachineIds.size +
-        selectedPrivateCodeFiles.size;
+      const machineCount = selectedPrivateMachineIds.size;
+      const codeCount = selectedPrivateCodeFiles.size;
       const selectedExisting = currentPrivateCodeLists.some((entry) =>
         entry.alreadyImported && selectedPrivateCodeFiles.has(entry.filename));
       codeImportModeRow.classList.toggle("hidden", !selectedExisting);
-      machineSelectionCount.textContent =
-        `Machines : ${selectedPrivateMachineIds.size} / 20 · Listes de codes : ${selectedPrivateCodeFiles.size} / 20`;
-      importMachinesButton.textContent = 'Copier la sélection';
-      importMachinesButton.disabled = selectedCount === 0;
-      importMachinesButton.classList.toggle("unavailable", selectedCount === 0);
+      const replace = getCodeImportConfig().existingMode === "replace";
+      document.getElementById("codeImportUpdateRow").hidden = replace;
+      machineSelectionCount.textContent = codeImportText.count.replace("{n}", machineCount);
+      codeSelectionCount.textContent = codeImportText.count.replace("{n}", codeCount);
+      importMachinesButton.textContent = codeImportText.machineButton;
+      importMachinesButton.disabled = machineCount === 0 || machinesImportBusy;
+      importMachinesButton.classList.toggle("unavailable", importMachinesButton.disabled);
+      previewCodesButton.disabled = codeCount === 0 || codesImportBusy;
+      previewCodesButton.classList.toggle("unavailable", previewCodesButton.disabled);
     }
 
     function machineImportNoticeKey() {
@@ -3682,91 +3752,263 @@ deleteCompanyButton.addEventListener(
 );
 
 
-    const codeReportLabels = ["Reprendre également les modifications privées des codes existants (code, titre, description et suppressions)", "Ouvrir le rapport d’import", "Rapport d’import", "Fermer", "Avant (entreprise)", "Après (entreprise)", "Source privée", "Ajouté", "Modifié", "Restauré", "Supprimé : retour au modèle de l’application", "Conservé", "Inchangé", "Les modifications privées des codes existants seront également reprises. Continuer ?"];
-    const codeReportButton = document.getElementById("codeImportReportButton");
-    const codeReportDialog = document.getElementById("codeImportReportDialog");
-    const codeReportBody = document.getElementById("codeImportReportBody");
-    codeReportButton.addEventListener("click", () => codeReportDialog.showModal());
-    document.getElementById("codeImportReportClose").addEventListener("click", () => codeReportDialog.close());
+    const codeImportText = {"machineHeading": "Copier des machines privées dans l’entreprise", "codeHeading": "Copier des codes G/M privés dans l’entreprise", "machineButton": "Copier les machines sélectionnées", "codeButton": "Vérifier les modifications", "merge": "Ajouter les codes privés à la liste de l’entreprise", "replace": "Remplacer la liste de l’entreprise par ma liste de codes privée", "checkbox": "Mettre également à jour les codes existants de l’entreprise avec ma version privée – y compris les codes, titres, descriptions modifiés et les entrées supprimées", "count": "{n} sélectionné(s) sur un maximum de 20", "previewTitle": "Que va changer l’importation ?", "previewIntro": "Vérifiez les modifications. La liste de l’entreprise ne sera modifiée qu’en cliquant sur « Importer maintenant ».", "cancel": "Annuler", "confirm": "Importer maintenant", "refresh": "Actualiser l’aperçu", "loading": "Vérification des modifications …", "importing": "Importation des listes de codes …", "before": "Avant", "after": "Après", "field": "Champ", "state": "État", "code": "Code", "title": "Titre", "description": "Description", "added": "Ajouté", "updated": "Modifié", "restored": "Restauré", "deleted": "Supprimé", "removed": "Retour au modèle de l’application", "kept": "Conservé", "unchanged": "Inchangé", "present": "Présent", "custom": "Code personnalisé", "modified": "Modifié", "base": "Modèle de l’application / aucune entrée d’entreprise", "baseText": "Modèle de l’application, si disponible", "empty": "—", "noChanges": "Aucune modification prévue. La liste de l’entreprise reste inchangée.", "noListChanges": "Aucune modification dans cette liste.", "showUnchanged": "Afficher les codes conservés et inchangés", "summary": "{changed} modifications · {kept} conservés / inchangés", "baselineNote": "Cet aperçu affiche les modifications enregistrées dans l’entreprise. Sans entrée d’entreprise, ou après son retrait, le modèle de l’application s’applique si le code y figure. Les textes d’origine de ce modèle ne sont pas disponibles dans cet aperçu.", "stale": "Les données ou la sélection ont changé. Veuillez actualiser l’aperçu.", "invalidPreview": "L’aperçu n’a pas pu être chargé entièrement. Actualisez la page et réessayez.", "codeSuccess": "{n} liste(s) de codes importée(s).", "machineSuccess": "{n} machine(s) copiée(s).", "machineConfirm": "Copier les machines privées sélectionnées dans l’entreprise ? Les originaux privés seront conservés.", "modeMerge": "Ajouter les codes privés à la liste de l’entreprise", "modeReplace": "Remplacer la liste de l’entreprise par ma liste de codes privée", "checkboxActive": "Les modifications privées des codes existants seront également reprises.", "checkboxInactive": "Les codes actifs existants de l’entreprise resteront inchangés.", "replaceWarning": "Les modifications de l’entreprise absentes de votre liste privée seront retirées.", "codeIntro": "Sélectionnez jusqu’à 20 listes de codes privées et vérifiez les modifications avant l’importation. Vos originaux privés sont conservés."};
+    const codePreviewDialog = document.getElementById("codePreviewDialog");
+    const codePreviewBody = document.getElementById("codePreviewBody");
+    const codePreviewStatus = document.getElementById("codePreviewStatus");
+    const confirmCodeImport = document.getElementById("confirmCodeImport");
+    const refreshCodePreview = document.getElementById("refreshCodePreview");
+    const cancelCodePreview = document.getElementById("cancelCodePreview");
 
-    function renderCodeImportReport(report) {
-      codeReportBody.replaceChildren();
-      const statusLabels = Object.fromEntries(
-        ["added", "updated", "restored", "removed", "kept", "unchanged"].map((key, i) => [key, codeReportLabels[7 + i]])
-      );
-      for (const list of report) {
-        const heading = document.createElement("h3");
-        heading.textContent = readableCodeListName(list.filename);
-        codeReportBody.append(heading);
-        for (const entry of list.entries || []) {
-          const section = document.createElement("section");
-          section.className = "code-report-entry";
-          const title = document.createElement("strong");
-          title.textContent = `${entry.source?.originalCode || entry.before?.originalCode || ""}: ${statusLabels[entry.status] || entry.status}`;
-          section.append(title);
-          const values = document.createElement("div");
-          values.className = "code-report-values";
-          for (const [label, data] of [[codeReportLabels[4], entry.before], [codeReportLabels[5], entry.after], [codeReportLabels[6], entry.source]]) {
-            const column = document.createElement("div");
-            const caption = document.createElement("strong");
-            caption.textContent = label;
-            const text = document.createElement("pre");
-            text.textContent = data ? [data.action, data.code, data.function, data.example].join("\n") : "—";
-            column.append(caption, text);
-            values.append(column);
-          }
-          section.append(values);
-          codeReportBody.append(section);
-        }
-      }
-      codeReportButton.hidden = report.length === 0;
-    }
-
-    importMachinesButton.addEventListener("click", async () => {
-      const machineIds = [...selectedPrivateMachineIds];
-      const codeFilenames = [...selectedPrivateCodeFiles];
-      if (machineIds.length + codeFilenames.length === 0) {
-        setStatus('Sélectionnez au moins une machine ou une liste de codes.', "error");
-        return;
-      }
+    function getCodeImportConfig() {
       const selectedExisting = currentPrivateCodeLists.some((entry) =>
         entry.alreadyImported && selectedPrivateCodeFiles.has(entry.filename));
       const existingMode = selectedExisting ?
         document.querySelector('input[name="existingCodeMode"]:checked')?.value || "merge" : "merge";
-      const confirmation = selectedExisting && existingMode === "replace" ?
-        'Remplacer les listes de l’entreprise par vos modifications privées ? Certaines modifications de l’entreprise peuvent être perdues. Les originaux privés restent disponibles.' : 'Importer les machines et listes de codes G/M sélectionnées ? Les originaux privés seront conservés.';
-      const updateExisting = document.getElementById("codeImportUpdateExisting").checked;
-      const extra = codeFilenames.length && existingMode === "merge" && updateExisting ? "\n\n" + codeReportLabels[13] : "";
-      if (!window.confirm(confirmation + extra)) return;
-      importMachinesButton.disabled = true;
-      let importedMachines = 0;
-      let importedCodes = 0;
+      return {
+        codeFilenames: [...selectedPrivateCodeFiles].sort(),
+        existingMode,
+        updateExisting: existingMode === "merge" && document.getElementById("codeImportUpdateExisting").checked,
+      };
+    }
+
+    function codeImportScope() {
+      return `${currentUser?.uid || ""}:${currentCompanyId || ""}`;
+    }
+
+    function invalidateCodePreview() {
+      codePreviewGeneration++;
+      pendingCodePreview = null;
+      confirmCodeImport.disabled = true;
+      codePreviewBody.replaceChildren();
+      if (codePreviewDialog.open) codePreviewDialog.close();
+    }
+
+    function setCodePreviewStatus(message, error = false) {
+      codePreviewStatus.textContent = message;
+      codePreviewStatus.classList.toggle("error", error);
+    }
+
+    function codeImportError(error) {
+      const reason = error?.details?.reason;
+      if (reason === "preview-stale" || reason === "preview-required") return codeImportText.stale;
+      return mapFunctionError(error);
+    }
+
+    function codeRowValues(data, originalCode) {
+      if (!data) return [codeImportText.base, originalCode || codeImportText.empty,
+        codeImportText.baseText, codeImportText.baseText];
+      const state = data.action === "delete" ? codeImportText.deleted :
+        data.action === "add" ? codeImportText.added : codeImportText.updated;
+      return [state, data.code || originalCode || codeImportText.empty,
+        data.action === "delete" ? codeImportText.empty : data.function || codeImportText.empty,
+        data.action === "delete" ? codeImportText.empty : data.example || codeImportText.empty];
+    }
+
+    function codeChangeLabel(entry) {
+      if (entry.write && entry.after?.action === "delete") return codeImportText.deleted;
+      if (entry.status === "added" && entry.after?.action === "update") return codeImportText.updated;
+      return codeImportText[entry.status] || codeImportText.updated;
+    }
+
+    function appendCodePreviewEntry(container, entry, open) {
+      const section = document.createElement("details");
+      section.className = "code-preview-entry";
+      section.open = open;
+      const summary = document.createElement("summary");
+      summary.textContent = `${entry.before?.code || entry.originalCode || entry.after?.code || ""} · ${codeChangeLabel(entry)}`;
+      section.append(summary);
+      const table = document.createElement("table");
+      table.className = "code-preview-table";
+      const head = document.createElement("thead");
+      const header = document.createElement("tr");
+      for (const value of [codeImportText.field, codeImportText.before, codeImportText.after]) {
+        const th = document.createElement("th");
+        th.scope = "col";
+        th.textContent = value;
+        header.append(th);
+      }
+      head.append(header);
+      table.append(head);
+      const body = document.createElement("tbody");
+      const before = codeRowValues(entry.before, entry.originalCode);
+      const after = codeRowValues(entry.after, entry.originalCode);
+      const labels = [codeImportText.state, codeImportText.code, codeImportText.title, codeImportText.description];
+      for (let i = 0; i < labels.length; i++) {
+        const row = document.createElement("tr");
+        const name = document.createElement("th");
+        name.scope = "row";
+        name.textContent = labels[i];
+        row.append(name);
+        for (const [j, value] of [before[i], after[i]].entries()) {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          if (j === 1 && before[i] !== after[i]) cell.className = "is-changed";
+          row.append(cell);
+        }
+        body.append(row);
+      }
+      table.append(body);
+      section.append(table);
+      container.append(section);
+    }
+
+    function renderCodeImportPreview(report) {
+      codePreviewBody.replaceChildren();
+      let changed = 0;
+      let kept = 0;
+      for (const list of report) {
+        const heading = document.createElement("h3");
+        heading.textContent = readableCodeListName(list.filename);
+        codePreviewBody.append(heading);
+        const changes = list.entries.filter((entry) => entry.write || entry.remove);
+        const unchanged = list.entries.filter((entry) => !entry.write && !entry.remove);
+        changed += changes.length;
+        kept += unchanged.length;
+        if (!changes.length) {
+          const note = document.createElement("p");
+          note.className = "machine-meta";
+          note.textContent = codeImportText.noListChanges;
+          codePreviewBody.append(note);
+        }
+        for (const entry of changes) appendCodePreviewEntry(codePreviewBody, entry, true);
+        if (unchanged.length) {
+          const group = document.createElement("details");
+          group.className = "code-preview-kept";
+          const summary = document.createElement("summary");
+          summary.textContent = `${codeImportText.showUnchanged} (${unchanged.length})`;
+          group.append(summary);
+          for (const entry of unchanged) appendCodePreviewEntry(group, entry, false);
+          codePreviewBody.append(group);
+        }
+      }
+      const note = document.createElement("p");
+      note.className = "machine-meta";
+      note.textContent = codeImportText.baselineNote;
+      codePreviewBody.append(note);
+      setCodePreviewStatus(changed ? codeImportText.summary.replace("{changed}", changed).replace("{kept}", kept) : codeImportText.noChanges);
+      return changed;
+    }
+
+    async function loadCodeImportPreview() {
+      const config = getCodeImportConfig();
+      if (!config.codeFilenames.length || codesImportBusy) return;
+      const scope = codeImportScope();
+      const generation = ++codePreviewGeneration;
+      pendingCodePreview = null;
+      confirmCodeImport.disabled = true;
+      refreshCodePreview.disabled = true;
+      previewCodesButton.disabled = true;
+      codePreviewBody.replaceChildren();
+      document.getElementById("codePreviewMode").textContent = config.existingMode === "replace" ?
+        `${codeImportText.modeReplace}. ${codeImportText.replaceWarning}` :
+        `${codeImportText.modeMerge}. ${config.updateExisting ? codeImportText.checkboxActive : codeImportText.checkboxInactive}`;
+      setCodePreviewStatus(codeImportText.loading);
+      if (!codePreviewDialog.open) codePreviewDialog.showModal();
       try {
-        if (machineIds.length) {
-          const machineResult = await importPrivateMachinesCall({machineIds});
-          importedMachines = machineResult.data?.importedMachines?.length || 0;
-          selectedPrivateMachineIds = new Set();
+        const response = await previewPrivateCodeListsCall(config);
+        if (generation !== codePreviewGeneration || scope !== codeImportScope() || !codePreviewDialog.open) return;
+        const result = response.data;
+        if (result?.preview !== true || result.companyId !== currentCompanyId ||
+            typeof result.previewToken !== "string" || !Array.isArray(result.changeReport)) {
+          throw new Error(codeImportText.invalidPreview);
         }
-        if (codeFilenames.length) {
-          const codeResult = await importPrivateCodeListsCall({codeFilenames, existingMode, updateExisting});
-          const result = codeResult.data || {};
-          renderCodeImportReport(result.changeReport || []);
-          importedCodes = (result.importedCodeFilenames?.length || 0) +
-            (result.mergedCodeFilenames?.length || 0) +
-            (result.replacedCodeFilenames?.length || 0) +
-            (result.unchangedCodeFilenames?.length || 0);
-          selectedPrivateCodeFiles = new Set();
-        }
-        updateMachineImportButton();
-        dismissMachineImportNotice();
-        loadPrivateCodeLists(currentCompanyId);
-        setStatus(`${importedMachines} / ${importedCodes} machine(s) et liste(s) de codes G/M traitée(s).`, "success", 7000);
+        const changed = renderCodeImportPreview(result.changeReport);
+        pendingCodePreview = {config, scope, previewToken: result.previewToken};
+        confirmCodeImport.disabled = changed === 0;
       } catch (error) {
-        const message = importedMachines > 0 ?
-          'Les machines ont été copiées ; échec de l’import des codes G/M : ' + mapFunctionError(error) : mapFunctionError(error);
-        setStatus(message, "error", 7000);
+        if (generation === codePreviewGeneration && scope === codeImportScope()) {
+          setCodePreviewStatus(error instanceof Error && !error.code ? error.message : codeImportError(error), true);
+        }
+      } finally {
+        if (generation === codePreviewGeneration) {
+          refreshCodePreview.disabled = false;
+          updateMachineImportButton();
+        }
+      }
+    }
+
+    previewCodesButton.addEventListener("click", loadCodeImportPreview);
+    refreshCodePreview.addEventListener("click", loadCodeImportPreview);
+    cancelCodePreview.addEventListener("click", () => {
+      if (!codesImportBusy) codePreviewDialog.close();
+    });
+    codePreviewDialog.addEventListener("cancel", (event) => {
+      if (codesImportBusy) event.preventDefault();
+    });
+    codePreviewDialog.addEventListener("close", () => {
+      codePreviewGeneration++;
+      pendingCodePreview = null;
+      confirmCodeImport.disabled = true;
+      updateMachineImportButton();
+    });
+    for (const control of codeImportSection.querySelectorAll('input[name="existingCodeMode"], #codeImportUpdateExisting')) {
+      control.addEventListener("change", () => {
+        invalidateCodePreview();
+        updateMachineImportButton();
+      });
+    }
+
+    confirmCodeImport.addEventListener("click", async () => {
+      const pending = pendingCodePreview;
+      if (!pending || codesImportBusy) return;
+      if (pending.scope !== codeImportScope() ||
+          JSON.stringify(pending.config) !== JSON.stringify(getCodeImportConfig())) {
+        pendingCodePreview = null;
+        confirmCodeImport.disabled = true;
+        setCodePreviewStatus(codeImportText.stale, true);
+        return;
+      }
+      codesImportBusy = true;
+      confirmCodeImport.disabled = true;
+      refreshCodePreview.disabled = true;
+      cancelCodePreview.disabled = true;
+      updateMachineImportButton();
+      setCodePreviewStatus(codeImportText.importing);
+      try {
+        await importPrivateCodeListsCall({...pending.config, previewToken: pending.previewToken});
+        if (pending.scope !== codeImportScope()) return;
+        for (const filename of pending.config.codeFilenames) selectedPrivateCodeFiles.delete(filename);
+        codePreviewDialog.close();
+        setStatus(codeImportText.codeSuccess.replace("{n}", pending.config.codeFilenames.length), "success", 7000);
+        loadPrivateCodeLists(currentCompanyId);
+      } catch (error) {
+        if (pending.scope === codeImportScope()) {
+          setCodePreviewStatus(codeImportError(error), true);
+          pendingCodePreview = null;
+        }
+      } finally {
+        codesImportBusy = false;
+        refreshCodePreview.disabled = false;
+        cancelCodePreview.disabled = false;
         updateMachineImportButton();
       }
+    });
+
+    importMachinesButton.addEventListener("click", async () => {
+      const machineIds = [...selectedPrivateMachineIds];
+      if (!machineIds.length || machinesImportBusy) return;
+      if (!window.confirm(codeImportText.machineConfirm)) return;
+      const scope = codeImportScope();
+      machinesImportBusy = true;
+      updateMachineImportButton();
+      try {
+        const result = await importPrivateMachinesCall({machineIds});
+        if (scope !== codeImportScope()) return;
+        const imported = result.data?.importedMachines?.length || 0;
+        for (const id of machineIds) selectedPrivateMachineIds.delete(id);
+        dismissMachineImportNotice();
+        setStatus(codeImportText.machineSuccess.replace("{n}", imported), "success", 7000);
+      } catch (error) {
+        if (scope === codeImportScope()) setStatus(mapFunctionError(error), "error", 7000);
+      } finally {
+        machinesImportBusy = false;
+        updateMachineImportButton();
+      }
+    });
+
+    codeImportSection.addEventListener("toggle", () => {
+      if (codeImportSection.open) limitVisibleItems(privateCodeList, 4);
     });
 
     machineImportSection.addEventListener("toggle", () => {

@@ -3,6 +3,7 @@ import {FieldValue} from "firebase-admin/firestore";
 import {planCodeImport} from "./codeImportPlan";
 import type {CodeEntry} from "./codeImportPlan";
 import {HttpsError, onCall} from "firebase-functions/https";
+import type {CallableRequest} from "firebase-functions/https";
 import {db} from "../firebase";
 import {requireCompanyAccess} from "../shared/companyAccess";
 
@@ -66,9 +67,13 @@ export const listPrivateCodeListsForImport = onCall(async (request) => {
   return {lists: result.filter((entry) => entry.changeCount > 0)};
 });
 
-export const importPrivateCodeListsToCompany = onCall({
-  timeoutSeconds: 180,
-}, async (request) => {
+/**
+ * Builds or applies an import using the same transaction and validation.
+ * @param {CallableRequest} request Authenticated callable request.
+ * @param {boolean} preview Read-only preview when true.
+ * @return {Promise<object>} Plan and import summary.
+ */
+async function executeCodeImport(request: CallableRequest, preview: boolean) {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Du musst angemeldet sein.");
   }
@@ -79,7 +84,7 @@ export const importPrivateCodeListsToCompany = onCall({
       new Set(raw).size !== raw.length) {
     throw new HttpsError("invalid-argument", "Ungültige Codelisten-Auswahl.");
   }
-  const filenames = raw as string[];
+  const filenames = [...raw as string[]].sort();
   // Old clients omit this option. The safe default preserves company changes.
   const existingMode: unknown = request.data?.existingMode ?? "merge";
   if (existingMode !== "merge" && existingMode !== "replace") {
@@ -88,6 +93,13 @@ export const importPrivateCodeListsToCompany = onCall({
   const updateExisting = request.data?.updateExisting ?? false;
   if (typeof updateExisting !== "boolean") {
     throw new HttpsError("invalid-argument", "Importoption ungültig.");
+  }
+  const suppliedToken: unknown = request.data?.previewToken;
+  if (!preview && (typeof suppliedToken !== "string" ||
+      !/^[a-f0-9]{64}$/.test(suppliedToken))) {
+    throw new HttpsError("failed-precondition", "Vorschau zuerst laden.", {
+      reason: "preview-required",
+    });
   }
   const uid = request.auth.uid;
   const {companyId} = await permittedCompany(uid);
@@ -154,6 +166,7 @@ export const importPrivateCodeListsToCompany = onCall({
           },
         };
       });
+      entries.sort((left, right) => left.id.localeCompare(right.id));
       const ids = entries.map((entry) => entry.id);
       if (new Set(ids).size !== ids.length) {
         throw new HttpsError(
@@ -171,6 +184,7 @@ export const importPrivateCodeListsToCompany = onCall({
       const companyEntries: CodeEntry[] = companyChanges.docs.map((doc) => ({
         id: doc.id, data: doc.data() as CodeEntry["data"],
       }));
+      companyEntries.sort((left, right) => left.id.localeCompare(right.id));
       const report = planCodeImport(entries, companyEntries,
         existingMode === "replace", updateExisting);
       const writes = 1 + report.filter((entry) =>
@@ -196,6 +210,19 @@ export const importPrivateCodeListsToCompany = onCall({
         "Importbericht zu gross. Wähle weniger Listen gleichzeitig.");
     }
 
+    const previewToken = createHash("sha256").update(JSON.stringify({
+      uid, companyId, existingMode, updateExisting,
+      lists: pending.map((list) => ({
+        filename: list.filename, parentExists: list.parentExists,
+        entries: list.report,
+      })),
+    })).digest("hex");
+    if (!preview && suppliedToken !== previewToken) {
+      throw new HttpsError("aborted", "Daten geändert. Vorschau neu laden.", {
+        reason: "preview-stale",
+      });
+    }
+
     const importedCodeFilenames: string[] = [];
     const mergedCodeFilenames: string[] = [];
     const replacedCodeFilenames: string[] = [];
@@ -204,16 +231,16 @@ export const importPrivateCodeListsToCompany = onCall({
     let addedEntries = 0;
     let updatedEntries = 0;
     let removedEntries = 0;
-
     let restoredEntries = 0;
     const changeReport: Array<{
       filename: string;
       entries: ReturnType<typeof planCodeImport>;
     }> = [];
-    // Firestore requires all transaction reads before any writes.
+    // Preview and commit use the same plan. Preview never performs writes.
+    // On commit all reads and token validation precede the first write.
     for (const list of pending) {
       const changed = list.report.some((entry) => entry.write || entry.remove);
-      if (changed || !list.parentExists) {
+      if (!preview && (changed || !list.parentExists)) {
         transaction.set(list.ref, {
           filename: list.filename,
           codeReimportedByUid: uid,
@@ -227,10 +254,10 @@ export const importPrivateCodeListsToCompany = onCall({
       for (const entry of list.report) {
         const ref = list.ref.collection("changes").doc(entry.id);
         if (entry.remove) {
-          transaction.delete(ref);
+          if (!preview) transaction.delete(ref);
           removedEntries++;
         } else if (entry.write && entry.after) {
-          transaction.set(ref, entry.after);
+          if (!preview) transaction.set(ref, entry.after);
           if (entry.status === "added") addedEntries++;
           else if (entry.status === "restored") restoredEntries++;
           else updatedEntries++;
@@ -247,7 +274,7 @@ export const importPrivateCodeListsToCompany = onCall({
       changeReport.push({filename: list.filename, entries: list.report});
     }
     return {
-      companyId,
+      companyId, preview, previewToken,
       importedCodeFilenames,
       mergedCodeFilenames,
       replacedCodeFilenames,
@@ -257,7 +284,24 @@ export const importPrivateCodeListsToCompany = onCall({
       updatedEntries,
       removedEntries,
       restoredEntries,
-      changeReport,
+      // The website needs only the before/after view, never the private copy.
+      changeReport: changeReport.map((list) => ({
+        filename: list.filename,
+        entries: list.entries.map((entry) => ({
+          id: entry.id, status: entry.status,
+          write: entry.write, remove: entry.remove,
+          originalCode: entry.source.originalCode,
+          before: entry.before, after: entry.after,
+        })),
+      })),
     };
   });
-});
+}
+
+export const previewPrivateCodeListsToCompany = onCall({
+  timeoutSeconds: 180,
+}, (request) => executeCodeImport(request, true));
+
+export const importPrivateCodeListsToCompany = onCall({
+  timeoutSeconds: 180,
+}, (request) => executeCodeImport(request, false));
