@@ -1,6 +1,7 @@
 import {createHash} from "node:crypto";
 import {FieldValue} from "firebase-admin/firestore";
-import type {DocumentReference} from "firebase-admin/firestore";
+import {planCodeImport} from "./codeImportPlan";
+import type {CodeEntry} from "./codeImportPlan";
 import {HttpsError, onCall} from "firebase-functions/https";
 import {db} from "../firebase";
 import {requireCompanyAccess} from "../shared/companyAccess";
@@ -84,6 +85,10 @@ export const importPrivateCodeListsToCompany = onCall({
   if (existingMode !== "merge" && existingMode !== "replace") {
     throw new HttpsError("invalid-argument", "Importmodus ungültig.");
   }
+  const updateExisting = request.data?.updateExisting ?? false;
+  if (typeof updateExisting !== "boolean") {
+    throw new HttpsError("invalid-argument", "Importoption ungültig.");
+  }
   const uid = request.auth.uid;
   const {companyId} = await permittedCompany(uid);
   const userRef = db.collection("users").doc(uid);
@@ -106,22 +111,10 @@ export const importPrivateCodeListsToCompany = onCall({
       destinationRefs[0], ...destinationRefs.slice(1));
     const pending: Array<{
       filename: string;
-      ref: DocumentReference;
       existing: boolean;
       parentExists: boolean;
-      entries: Array<{
-        id: string;
-        data: {
-          action: string;
-          originalCode: string;
-          code: string;
-          function: string;
-          example: string;
-        };
-      }>;
-      companyEntries: Array<{
-        id: string;
-      }>;
+      ref: typeof destinationRefs[number];
+      report: ReturnType<typeof planCodeImport>;
     }> = [];
     let writeCount = 0;
 
@@ -175,17 +168,13 @@ export const importPrivateCodeListsToCompany = onCall({
         throw new HttpsError("resource-exhausted", "Firmenliste zu gross.");
       }
       const existing = destinations[i].exists || !companyChanges.empty;
-      const companyEntries = companyChanges.docs.map((doc) => ({id: doc.id}));
-      const companyIds = new Set(companyEntries.map((entry) => entry.id));
-      const sourceIds = new Set(ids);
-      const added = entries.filter((entry) => !companyIds.has(entry.id));
-      const removed = companyEntries.filter((entry) =>
-        !sourceIds.has(entry.id));
-
-      const writes = !existing ? 1 + entries.length :
-        existingMode === "merge" ?
-          added.length + (destinations[i].exists ? 0 : 1) :
-          1 + entries.length + removed.length;
+      const companyEntries: CodeEntry[] = companyChanges.docs.map((doc) => ({
+        id: doc.id, data: doc.data() as CodeEntry["data"],
+      }));
+      const report = planCodeImport(entries, companyEntries,
+        existingMode === "replace", updateExisting);
+      const writes = 1 + report.filter((entry) =>
+        entry.write || entry.remove).length;
       writeCount += writes;
       if (writeCount > MAX_WRITES) {
         throw new HttpsError(
@@ -194,10 +183,17 @@ export const importPrivateCodeListsToCompany = onCall({
         );
       }
       pending.push({
-        filename: filenames[i], ref: destinationRefs[i], entries,
-        companyEntries, existing,
+        filename: filenames[i], ref: destinationRefs[i], report, existing,
         parentExists: destinations[i].exists,
       });
+    }
+
+    // Bound the callable response before committing any writes.
+    if (Buffer.byteLength(JSON.stringify(pending.map((list) => ({
+      filename: list.filename, entries: list.report,
+    }))), "utf8") > 7 * 1024 * 1024) {
+      throw new HttpsError("resource-exhausted",
+        "Importbericht zu gross. Wähle weniger Listen gleichzeitig.");
     }
 
     const importedCodeFilenames: string[] = [];
@@ -209,64 +205,46 @@ export const importPrivateCodeListsToCompany = onCall({
     let updatedEntries = 0;
     let removedEntries = 0;
 
+    let restoredEntries = 0;
+    const changeReport: Array<{
+      filename: string;
+      entries: ReturnType<typeof planCodeImport>;
+    }> = [];
     // Firestore requires all transaction reads before any writes.
     for (const list of pending) {
-      const oldIds = new Set(list.companyEntries.map((entry) => entry.id));
-      const sourceIds = new Set(list.entries.map((entry) => entry.id));
-      if (!list.existing) {
-        transaction.create(list.ref, {
+      const changed = list.report.some((entry) => entry.write || entry.remove);
+      if (changed || !list.parentExists) {
+        transaction.set(list.ref, {
           filename: list.filename,
-          sourceOwnerUid: uid,
-          companyImportedAt: FieldValue.serverTimestamp(),
-        });
-        for (const entry of list.entries) {
-          transaction.create(list.ref.collection("changes").doc(entry.id),
-            entry.data);
-        }
-        addedEntries += list.entries.length;
-        importedCodeFilenames.push(list.filename);
-        continue;
-      }
-
-      alreadyImportedCodeFilenames.push(list.filename);
-      if (existingMode === "merge") {
-        if (!list.parentExists) {
-          transaction.create(list.ref, {
-            filename: list.filename,
+          codeReimportedByUid: uid,
+          codeReimportedAt: FieldValue.serverTimestamp(),
+          ...(!list.parentExists ? {
             sourceOwnerUid: uid,
             companyImportedAt: FieldValue.serverTimestamp(),
-          });
-        }
-        const missing = list.entries.filter((entry) => !oldIds.has(entry.id));
-        for (const entry of missing) {
-          transaction.create(list.ref.collection("changes").doc(entry.id),
-            entry.data);
-        }
-        addedEntries += missing.length;
-        if (missing.length) mergedCodeFilenames.push(list.filename);
-        else unchangedCodeFilenames.push(list.filename);
-        continue;
+          } : {}),
+        }, {merge: true});
       }
-
-      // Replace the overlay for this one file, not the app's bundled codes.
-      transaction.set(list.ref, {
-        filename: list.filename,
-        codeReimportedByUid: uid,
-        codeReimportedAt: FieldValue.serverTimestamp(),
-      }, {merge: true});
-      for (const entry of list.companyEntries) {
-        if (!sourceIds.has(entry.id)) {
-          transaction.delete(list.ref.collection("changes").doc(entry.id));
+      for (const entry of list.report) {
+        const ref = list.ref.collection("changes").doc(entry.id);
+        if (entry.remove) {
+          transaction.delete(ref);
           removedEntries++;
+        } else if (entry.write && entry.after) {
+          transaction.set(ref, entry.after);
+          if (entry.status === "added") addedEntries++;
+          else if (entry.status === "restored") restoredEntries++;
+          else updatedEntries++;
         }
       }
-      for (const entry of list.entries) {
-        transaction.set(list.ref.collection("changes").doc(entry.id),
-          entry.data);
-        if (oldIds.has(entry.id)) updatedEntries++;
-        else addedEntries++;
+      if (!list.existing) importedCodeFilenames.push(list.filename);
+      else {
+        alreadyImportedCodeFilenames.push(list.filename);
+        if (!changed) unchangedCodeFilenames.push(list.filename);
+        else if (existingMode === "replace") {
+          replacedCodeFilenames.push(list.filename);
+        } else mergedCodeFilenames.push(list.filename);
       }
-      replacedCodeFilenames.push(list.filename);
+      changeReport.push({filename: list.filename, entries: list.report});
     }
     return {
       companyId,
@@ -278,6 +256,8 @@ export const importPrivateCodeListsToCompany = onCall({
       addedEntries,
       updatedEntries,
       removedEntries,
+      restoredEntries,
+      changeReport,
     };
   });
 });

@@ -496,6 +496,12 @@
       overflow-wrap: anywhere;
     }
 
+    #codeImportReportButton[hidden] { display: none; }
+    .code-report-dialog { width: min(900px, calc(100% - 24px)); max-height: 85vh; overflow: auto; border: 1px solid #bbb; border-radius: 8px; padding: 20px; box-sizing: border-box; }
+    .code-report-dialog::backdrop { background: #0008; }
+    .code-report-entry { border-top: 1px solid #ddd; margin-top: 14px; padding-top: 12px; }
+    .code-report-values { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; }
+    .code-report-values pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; margin: 5px 0; }
     .machine-choice.disabled {
       color: var(--muted);
       background: #f1f1f1;
@@ -1112,17 +1118,16 @@
             <div id="codeImportModeRow" class="hidden" style="margin-top: 14px;">
               <fieldset>
                 <legend>If a code list already exists in the company:</legend>
-                <label class="code-import-option">
-                  <input type="radio" name="existingCodeMode" value="merge" checked>
-                  <span>Keep existing entries and add missing ones only</span>
-                </label>
-                <label class="code-import-option">
-                  <input type="radio" name="existingCodeMode" value="replace">
-                  <span>Replace the company list with my private changes</span>
-                </label>
+                <label class="code-import-option"><input type="radio" name="existingCodeMode" value="merge" checked><span>Merge: Keep additional company entries, add missing and restore deleted codes</span></label>
+                <label class="code-import-option"><input type="radio" name="existingCodeMode" value="replace"><span>Replace the company list with my private changes</span></label>
                 <p class="machine-meta">Replacing removes company changes that are absent from your private list. The built-in templates and your private changes remain available.</p>
               </fieldset>
             </div>
+            <label class="code-import-option" style="display:flex;align-items:flex-start;gap:10px;margin-top:12px;">
+              <input id="codeImportUpdateExisting" type="checkbox" checked style="width:18px;height:18px;flex:0 0 auto;margin-top:3px;">
+              <span>Also apply private changes to existing codes (code, title, description and deletions)</span>
+            </label>
+            <button id="codeImportReportButton" type="button" hidden>Open import report</button>
           </div>
         </details>
       </div>
@@ -1532,7 +1537,12 @@
     <p>© 2024–<span id="year"></span> PolymApp</p>
   </footer>
 
-  <script type="module">
+  <dialog id="codeImportReportDialog" class="code-report-dialog" aria-labelledby="codeImportReportTitle">
+  <h2 id="codeImportReportTitle">Import report</h2>
+  <button type="button" id="codeImportReportClose">Close</button>
+  <div id="codeImportReportBody"></div>
+</dialog>
+<script type="module">
     import {setupCreationTariffs, selectedCreationTariff, updateSubscriptionUI,
       resetSubscriptionUI} from "./assets/company-subscription.js";
   import {app, auth} from "./assets/website-auth.js";
@@ -3669,6 +3679,47 @@ deleteCompanyButton.addEventListener(
   },
 );
 
+
+    const codeReportLabels = ["Also apply private changes to existing codes (code, title, description and deletions)", "Open import report", "Import report", "Close", "Before (company)", "After (company)", "Private source", "Added", "Updated", "Restored", "Removed: app default applies again", "Kept", "Unchanged", "Private changes to existing codes will also be applied. Continue?"];
+    const codeReportButton = document.getElementById("codeImportReportButton");
+    const codeReportDialog = document.getElementById("codeImportReportDialog");
+    const codeReportBody = document.getElementById("codeImportReportBody");
+    codeReportButton.addEventListener("click", () => codeReportDialog.showModal());
+    document.getElementById("codeImportReportClose").addEventListener("click", () => codeReportDialog.close());
+
+    function renderCodeImportReport(report) {
+      codeReportBody.replaceChildren();
+      const statusLabels = Object.fromEntries(
+        ["added", "updated", "restored", "removed", "kept", "unchanged"].map((key, i) => [key, codeReportLabels[7 + i]])
+      );
+      for (const list of report) {
+        const heading = document.createElement("h3");
+        heading.textContent = readableCodeListName(list.filename);
+        codeReportBody.append(heading);
+        for (const entry of list.entries || []) {
+          const section = document.createElement("section");
+          section.className = "code-report-entry";
+          const title = document.createElement("strong");
+          title.textContent = `${entry.source?.originalCode || entry.before?.originalCode || ""}: ${statusLabels[entry.status] || entry.status}`;
+          section.append(title);
+          const values = document.createElement("div");
+          values.className = "code-report-values";
+          for (const [label, data] of [[codeReportLabels[4], entry.before], [codeReportLabels[5], entry.after], [codeReportLabels[6], entry.source]]) {
+            const column = document.createElement("div");
+            const caption = document.createElement("strong");
+            caption.textContent = label;
+            const text = document.createElement("pre");
+            text.textContent = data ? [data.action, data.code, data.function, data.example].join("\n") : "—";
+            column.append(caption, text);
+            values.append(column);
+          }
+          section.append(values);
+          codeReportBody.append(section);
+        }
+      }
+      codeReportButton.hidden = report.length === 0;
+    }
+
     importMachinesButton.addEventListener("click", async () => {
       const machineIds = [...selectedPrivateMachineIds];
       const codeFilenames = [...selectedPrivateCodeFiles];
@@ -3682,7 +3733,9 @@ deleteCompanyButton.addEventListener(
         document.querySelector('input[name="existingCodeMode"]:checked')?.value || "merge" : "merge";
       const confirmation = selectedExisting && existingMode === "replace" ?
         'Replace company code lists with your private changes? Existing company changes in those lists may be lost. Private originals remain available.' : 'Import selected machines and G/M code lists? Private originals will remain available.';
-      if (!window.confirm(confirmation)) return;
+      const updateExisting = document.getElementById("codeImportUpdateExisting").checked;
+      const extra = codeFilenames.length && existingMode === "merge" && updateExisting ? "\n\n" + codeReportLabels[13] : "";
+      if (!window.confirm(confirmation + extra)) return;
       importMachinesButton.disabled = true;
       let importedMachines = 0;
       let importedCodes = 0;
@@ -3693,8 +3746,9 @@ deleteCompanyButton.addEventListener(
           selectedPrivateMachineIds = new Set();
         }
         if (codeFilenames.length) {
-          const codeResult = await importPrivateCodeListsCall({codeFilenames, existingMode});
+          const codeResult = await importPrivateCodeListsCall({codeFilenames, existingMode, updateExisting});
           const result = codeResult.data || {};
+          renderCodeImportReport(result.changeReport || []);
           importedCodes = (result.importedCodeFilenames?.length || 0) +
             (result.mergedCodeFilenames?.length || 0) +
             (result.replacedCodeFilenames?.length || 0) +
