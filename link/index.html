@@ -1,173 +1,224 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PolymApp - Download</title>
-    <meta name="description" content="Du wirst zum passenden App Store für PolymApp weitergeleitet.">
-
-    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-    <link rel="icon" href="../favicon.ico">
-
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            line-height: 1.5; 
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        header {
-            background: linear-gradient(180deg, #F60100 0%, #B80000 100%);
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
-        }
-        .header-logo {
-            max-width: 400px;
-            width: 100%;
-            height: auto;
-            margin-bottom: 10px;
-        }
-        header h2 {
-            color: white;
-            margin: 0;
-        }
-        nav {
-            background: #222;
-            padding: 10px;
-            text-align: center;
-        }
-        nav a {
-            color: white;
-            margin: 0 10px;
-            text-decoration: none;
-        }
-        nav a:not(:last-child)::after {
-            content: " |";
-            color: white;
-            margin-left: 10px;
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            padding: 40px 20px;
-            text-align: center;
-            flex-grow: 1;
-        }
-        .container h2 {
-            color: #B00000;
-        }
-        .countdown-box {
-            font-size: 4em;
-            font-weight: bold;
-            color: #F60100;
-            margin: 20px 0;
-        }
-        button {
-            background-color: #F60100;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            cursor: pointer;
-            font-size: 16px;
-            border-radius: 4px;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #B80000;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            background: #f2f2f2;
-        }
-        footer a {
-            text-decoration: none;
-            color: #333;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <script>
+    if (location.hostname === "www.polymapp.ch") {
+      location.replace("https://polymapp.ch" + location.pathname + location.search + location.hash);
+    }
+  </script>
+  <base href="../">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PolymApp herunterladen – Android und iOS</title>
+  <meta name="description" content="PolymApp für Android und iOS herunterladen. Direkt zum Google Play Store oder Apple App Store – der digitale Werkzeugkasten für CNC-Fachkräfte.">
+  <link rel="canonical" href="https://polymapp.ch/link/">
+  <link rel="alternate" hreflang="de" href="https://polymapp.ch/link/">
+  <link rel="alternate" hreflang="en" href="https://polymapp.ch/link/index-en.html">
+  <link rel="alternate" hreflang="fr" href="https://polymapp.ch/link/index-fr.html">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" href="favicon.ico">
+  <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
+  <link rel="icon" sizes="512x512" href="android-chrome-512x512.png">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; line-height: 1.5; color: #222; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+    header { background: linear-gradient(180deg, #F60100 0%, #B80000 100%); color: white; padding: 40px 20px; text-align: center; position: relative; }
+    .header-logo { max-width: 400px; width: 100%; height: auto; margin-bottom: 10px; }
+    header h2 { color: white; }
+    .language-switch { position: absolute; top: 15px; right: 20px; font-size: .9em; }
+    .language-switch a { color: white; text-decoration: none; margin: 0 5px; }
+    .language-switch a:hover, .language-switch a[aria-current] { text-decoration: underline; }
+    nav { background: #222; padding: 10px; text-align: center; }
+    nav a { color: white; margin: 0 10px; text-decoration: none; display: inline-block; }
+    nav a:not(:last-child)::after { content: " |"; color: white; margin-left: 10px; }
+    a:focus-visible, button:focus-visible { outline: 3px solid #b80000; outline-offset: 4px; }
+    header a:focus-visible, nav a:focus-visible { outline-color: white; }
+    a:hover { text-decoration: underline; }
+    .container { box-sizing: border-box; width: 100%; max-width: 900px; margin: 0 auto; padding: 40px 20px; flex: 1; }
+    .download-card { max-width: 660px; margin: 0 auto; padding: 32px; border: 1px solid #e3e3e3; border-radius: 12px; text-align: center; box-shadow: 0 5px 24px #00000008; }
+    .download-mark { width: 48px; height: 48px; margin: 0 auto 12px; color: #b80000; }
+    .eyebrow { margin: 0 0 8px; color: #666; font-size: .9rem; }
+    h1 { color: #b00000; font-size: clamp(1.65rem, 5vw, 2rem); line-height: 1.2; margin: 0 0 16px; }
+    .download-intro { max-width: 500px; margin: 0 auto 26px; color: #444; }
+    .store-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0 0 24px; }
+    .store-button { box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 16px; min-height: 82px; border: 1px solid transparent; border-radius: 6px; background: #b80000; color: white; font-weight: bold; text-align: left; text-decoration: none; line-height: 1.35; }
+    .store-button svg { width: 27px; height: 30px; flex-shrink: 0; }
+    .store-button:hover { background: #970000; text-decoration: none; }
+    .store-button.apple { background: #222; }
+    .store-button.apple:hover { background: #000; }
+    .redirect-panel { background: #f6f6f6; border-radius: 8px; padding: 20px; }
+    .redirect-status { display: flex; align-items: center; justify-content: center; gap: 16px; text-align: left; }
+    .redirect-status p { margin: 0; }
+    .countdown { display: inline-flex; justify-content: center; align-items: center; width: 46px; height: 46px; border: 2px solid #b80000; border-radius: 50%; flex-shrink: 0; color: #b80000; font-size: 1.5rem; font-weight: bold; }
+    .stay-button { margin-top: 14px; padding: 10px 16px; border: 1px solid #999; border-radius: 5px; background: white; color: #222; font: inherit; cursor: pointer; }
+    .stay-button:hover { background: #eee; }
+    .manual-note { margin: 0; color: #555; font-size: .95rem; }
+    .more-link { margin: 24px 0 0; }
+    .more-link a { color: #a00000; text-underline-offset: 3px; }
+    footer { text-align: center; padding: 20px; background: #f2f2f2; }
+    footer p { overflow-wrap: anywhere; }
+    [hidden] { display: none !important; }
+    @media (max-width: 540px) {
+      .container { padding: 24px 16px; }
+      .download-card { padding: 24px 18px; }
+      .store-buttons { grid-template-columns: 1fr; gap: 12px; }
+      .store-button { min-height: 64px; padding: 14px 18px; }
+      .redirect-panel { padding: 16px; }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/account-menu.css">
 </head>
 <body>
-
 <header>
-    <img src="../images/logo_white.png" alt="PolymApp Logo" class="header-logo">
-    <h2>App Download</h2>
+  <img src="images/logo_white.png" alt="PolymApp Logo" class="header-logo">
+  <h2 data-text="headerTitle">App herunterladen</h2>
+  <div class="language-switch" aria-label="Sprache" id="language-switch">
+    <a href="link/" data-lang="de" lang="de" hreflang="de" aria-current="true">DE</a> |
+    <a href="link/index-en.html" data-lang="en" lang="en" hreflang="en" >EN</a> |
+    <a href="link/index-fr.html" data-lang="fr" lang="fr" hreflang="fr" >FR</a>
+  </div>
 </header>
-
-<nav>
-    <a href="../index.html">Startseite</a>
-    <a href="../accountverwaltung.html">Accountverwaltung</a>
-    <a href="../datenschutz.html">Datenschutzerklärung</a>
-    <a href="../kontakt.html">Kontakt</a>
+<nav aria-label="Hauptnavigation" id="main-nav">
+  <a href="index.html" data-page="index" data-text="home">Startseite</a>
+  <a href="about.html" data-page="about" data-text="about">Über mich</a>
+  <a href="kontakt.html" data-page="kontakt" data-text="contact">Kontakt</a>
 </nav>
-
-<div class="container">
-    <h2 id="status-text">Einen Moment bitte...</h2>
-    <p id="device-info">Betriebssystem wird erkannt, weiterleitung erfolgt in...</p>
-    
-    <div class="countdown-box" id="countdown">3</div>
-    
-    <p>Falls die Weiterleitung nicht automatisch erfolgt:</p>
-    <button onclick="redirectToStore()">Hier klicken</button>
-</div>
-
+<main class="container">
+  <section class="download-card" aria-labelledby="download-heading">
+    <svg class="download-mark" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M24 6v25m-9-9 9 9 9-9M9 31v10h30V31"/></svg>
+    <p class="eyebrow" data-text="platforms">Für Android und iOS</p>
+    <h1 id="download-heading" data-text="heading">PolymApp herunterladen</h1>
+    <p class="download-intro" data-text="intro">Der digitale Werkzeugkasten für Polymechaniker und CNC-Fachkräfte. Wählen Sie den passenden Store für Ihr Smartphone.</p>
+    <div class="store-buttons">
+      <a id="google-play" class="store-button" href="https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp">
+        <svg viewBox="0 0 24 28" fill="currentColor" aria-hidden="true"><path d="M3 2.2v23.6L23 14 3 2.2Z"/></svg>
+        <span data-text="googlePlay">Direkt zum Google Play Store</span>
+      </a>
+      <a id="app-store" class="store-button apple" href="https://apps.apple.com/ch/app/polymapp/id6743395389?l=de-DE">
+        <svg viewBox="0 0 24 28" fill="currentColor" aria-hidden="true"><path d="M16.8 1.5c.1 1.5-.5 2.9-1.4 3.9-.9 1-2.3 1.6-3.6 1.5-.2-1.4.5-2.8 1.4-3.8 1-1.1 2.4-1.7 3.6-1.6ZM21.1 20c-.5 1.2-.8 1.8-1.5 2.9-.9 1.3-2.2 3-3.7 3-1.3 0-1.7-.9-3.5-.9s-2.3.9-3.6.9c-1.5.1-2.6-1.5-3.5-2.8-2.5-3.5-3.5-8.8-1.9-11.6 1.1-2 2.8-3.1 4.5-3.1 1.4 0 2.4 1 3.6 1 1.2 0 2.1-1 3.8-1 1.4 0 2.9.8 4 2.1-3.5 1.9-2.9 6.8 1.8 9.5Z"/></svg>
+        <span data-text="appStore">Direkt zum App Store</span>
+      </a>
+    </div>
+    <div id="auto-redirect" class="redirect-panel" hidden>
+      <div class="redirect-status">
+        <span id="countdown" class="countdown" aria-hidden="true">3</span>
+        <p id="redirect-status" role="status" aria-live="polite"></p>
+      </div>
+      <button type="button" id="stay-button" class="stay-button" data-text="stay">Auf dieser Seite bleiben</button>
+    </div>
+    <p id="manual-note" class="manual-note" role="status" data-text="manual">Beide Stores sind direkt über die Buttons erreichbar.</p>
+    <p class="more-link"><a href="index.html" data-page="index" data-text="more">Mehr über PolymApp erfahren</a></p>
+  </section>
+</main>
 <footer>
-    <p><strong>PolymApp</strong> - Das digitale Tabellenbuch</p>
-    <p>© 2024-<span id="year"></span> PolymApp</p>
+  <p><strong>PolymApp</strong> – <span data-text="tagline">Der digitale Werkzeugkasten</span></p>
+  <p>
+    <a href="index.html" data-page="index" data-text="home">Startseite</a> ·
+    <a href="datenschutz.html" data-page="datenschutz" data-text="privacy">Datenschutz</a> ·
+    <a href="about.html" data-page="about" data-text="about">Über mich</a> ·
+    <a href="kontakt.html" data-page="kontakt" data-text="contact">Kontakt</a>
+  </p>
+  <p>© 2024–<span id="year"></span> PolymApp</p>
 </footer>
-
 <script>
-    const androidUrl = "https://play.google.com/store/apps/details?id=com.polymapp.toleratorapp";
-    const iosUrl = "https://apps.apple.com/ch/app/polymapp/id6743395389?l=de-DE";
-    const fallbackUrl = "https://www.polymapp.ch";
+(() => {
+  const copy = {"de": {"title": "PolymApp herunterladen – Android und iOS", "headerTitle": "App herunterladen", "description": "PolymApp für Android und iOS herunterladen. Direkt zum Google Play Store oder Apple App Store – der digitale Werkzeugkasten für CNC-Fachkräfte.", "home": "Startseite", "about": "Über mich", "contact": "Kontakt", "privacy": "Datenschutz", "platforms": "Für Android und iOS", "heading": "PolymApp herunterladen", "intro": "Der digitale Werkzeugkasten für Polymechaniker und CNC-Fachkräfte. Wählen Sie den passenden Store für Ihr Smartphone.", "googlePlay": "Direkt zum Google Play Store", "appStore": "Direkt zum App Store", "stay": "Auf dieser Seite bleiben", "manual": "Beide Stores sind direkt über die Buttons erreichbar.", "more": "Mehr über PolymApp erfahren", "tagline": "Der digitale Werkzeugkasten", "language": "Sprache", "navigation": "Hauptnavigation", "android": "Android erkannt. Google Play öffnet sich automatisch in 3 Sekunden.", "ios": "iPhone oder iPad erkannt. Der App Store öffnet sich automatisch in 3 Sekunden.", "paused": "Die automatische Weiterleitung wurde angehalten. Wählen Sie einen Store über die Buttons."}, "en": {"title": "Download PolymApp – Android and iOS", "headerTitle": "Download the app", "description": "Download PolymApp for Android and iOS. Go directly to Google Play or the Apple App Store – the digital toolbox for CNC professionals.", "home": "Home", "about": "About me", "contact": "Contact", "privacy": "Privacy Policy", "platforms": "For Android and iOS", "heading": "Download PolymApp", "intro": "The digital toolbox for mechanics and CNC professionals. Choose the right store for your smartphone.", "googlePlay": "Go directly to Google Play", "appStore": "Go directly to the App Store", "stay": "Stay on this page", "manual": "Both stores are available directly using the buttons.", "more": "Learn more about PolymApp", "tagline": "The digital toolbox", "language": "Language", "navigation": "Main navigation", "android": "Android detected. Google Play will open automatically in 3 seconds.", "ios": "iPhone or iPad detected. The App Store will open automatically in 3 seconds.", "paused": "Automatic redirection has been paused. Choose a store using the buttons."}, "fr": {"title": "Télécharger PolymApp – Android et iOS", "headerTitle": "Télécharger l’application", "description": "Téléchargez PolymApp pour Android et iOS. Accédez directement à Google Play ou à l’App Store d’Apple – la boîte à outils numérique pour les professionnels CNC.", "home": "Accueil", "about": "À propos", "contact": "Contact", "privacy": "Confidentialité", "platforms": "Pour Android et iOS", "heading": "Télécharger PolymApp", "intro": "La boîte à outils numérique pour les polymécaniciens et les professionnels CNC. Choisissez le magasin adapté à votre smartphone.", "googlePlay": "Accéder directement à Google Play", "appStore": "Accéder directement à l’App Store", "stay": "Rester sur cette page", "manual": "Les deux magasins sont accessibles directement via les boutons.", "more": "En savoir plus sur PolymApp", "tagline": "La boîte à outils numérique", "language": "Langue", "navigation": "Navigation principale", "android": "Android détecté. Google Play s’ouvrira automatiquement dans 3 secondes.", "ios": "iPhone ou iPad détecté. L’App Store s’ouvrira automatiquement dans 3 secondes.", "paused": "La redirection automatique a été suspendue. Choisissez un magasin via les boutons."}};
+  const requested = new URLSearchParams(location.search).get("lang");
+  const language = ["de", "en", "fr"].includes(requested) ? requested : document.documentElement.lang;
+  const words = copy[language];
+  const suffix = language === "de" ? "" : "-" + language;
+  document.documentElement.lang = language;
+  document.title = words.title;
+  document.querySelector('meta[name="description"]').content = words.description;
+  const downloadPages = {de: "https://polymapp.ch/link/", en: "https://polymapp.ch/link/index-en.html", fr: "https://polymapp.ch/link/index-fr.html"};
+  document.querySelector('link[rel="canonical"]').href = downloadPages[language];
+  document.querySelectorAll("[data-text]").forEach((element) => {
+    element.textContent = words[element.dataset.text];
+  });
+  document.querySelectorAll("[data-page]").forEach((element) => {
+    element.href = element.dataset.page + suffix + ".html";
+  });
+  document.querySelectorAll("[data-lang]").forEach((element) => {
+    if (element.dataset.lang === language) element.setAttribute("aria-current", "true");
+    else element.removeAttribute("aria-current");
+  });
+  document.getElementById("language-switch").setAttribute("aria-label", words.language);
+  document.getElementById("main-nav").setAttribute("aria-label", words.navigation);
+  const apple = document.getElementById("app-store");
+  const appleUrl = new URL(apple.href);
+  appleUrl.searchParams.set("l", {de: "de-DE", en: "en-GB", fr: "fr-FR"}[language]);
+  apple.href = appleUrl.href;
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-    const totalSeconds = 3;
-    const startTime = Date.now();
-    let targetUrl = fallbackUrl;
+  const agent = navigator.userAgent || "";
+  const windowsPhone = /Windows Phone|IEMobile/i.test(agent);
+  const isIOS = !windowsPhone && (/iPad|iPhone|iPod/.test(agent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+  const isAndroid = !windowsPhone && /android/i.test(agent);
+  const target = isIOS ? apple.href : isAndroid ? document.getElementById("google-play").href : null;
+  const panel = document.getElementById("auto-redirect");
+  const note = document.getElementById("manual-note");
+  let timer = null;
+  let remainingMs = 3000;
+  let startedAt = 0;
+  let stopped = false;
+  let redirected = false;
 
-    // 1. Betriebssystem erkennen
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    const statusText = document.getElementById("status-text");
+  function pauseForBackground() {
+    if (timer === null) return;
+    remainingMs = Math.max(0, remainingMs - (Date.now() - startedAt));
+    clearInterval(timer);
+    timer = null;
+  }
 
-    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-        targetUrl = iosUrl;
-        statusText.innerText = "Weiterleitung zum Apple App Store";
-    } else if (/android/i.test(userAgent)) {
-        targetUrl = androidUrl;
-        statusText.innerText = "Weiterleitung zum Google Play Store";
-    } else {
-        targetUrl = fallbackUrl;
-        statusText.innerText = "Weiterleitung zur Webseite";
-    }
+  function stopRedirect() {
+    if (!target || stopped || redirected) return;
+    stopped = true;
+    pauseForBackground();
+    panel.hidden = true;
+    note.textContent = words.paused;
+    note.hidden = false;
+  }
 
-    // 2. Präzisions-Countdown (Zeit-Differenz-Methode)
-    const countdownElement = document.getElementById("countdown");
-    
-    const timer = setInterval(() => {
-        const currentTime = Date.now();
-        const elapsed = Math.floor((currentTime - startTime) / 1000);
-        const remaining = totalSeconds - elapsed;
+  function startCountdown() {
+    // Unknown operating systems and computers never receive a store timer.
+    if (!target || stopped || redirected || timer !== null || document.visibilityState === "hidden") return;
+    panel.hidden = false;
+    note.hidden = true;
+    document.getElementById("redirect-status").textContent = isIOS ? words.ios : words.android;
+    document.getElementById("countdown").textContent = Math.ceil(remainingMs / 1000);
+    startedAt = Date.now();
+    timer = setInterval(() => {
+      const left = Math.max(0, remainingMs - (Date.now() - startedAt));
+      document.getElementById("countdown").textContent = Math.ceil(left / 1000);
+      if (left === 0) {
+        clearInterval(timer);
+        timer = null;
+        redirected = true;
+        location.replace(target);
+      }
+    }, 200);
+  }
 
-        if (remaining >= 0) {
-            countdownElement.innerText = remaining;
-        }
-
-        if (remaining <= 0) {
-            clearInterval(timer);
-            redirectToStore();
-        }
-    }, 100);
-
-    function redirectToStore() {
-        window.location.replace(targetUrl);
-    }
-
-    document.getElementById("year").textContent = new Date().getFullYear();
+  // Manual store choices and account access take priority over the countdown.
+  document.getElementById("stay-button").addEventListener("click", stopRedirect);
+  document.addEventListener("click", (event) => {
+    if (event.target.closest?.("a, button, .account-menu")) stopRedirect();
+  }, {capture: true});
+  document.addEventListener("pointerdown", (event) => {
+    if (event.target.closest?.(".account-menu")) stopRedirect();
+  }, {capture: true});
+  document.addEventListener("keydown", stopRedirect, {capture: true});
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") pauseForBackground();
+    else startCountdown();
+  });
+  window.addEventListener("pagehide", pauseForBackground);
+  window.addEventListener("pageshow", startCountdown);
+  startCountdown();
+})();
 </script>
-
+<script type="module" src="assets/account-menu.js"></script>
 </body>
 </html>
