@@ -1,0 +1,17 @@
+.machine-group-visibility { margin-top: 18px; min-width: 0; }
+.machine-group-visibility summary { cursor: pointer; font-weight: 700; min-height: 44px; align-content: center; }
+.machine-group-visibility .notice { font-size: .85rem; margin: 8px 0; }
+.machine-group-visibility input[type="search"] { box-sizing: border-box; width: min(100%, 320px); min-height: 40px; margin: 6px 0; }
+.machine-group-scroll { overflow: auto; max-height: 480px; overscroll-behavior: contain; border: 1px solid #d4dce5; border-radius: 8px; }
+.machine-group-matrix { border-collapse: separate; border-spacing: 0; width: max-content; font-size: .8rem; color: #1f2937; }
+.machine-group-matrix th, .machine-group-matrix td { padding: 0 3px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; text-align: center; }
+.machine-group-matrix thead th { position: sticky; top: 0; background: #f1f5f9; height: 145px; width: 44px; min-width: 44px; max-width: 44px; z-index: 2; vertical-align: bottom; }
+.machine-group-matrix .machine-group-name { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 130px; overflow: hidden; text-overflow: ellipsis; padding: 7px 0; }
+.machine-group-matrix th:first-child { position: sticky; left: 0; width: 145px; min-width: 110px; max-width: 145px; text-align: left; background: #fff; padding: 4px 8px; z-index: 1; }
+.machine-group-matrix thead th:first-child { z-index: 3; background: #f1f5f9; vertical-align: bottom; }
+.machine-group-member { display: block; max-width: 145px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.machine-group-matrix small { display: block; font-weight: 400; color: #64748b; font-size: .68rem; }
+.machine-group-matrix input[type="checkbox"] { display: block; width: 20px; height: 20px; margin: 12px; cursor: pointer; accent-color: #2563eb; }
+.machine-group-matrix input[type="checkbox"]:disabled { cursor: wait; }
+.machine-group-matrix input:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.machine-group-status { min-height: 1.4em; margin-top: 6px; font-size: .8rem; }

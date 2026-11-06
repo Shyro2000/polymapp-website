@@ -798,6 +798,7 @@
   </style>
   <link rel="stylesheet" href="assets/account-menu.css">
   <link rel="stylesheet" href="assets/company-subscription.css">
+  <link rel="stylesheet" href="./assets/company-machine-groups.css">
 </head>
 
 <body>
@@ -976,6 +977,16 @@
             </div>
           </div>
         </div>
+
+        <section id="machineGroupVisibilitySection" class="management-card machine-group-visibility hidden">
+          <details>
+            <summary>Gruppensichtbarkeit</summary>
+            <p class="notice">Häkchen speichern sofort. Ohne Gruppe ist für alle aktiven Mitglieder sichtbar. Inhaber und Admins behalten Verwaltungszugriff, auch bei ausgeschalteter eigener Anzeige. Neue Gruppen sind für alle aktuellen Mitglieder sichtbar; neuen Mitgliedern müssen bestehende Gruppen freigegeben werden.</p>
+            <input id="machineGroupVisibilityFilter" type="search" autocomplete="off">
+            <div id="machineGroupVisibilityTable" class="machine-group-scroll" role="region" aria-label="Gruppensichtbarkeit für Mitarbeiter" tabindex="0"></div>
+            <p id="machineGroupVisibilityStatus" class="machine-group-status" role="status" aria-live="polite"></p>
+          </details>
+        </section>
 
         <div class="management-card" style="margin-top: 18px;">
           <h3>Mitglieder</h3>
@@ -1608,6 +1619,7 @@
   </div>
 </dialog>
 <script type="module">
+    import {createMachineGroupVisibility} from "./assets/company-machine-groups.js";
     import {setupCreationTariffs, selectedCreationTariff, updateSubscriptionUI,
       resetSubscriptionUI} from "./assets/company-subscription.js";
   import {app, auth} from "./assets/website-auth.js";
@@ -2572,7 +2584,16 @@
       }).format(date);
     }
 
+    const groupVisibility = createMachineGroupVisibility({
+      db, functions, language: "de",
+      getContext: () => ({companyId: currentCompanyId, uid: currentUser?.uid,
+        role: currentMembership?.role, membershipStatus: currentMembership?.status,
+        licensed: companyFeaturesActive(), members: currentMembers, profiles: currentMemberProfiles}),
+      onError: error => setStatus(error.message, "error", 7000)
+    });
+
     function stopCompanyListeners() {
+      groupVisibility.stop();
       unsubscribeCompany?.();
       unsubscribeMembership?.();
       unsubscribeCompanyInvitations?.();
@@ -2678,6 +2699,7 @@
     }
 
     function updateManagementArea(role, reservedSeats, seatLimit) {
+      groupVisibility.update();
       const canManageInvitations = role === "owner" || role === "admin";
 
       if (!canManageInvitations) {
@@ -3310,6 +3332,7 @@
     }
 
     function renderMembers() {
+      groupVisibility.update();
       if (!memberList || !currentMembership) {
         return;
       }

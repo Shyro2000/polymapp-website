@@ -281,10 +281,14 @@ export const importPrivateMachinesToCompany = onCall({
     }
 
     // Every read above is complete before the first write below.
+    let importedOrder = Date.now();
     for (const machine of machinesToCopy) {
       if (machine.isNewMachine) {
         transaction.create(machine.destinationRef, {
           ...machine.sourceData,
+          // Private group IDs do not identify company groups.
+          groupId: null,
+          sortOrder: importedOrder++,
           sourceOwnerUid: uid,
           sourceMachineId: machine.sourceMachineId,
           importedByUid: uid,

@@ -45,6 +45,30 @@ service cloud.firestore {
         ).data.role in allowedRoles;
     }
 
+    // Group ACLs apply to machine documents, tools, CNC overlays and maintenance.
+    // Owners/admins retain administrative reads; their personal display uses visibleTo too.
+    function companyCanSeeGroup(companyId, groupId) {
+      return groupId == null || (
+        exists(/databases/$(database)/documents/companies/$(companyId)/machineGroups/$(groupId))
+        && get(/databases/$(database)/documents/companies/$(companyId)/machineGroups/$(groupId)).data.get("deleting", false) == false
+        && request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)/machineGroups/$(groupId)).data.visibleTo
+      );
+    }
+    function companyCanReadMachine(companyId, machineId) {
+      return isActiveCompanyMember(companyId) && hasCompanyLicense(companyId)
+        && (hasCompanyRole(companyId, ["owner", "admin"])
+          || companyCanSeeGroup(companyId,
+            get(/databases/$(database)/documents/companies/$(companyId)/machines/$(machineId)).data.get("groupId", null)));
+    }
+    function validMachineGroup(ownerCollection, ownerId, data) {
+      let groupId = data.get("groupId", null);
+      return data.keys().hasAll(["groupId", "sortOrder"])
+        && data.sortOrder is int && data.sortOrder >= 0
+        && (groupId == null || (groupId is string
+          && exists(/databases/$(database)/documents/$(ownerCollection)/$(ownerId)/machineGroups/$(groupId))
+          && get(/databases/$(database)/documents/$(ownerCollection)/$(ownerId)/machineGroups/$(groupId)).data.get("deleting", false) == false));
+    }
+
     function changesProtectedCompanyUserFields() {
       return request.resource.data
         .diff(resource.data)
@@ -203,11 +227,19 @@ allow delete:
       }
     }
 
+    match /users/{userId}/machineGroups/{groupId} {
+      allow read: if isOwnUser(userId);
+      // Names, assignments, ordering and deletes are validated by manageMachineGroups.
+      allow write: if false;
+    }
+
     // Private Maschinen und Werkzeuge
     match /users/{userId}/machines/{machineId} {
 
-      allow read, write:
-        if isOwnUser(userId);
+      allow read, delete: if isOwnUser(userId);
+      allow create: if isOwnUser(userId) && validMachineGroup("users", userId, request.resource.data);
+      allow update: if isOwnUser(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(["groupId", "sortOrder"]);
 
       match /werkzeuge/{toolId} {
 
@@ -309,27 +341,38 @@ allow delete:
         }
       }
 
+      match /machineGroups/{groupId} {
+        allow read: if isActiveCompanyMember(companyId) && hasCompanyLicense(companyId)
+          && (hasCompanyRole(companyId, ["owner", "admin"]) || request.auth.uid in resource.data.visibleTo);
+        allow write: if false;
+      }
+
       // Firmenmaschinen
       match /machines/{machineId} {
 
-        allow read:
-          if isActiveCompanyMember(companyId) && hasCompanyLicense(companyId);
+        allow read: if isActiveCompanyMember(companyId) && hasCompanyLicense(companyId)
+          && (hasCompanyRole(companyId, ["owner", "admin"])
+            || companyCanSeeGroup(companyId, resource.data.groupId));
 
-        // Editor darf keine Maschinen erstellen oder verändern.
-        allow create, update, delete:
-          if hasCompanyLicense(companyId) && hasCompanyRole(
-            companyId,
-            ["owner", "admin"]
-          );
+        allow create: if hasCompanyLicense(companyId) && hasCompanyRole(companyId, ["owner", "admin"])
+          && validMachineGroup("companies", companyId, request.resource.data);
+        allow update: if hasCompanyLicense(companyId) && hasCompanyRole(companyId, ["owner", "admin"])
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(["groupId", "sortOrder"]);
+        allow delete: if hasCompanyLicense(companyId) && hasCompanyRole(companyId, ["owner", "admin"]);
+
+        // Bearbeiter dürfen nur einzelne M-Code-Abweichungen ändern.
+        // Name, Details, Zuordnung und Wartungsstatus sind dabei unveränderlich.
+        allow update: if cnc2Company(companyId, ["editor"])
+          && companyCanReadMachine(companyId, machineId)
+          && cnc2DeltaOnly(resource.data, request.resource.data);
 
         // Werkzeuge einer Firmenmaschine
         match /werkzeuge/{toolId} {
 
-          allow read:
-            if isActiveCompanyMember(companyId) && hasCompanyLicense(companyId);
+          allow read: if companyCanReadMachine(companyId, machineId);
 
           allow create, update, delete:
-            if hasCompanyLicense(companyId) && hasCompanyRole(
+            if companyCanReadMachine(companyId, machineId) && hasCompanyRole(
               companyId,
               ["owner", "admin", "editor"]
             );
@@ -378,6 +421,11 @@ allow delete:
       return (ownerCollection == "users" && isOwnUser(ownerId))
         || (ownerCollection == "companies" && isActiveCompanyMember(ownerId)
           && hasCompanyLicense(ownerId));
+    }
+
+    function maintenanceCanReadMachine(ownerCollection, ownerId, machineId) {
+      return maintenanceCanRead(ownerCollection, ownerId)
+        && (ownerCollection != "companies" || companyCanReadMachine(ownerId, machineId));
     }
 
     function maintenanceCanManage(ownerCollection, ownerId) {
@@ -553,7 +601,7 @@ allow delete:
     }
 
     match /{ownerCollection}/{ownerId}/machines/{machineId}/maintenanceSettings/{settingId} {
-      allow read: if maintenanceCanRead(ownerCollection, ownerId);
+      allow read: if maintenanceCanReadMachine(ownerCollection, ownerId, machineId);
       allow create: if maintenanceCanManage(ownerCollection, ownerId)
         && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
         && settingId == "config"
@@ -565,7 +613,7 @@ allow delete:
     }
 
     match /{ownerCollection}/{ownerId}/machines/{machineId}/maintenancePlans/{planId} {
-      allow read: if maintenanceCanRead(ownerCollection, ownerId);
+      allow read: if maintenanceCanReadMachine(ownerCollection, ownerId, machineId);
       allow create: if maintenanceCanManage(ownerCollection, ownerId)
         && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
         && getAfter(/databases/$(database)/documents/$(ownerCollection)/$(ownerId)/machines/$(machineId)/maintenanceSettings/config).data.version == 1
@@ -583,24 +631,103 @@ allow delete:
     }
 
     match /{ownerCollection}/{ownerId}/machines/{machineId}/maintenanceEvents/{eventId} {
-      allow read: if maintenanceCanRead(ownerCollection, ownerId);
-      allow create: if maintenanceCanRead(ownerCollection, ownerId)
+      allow read: if maintenanceCanReadMachine(ownerCollection, ownerId, machineId);
+      allow create: if maintenanceCanReadMachine(ownerCollection, ownerId, machineId)
         && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
         && maintenanceValidEvent(ownerCollection, ownerId, machineId, eventId);
-      allow update: if maintenanceCanRead(ownerCollection, ownerId)
+      allow update: if maintenanceCanReadMachine(ownerCollection, ownerId, machineId)
         && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
         && maintenanceValidRevoke(ownerCollection, ownerId, machineId, eventId);
       allow delete: if false;
     }
 
     match /{ownerCollection}/{ownerId}/machines/{machineId}/maintenanceLocks/{planId} {
-      allow read: if maintenanceCanRead(ownerCollection, ownerId);
-      allow create, update: if maintenanceCanRead(ownerCollection, ownerId)
+      allow read: if maintenanceCanReadMachine(ownerCollection, ownerId, machineId);
+      allow create, update: if maintenanceCanReadMachine(ownerCollection, ownerId, machineId)
         && exists(maintenanceMachinePath(ownerCollection, ownerId, machineId))
         && maintenanceValidLock(ownerCollection, ownerId, machineId, planId);
       allow delete: if false;
     }
     // END POLYMAPP MAINTENANCE V2
+
+    // BEGIN POLYMAPP CNC MACHINE CODES V1
+    function cnc2Private(userId) {
+      return request.auth != null && request.auth.uid == userId
+        && get(/databases/$(database)/documents/users/$(userId)).data.get('companyId', '') in ['', null];
+    }
+
+    function cnc2Company(companyId, roles) {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('companyId', '') == companyId
+        && hasCompanyLicense(companyId) && hasCompanyRole(companyId, roles);
+    }
+
+    function cnc2Configuration(c) {
+      return c is map && c.keys().hasAll(['id', 'controlId', 'machineId', 'version', 'parameter'])
+        && c.keys().hasOnly(['id', 'controlId', 'machineId', 'version', 'parameter'])
+        && c.id is string && c.id.matches('[A-Za-z0-9_-]{1,100}')
+        && c.controlId in ['fanuc', 'heidenhain', 'siemens'] && c.machineId in ['mill', 'turn']
+        && c.parameter in ['A', 'B', 'C']
+        && ((c.controlId == 'fanuc' && c.version in ['30i-Model B', '31i-Model B', '32i-Model B'])
+          || (c.controlId == 'heidenhain' && c.machineId == 'mill' && c.version in ['iTNC 530', 'TNC 640', 'TNC 620'])
+          || (c.controlId == 'siemens' && c.version in ['828D', '840D sl', '840Di']));
+    }
+
+    function cnc2Change(change, c) {
+      return change is map
+        && change.keys().hasAll(['filename', 'action', 'originalCode', 'code', 'function', 'example'])
+        && change.keys().hasOnly(['filename', 'action', 'originalCode', 'code', 'function', 'example'])
+        && change.filename is string
+        && change.filename.matches(c.controlId + '_m_code_' + c.machineId + '_[A-Za-z0-9_]+_(de|en|fr)[.]json')
+        && change.action in ['add', 'update', 'delete']
+        && change.originalCode is string && change.originalCode.size() > 0 && change.originalCode.size() <= 100
+        && change.code is string && change.code.size() <= 100
+        && (change.action == 'delete' || change.code.size() > 0)
+        && change.function is string && change.function.size() <= 4000
+        && change.example is string && change.example.size() <= 4000;
+    }
+
+    // Only one named overlay entry may change. Machine details and controller
+    // assignment are immutable through this editor permission.
+    function cnc2DeltaOnly(before, after) {
+      let old = before.get('cncMCodeChanges', {});
+      let next = after.get('cncMCodeChanges', {});
+      let key = after.get('cncMCodeLastChangeKey', '');
+      let c = before.get('cncCodeConfiguration', null);
+      return cnc2Configuration(c) && c == after.get('cncCodeConfiguration', null)
+        && after.diff(before).affectedKeys().hasOnly(['cncMCodeChanges', 'cncMCodeLastChangeKey'])
+        && old is map && next is map && next.size() <= 200
+        && key is string && key.matches('[a-f0-9]{64}')
+        && next.diff(old).affectedKeys().hasOnly([key])
+        && (!(key in next) || (cnc2Change(next[key], c)
+          && (!(key in old) || (next[key].originalCode == old[key].originalCode
+            && next[key].filename == old[key].filename))));
+    }
+
+    function cnc2Standalone(data) {
+      return data.keys().hasAll(['name', 'cncCodeConfiguration', 'cncMCodeChanges'])
+        && data.keys().hasOnly(['name', 'cncCodeConfiguration', 'cncMCodeChanges', 'cncMCodeLastChangeKey'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && cnc2Configuration(data.cncCodeConfiguration)
+        && data.cncMCodeChanges is map && data.cncMCodeChanges.size() <= 200;
+    }
+
+    match /users/{userId}/cncShortcuts/{shortcutId} {
+      allow read, delete: if cnc2Private(userId);
+      allow create: if cnc2Private(userId) && cnc2Standalone(request.resource.data);
+      allow update: if cnc2Private(userId) && cnc2Standalone(request.resource.data);
+    }
+
+    match /companies/{companyId}/cncShortcuts/{shortcutId} {
+      allow read: if request.auth != null && cnc2Company(companyId, ['owner', 'admin', 'editor', 'viewer']);
+      allow create: if request.auth != null && cnc2Company(companyId, ['owner', 'admin'])
+        && cnc2Standalone(request.resource.data);
+      allow delete: if request.auth != null && cnc2Company(companyId, ['owner', 'admin']);
+      allow update: if request.auth != null && cnc2Standalone(request.resource.data)
+        && ((cnc2Company(companyId, ['owner', 'admin']))
+          || (cnc2Company(companyId, ['editor']) && cnc2DeltaOnly(resource.data, request.resource.data)));
+    }
+    // END POLYMAPP CNC MACHINE CODES V1
 
     // Alles andere verbieten
     match /{document=**} {

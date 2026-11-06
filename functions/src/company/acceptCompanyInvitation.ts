@@ -230,6 +230,15 @@ export const acceptCompanyInvitation = onCall(async (request) => {
       });
     }
 
+    const oldGroupGrants = await transaction.get(
+      companyRef.collection("machineGroups")
+        .where("visibleTo", "array-contains", uid),
+    );
+
+    for (const group of oldGroupGrants.docs) {
+      transaction.update(group.ref, {visibleTo: FieldValue.arrayRemove(uid)});
+    }
+
     transaction.set(memberRef, {
       role,
       status: "active",
