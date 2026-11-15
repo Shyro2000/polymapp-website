@@ -855,6 +855,17 @@
       </p>
 
       <form id="createCompanyForm">
+        <p class="notice" id="ownerNameVisibility">Votre nom permet de vous identifier et est visible par tous les membres de votre entreprise.</p>
+        <div class="input-group">
+          <label for="ownerFirstNameInput">Prénom</label>
+          <input id="ownerFirstNameInput" name="firstName" type="text" maxlength="80"
+            autocomplete="given-name" aria-describedby="ownerNameVisibility" required>
+        </div>
+        <div class="input-group">
+          <label for="ownerLastNameInput">Nom de famille</label>
+          <input id="ownerLastNameInput" name="lastName" type="text" maxlength="80"
+            autocomplete="family-name" aria-describedby="ownerNameVisibility" required>
+        </div>
         <div class="input-group">
           <label for="companyNameInput">Nom de l’entreprise</label>
           <input
@@ -903,6 +914,11 @@
         Votre accès est géré par cette entreprise. Aucun abonnement d’entreprise
         personnel séparé n’est requis pour les fonctions partagées.
       </p>
+
+      <section id="companyReadOnlyMembers" class="management-card hidden">
+        <h3>Membres</h3>
+        <ul id="companyReadOnlyMemberList"></ul>
+      </section>
 
       <div id="managementPanel" class="management-area hidden">
         <div id="machineImportNotice" class="notice action-notice hidden">
@@ -2015,6 +2031,8 @@
       "invitationHistoryCount"
     );
     const memberList = document.getElementById("memberList");
+    const readOnlyMembers = document.getElementById("companyReadOnlyMembers");
+    const readOnlyMemberList = document.getElementById("companyReadOnlyMemberList");
     const ownerSettings = document.getElementById("ownerSettings");
     const memberExitPanel = document.getElementById("memberExitPanel");
     const memberExitDescription = document.getElementById(
@@ -2608,6 +2626,8 @@
       currentActiveInvitationCount = null;
       currentCompany = null;
       currentMembership = null;
+      readOnlyMembers.classList.add("hidden");
+      readOnlyMemberList.replaceChildren();
       clearBillingForms();
       resetCreationReview();
       resetSubscriptionUI();
@@ -2642,7 +2662,7 @@
       if (
         !currentCompanyId ||
         !currentCompany ||
-        !currentMembership
+        currentMembership?.status !== "active"
       ) {
         companyPanel.classList.add("hidden");
         return;
@@ -2671,7 +2691,9 @@
         ? `${reservedSeats} sur ${seatLimit} occupées ou réservées`
         : "Indisponible";
 
+      if (!unsubscribeMembers) startMemberList(currentCompanyId);
       updateManagementArea(role, reservedSeats, seatLimit);
+      renderReadOnlyMembers();
       renderCompanySettings();
     }
 
@@ -2692,18 +2714,16 @@
 
       if (!canManageInvitations) {
         managementPanel.classList.add("hidden");
+        memberList.replaceChildren();
         unsubscribeCompanyInvitations?.();
-        unsubscribeMembers?.();
         unsubscribeMemberProfiles?.();
         unsubscribePrivateMachines?.();
         unsubscribeCompanyMachines?.();
         unsubscribeCompanyInvitations = null;
-        unsubscribeMembers = null;
         unsubscribeMemberProfiles = null;
         unsubscribePrivateMachines = null;
         unsubscribeCompanyMachines = null;
         managedCompanyId = null;
-        currentMembers = new Map();
         currentMemberProfiles = new Map();
         currentPrivateMachines = new Map();
         currentCompanyMachines = new Map();
@@ -2751,9 +2771,61 @@
       renderMembers();
     }
 
+    function startMemberList(companyId) {
+      const uid = currentUser?.uid;
+      unsubscribeMembers = onSnapshot(
+        collection(db, "companies", companyId, "members"),
+        {includeMetadataChanges: true},
+        (snapshot) => {
+          if (snapshot.metadata.fromCache || currentCompanyId !== companyId ||
+              auth.currentUser?.uid !== uid || currentUser?.uid !== uid ||
+              currentMembership?.status !== "active") return;
+          currentMembers = new Map(snapshot.docs.map((member) => [
+            member.id, {...member.data(), id: member.id}
+          ]));
+          renderMembers();
+          renderReadOnlyMembers();
+          renderCompanySettings();
+        },
+        (error) => {
+          if (currentCompanyId !== companyId || currentUser?.uid !== uid) return;
+          currentMembers.clear();
+          renderMembers();
+          renderReadOnlyMembers();
+          setStatus(error.message, "error", 7000);
+        }
+      );
+    }
+
+    function renderReadOnlyMembers() {
+      const show = currentMembership?.status === "active" &&
+        !["owner", "admin"].includes(currentMembership.role);
+      readOnlyMembers.classList.toggle("hidden", !show);
+      readOnlyMemberList.replaceChildren();
+      if (!show) return;
+      const members = [...currentMembers.values()]
+        .filter((member) => member.status === "active")
+        .map((member) => ({
+          name: [member.firstName, member.lastName]
+            .filter((part) => typeof part === "string" && part.trim())
+            .map((part) => part.trim()).join(" "),
+          role: member.role
+        }))
+        .sort((left, right) => left.name.localeCompare(right.name, "fr"));
+      for (const member of members) {
+        const row = document.createElement("li");
+        row.textContent = (member.name || "Nom non renseigné") + " · " + roleLabel(member.role);
+        readOnlyMemberList.append(row);
+      }
+      if (members.length === 0) {
+        const row = document.createElement("li");
+        row.textContent = "Aucun membre actif trouvé.";
+        readOnlyMemberList.append(row);
+      }
+    }
+
     function startManagementListeners(companyId) {
       unsubscribeCompanyInvitations?.();
-      unsubscribeMembers?.();
       unsubscribeMemberProfiles?.();
       unsubscribePrivateMachines?.();
       unsubscribeCompanyMachines?.();
@@ -2767,21 +2839,6 @@
       unsubscribeCompanyInvitations = onSnapshot(
         sentInvitationQuery,
         (snapshot) => renderSentInvitations(snapshot.docs),
-        (error) => setStatus(error.message, "error", 7000)
-      );
-
-      unsubscribeMembers = onSnapshot(
-        collection(db, "companies", companyId, "members"),
-        (snapshot) => {
-          currentMembers = new Map(
-            snapshot.docs.map((document) => [
-              document.id,
-              {id: document.id, ...document.data()}
-            ])
-          );
-          renderMembers();
-          renderCompanySettings();
-        },
         (error) => setStatus(error.message, "error", 7000)
       );
 
@@ -3321,9 +3378,7 @@
 
     function renderMembers() {
       groupVisibility.update();
-      if (!memberList || !currentMembership) {
-        return;
-      }
+      if (!memberList || !["owner", "admin"].includes(currentMembership?.role)) return;
 
       retainDisclosureStates(memberList);
       memberList.replaceChildren();
@@ -3581,8 +3636,15 @@
           cancelCreationReview.disabled = true;
           const pending = pendingCompanyCreation;
           try {
-            await createCompanyCall({name: pending.name, seatLimit: pending.seatLimit,
-              pricingVersion: pending.pricingVersion, billingDetails: details,
+            if (auth.currentUser?.uid !== pending.ownerUid || currentCompanyId) {
+              resetCreationReview();
+              billingReviewModal.classList.add("hidden");
+              return;
+            }
+            await createCompanyCall({name: pending.name,
+              firstName: pending.firstName, lastName: pending.lastName,
+              seatLimit: pending.seatLimit, pricingVersion: pending.pricingVersion,
+              billingDetails: details,
               acceptPaidTerms: pending.paidEnrollmentEnabled === true});
             resetCreationReview(); billingReviewModal.classList.add("hidden");
             createCompanyForm.reset();
@@ -4375,7 +4437,15 @@ deleteCompanyButton.addEventListener(
     createCompanyForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
+      const ownerUid = auth.currentUser?.uid;
       const name = companyNameInput.value.trim();
+      const form = new FormData(createCompanyForm);
+      const firstName = String(form.get("firstName") || "").trim().replace(/\s+/g, " ");
+      const lastName = String(form.get("lastName") || "").trim().replace(/\s+/g, " ");
+      if (!firstName || !lastName || firstName.length > 80 || lastName.length > 80) {
+        setStatus("Saisissez votre prénom et votre nom, avec un maximum de 80 caractères chacun.", "error");
+        return;
+      }
 
       if (name.length < 2 || name.length > 80) {
         setStatus(
@@ -4396,7 +4466,8 @@ deleteCompanyButton.addEventListener(
         }
 
         const tariff = await selectedCreationTariff();
-        pendingCompanyCreation = {name, ...tariff};
+        if (!ownerUid || auth.currentUser?.uid !== ownerUid || currentCompanyId) return;
+        pendingCompanyCreation = {name, firstName, lastName, ownerUid, ...tariff};
         fillBillingForm(billingReviewForm, {invoiceCompanyName: name,
           billingEmail: auth.currentUser?.email || "", countryCode: "CH"});
         document.getElementById("billingReviewTitle").textContent = "Créer une entreprise – facturation";
