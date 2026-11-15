@@ -4466,8 +4466,12 @@ deleteCompanyButton.addEventListener(
         const tariff = await selectedCreationTariff();
         if (!ownerUid || auth.currentUser?.uid !== ownerUid || currentCompanyId) return;
         pendingCompanyCreation = {name, firstName, lastName, ownerUid, ...tariff};
-        fillBillingForm(billingReviewForm, {invoiceCompanyName: name,
-          billingEmail: auth.currentUser?.email || "", countryCode: "CH"});
+        fillBillingForm(billingReviewForm, {
+          invoiceCompanyName: name,
+          recipientName: (firstName + " " + lastName).slice(0, 120).trimEnd(),
+          billingEmail: auth.currentUser?.email || "",
+          countryCode: "CH"
+        });
         document.getElementById("billingReviewTitle").textContent = "Create company – billing details";
         document.getElementById("billingReviewExplanation").textContent = tariff.notice;
         saveBillingReviewButton.textContent = tariff.paidEnrollmentEnabled ? "Confirm paid annual subscription" : "Create company";
