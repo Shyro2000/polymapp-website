@@ -122,6 +122,12 @@ allow delete:
         && resource.data.referredBy == request.auth.uid;
     }
 
+    // Letzter selbst bestätigter Name, nur für das eigene Konto.
+    match /users/{userId}/privateProfile/displayName {
+      allow get: if isOwnUser(userId);
+      allow list, write: if false;
+    }
+
     // Trial-Geräte
     match /trial_devices/{deviceId} {
 
@@ -474,7 +480,14 @@ allow delete:
         && actor.lastName == (last is string ? last : "");
     }
 
+    function maintenanceMatchesDisplayName(actor) {
+      let profile = get(/databases/$(database)/documents/users/$(request.auth.uid)/privateProfile/displayName).data;
+      return profile.firstName == actor.firstName
+        && profile.lastName == actor.lastName;
+    }
+
     function maintenanceActor(ownerCollection, ownerId, actor) {
+      let source = actor.get("nameSource", "profile");
       return actor is map
         && actor.keys().hasAll(["uid", "email", "firstName", "lastName"])
         && actor.keys().hasOnly(["uid", "email", "firstName", "lastName", "nameSource"])
@@ -483,12 +496,11 @@ allow delete:
         && maintenanceText(actor.email, 320)
         && maintenanceText(actor.firstName, 200)
         && maintenanceText(actor.lastName, 200)
-        && actor.get("nameSource", "profile") in ["company", "profile"]
-        && (actor.get("nameSource", "profile") == "company"
-          ? (ownerCollection == "companies" && maintenanceMatchesCompanyActor(ownerId, actor))
-          // Existing Android/iOS versions send the users/{uid} name.
-          // Keep that exact previously allowed format valid during rollout.
-          : maintenanceMatchesUserActor(actor));
+        && ((source == "company" && ownerCollection == "companies"
+            && maintenanceMatchesCompanyActor(ownerId, actor))
+          || (source == "displayName" && ownerCollection == "users"
+            && maintenanceMatchesDisplayName(actor))
+          || (source == "profile" && maintenanceMatchesUserActor(actor)));
     }
 
     function maintenanceInterval(d) {

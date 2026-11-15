@@ -183,6 +183,13 @@ export const updateCompanyMemberAdminData = onCall(async (request) => {
     }
 
     transaction.set(targetAdminDataRef, dataToWrite, {merge: true});
+    if (targetMemberSnapshot.get("nameConfirmed") === true &&
+      ("firstName" in updates || "lastName" in updates)) {
+      transaction.update(targetMemberRef, {
+        ...("firstName" in updates ? {firstName: updates.firstName} : {}),
+        ...("lastName" in updates ? {lastName: updates.lastName} : {}),
+      });
+    }
 
     return {
       companyId,

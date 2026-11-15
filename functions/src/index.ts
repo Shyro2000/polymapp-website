@@ -6,6 +6,7 @@ setGlobalOptions({
 });
 
 export {createCompany} from "./company/createCompany";
+export {saveOwnDisplayName} from "./company/companyDisplayName";
 export {inviteCompanyMember} from "./company/inviteCompanyMember";
 export {acceptCompanyInvitation} from "./company/acceptCompanyInvitation";
 export {declineCompanyInvitation} from "./company/declineCompanyInvitation";

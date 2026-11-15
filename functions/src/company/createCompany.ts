@@ -5,6 +5,7 @@ import {normalizeCompanyBillingDetails} from "../admin/billingConfig";
 import {validateBillingDetails} from "./companyBilling";
 import {PRICING_VERSION, tariffPrice} from "./companySubscription";
 import {queueCompanyNotification} from "../shared/companyNotifications";
+import {requireDisplayName} from "./companyDisplayName";
 
 export const createCompany = onCall(async (request) => {
   if (!request.auth) {
@@ -49,6 +50,10 @@ export const createCompany = onCall(async (request) => {
     );
   }
 
+  const ownerName = requireDisplayName(
+    request.data?.firstName,
+    request.data?.lastName,
+  );
   const price = tariffPrice(Number(request.data?.seatLimit));
   if (request.data?.pricingVersion !== PRICING_VERSION) {
     throw new HttpsError(
@@ -167,13 +172,14 @@ export const createCompany = onCall(async (request) => {
       status: "active",
       addedByUid: uid,
       joinedAt: FieldValue.serverTimestamp(),
+      ...ownerName,
+      nameConfirmed: true,
     });
 
     transaction.set(memberAdminDataRef, {
       memberUid: uid,
       email: memberEmail,
-      firstName: "",
-      lastName: "",
+      ...ownerName,
       department: "",
       employmentStatus: "",
       notes: "",
@@ -186,6 +192,10 @@ export const createCompany = onCall(async (request) => {
       companyId: companyRef.id,
       companyJoinedAt: FieldValue.serverTimestamp(),
     });
+    transaction.set(
+      userRef.collection("privateProfile").doc("displayName"),
+      ownerName,
+    );
 
     return {
       companyId: companyRef.id,
