@@ -1,6 +1,7 @@
 import {requireAdminMfa} from "../shared/adminAccess";
 import {FieldValue, Timestamp} from "firebase-admin/firestore";
 import {HttpsError, onCall} from "firebase-functions/https";
+import {PRICING_VERSION, tariffPrice} from "../company/companySubscription";
 import {db} from "../firebase";
 
 export const markCompanyNotificationRead = onCall(async (request) => {
@@ -84,7 +85,7 @@ export const migrateCompanySubscriptions = onCall(
   },
 );
 
-/** Explicit future launch switch. Existing pilot firms require owner opt-in. */
+/** Enables paid enrollment for new companies. */
 export const updateCompanyProgram = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Bitte anmelden.");
@@ -119,4 +120,51 @@ export const updateCompanyProgram = onCall(async (request) => {
     {merge: true},
   );
   return {paidEnrollmentEnabled: enabled, launchDate};
+});
+
+/** Moves one pilot company onto its displayed annual tariff. */
+export const activatePaidCompanyByAdmin = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Bitte anmelden.");
+  }
+  const uid = request.auth.uid;
+  await requireAdminMfa(request.auth);
+  const {companyId, seatLimit, annualCents} = request.data || {};
+  if (typeof companyId !== "string" || !/^[\w-]{1,200}$/.test(companyId)) {
+    throw new HttpsError("invalid-argument", "Ungültige Firma.");
+  }
+  const ref = db.collection("companies").doc(companyId);
+  return db.runTransaction(async (tx) => {
+    const company = await tx.get(ref);
+    const program = await tx.get(
+      db.collection("systemSettings").doc("companyProgram"),
+    );
+    if (!company.exists) {
+      throw new HttpsError("not-found", "Firma nicht gefunden.");
+    }
+    if (company.get("accessMode") === "paid") return {changed: false};
+    if (program.get("paidEnrollmentEnabled") !== true ||
+        company.get("accessMode") !== "pilot" ||
+        company.get("status") !== "active" ||
+        company.get("billingStatus") === "suspended" ||
+        company.get("subscriptionEndsAt") != null) {
+      throw new HttpsError("failed-precondition",
+        "Diese Firma kann derzeit nicht umgestellt werden.");
+    }
+    if (company.get("seatLimit") !== seatLimit ||
+        tariffPrice(seatLimit).annualCents !== annualCents) {
+      throw new HttpsError("failed-precondition",
+        "Der Tarif hat sich geändert. Bitte die Übersicht aktualisieren.");
+    }
+    tx.update(ref, {
+      accessMode: "paid",
+      billingStatus: "payment_pending",
+      paidTariffActivatedByAdminAt: FieldValue.serverTimestamp(),
+      paidTariffActivatedByAdminUid: uid,
+      acceptedPricingVersion: PRICING_VERSION,
+      subscriptionRevision: FieldValue.increment(1),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    return {changed: true};
+  });
 });

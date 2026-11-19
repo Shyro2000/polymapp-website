@@ -56,6 +56,7 @@ export {
 } from "./company/companySubscription";
 export {getCompanyAppEntitlement} from "./company/companyAppEntitlement";
 export {
+  activatePaidCompanyByAdmin,
   migrateCompanySubscriptions,
   markCompanyNotificationRead,
   updateCompanyProgram,

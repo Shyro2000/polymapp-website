@@ -742,6 +742,7 @@
               <select id="billingFilter">
                 <option value="all">Alle</option>
                 <option value="pilot">Kostenlose Aufbauphase</option>
+                <option value="cancelled">Gekündigt</option>
                 <option value="active">Aktiv</option>
                 <option value="payment_pending">Zahlung offen</option>
                 <option value="overdue">Überfällig</option>
@@ -1036,6 +1037,8 @@
       connectFunctionsEmulator(functions, "127.0.0.1", 5001);
     }
 
+    let paidEnrollmentEnabled = false;
+    const activatePaidCompanyCall = httpsCallable(functions, "activatePaidCompanyByAdmin");
     const getAdminCompaniesCall = httpsCallable(
       functions,
       "getAdminCompanies"
@@ -1162,6 +1165,7 @@
 
     function normalizeBillingStatus(value) {
       switch (value) {
+        case "ended":
         case "pilot":
         case "active":
         case "payment_pending":
@@ -1175,6 +1179,7 @@
 
     function billingStatusLabel(value) {
       switch (normalizeBillingStatus(value)) {
+        case "ended": return "Beendet";
         case "pilot": return "Kostenlose Aufbauphase";
         case "active":
           return "Aktiv";
@@ -1290,6 +1295,7 @@
           ? rawCompany.ownerEmail.trim()
           : "",
         accessMode: rawCompany?.accessMode,
+        cancellationEffectiveAtMs: Number(rawCompany?.cancellationEffectiveAtMs || 0),
         creditBalanceCents: Number(rawCompany?.creditBalanceCents || 0),
         pendingChange: rawCompany?.pendingChange || null,
         billingStatus: normalizeBillingStatus(rawCompany?.billingStatus),
@@ -1570,6 +1576,7 @@
             return true;
           }
 
+          if (statusValue === "cancelled") return company.cancellationEffectiveAtMs > 0;
           return company.billingStatus === statusValue;
         })
         .sort((a, b) =>
@@ -1672,7 +1679,15 @@
         statusBadge.textContent = billingStatusLabel(company.billingStatus);
         statusCell.append(statusBadge);
 
-        if (
+        if (company.cancellationEffectiveAtMs > 0) {
+          const badge = document.createElement("span");
+          badge.className = "status-badge status-overdue";
+          badge.textContent = "Gekündigt";
+          const endDate = document.createElement("span");
+          endDate.className = "price-sub";
+          endDate.textContent = "Vertragsende: " + formatDate(company.cancellationEffectiveAtMs);
+          statusCell.append(" ", badge, endDate);
+        } else if (
           company.billingStatus === "active" &&
           company.billingValidUntilMs > 0
         ) {
@@ -1691,7 +1706,7 @@
           ? "Rechnung erstellen"
           : "Rechnungsdaten fehlen";
         invoiceButton.disabled =
-          company.accessMode !== "paid" || annualPrice === null ||
+          company.accessMode !== "paid" || invoiceBlockedByCancellation(company) || annualPrice === null ||
           !company.billingDetailsReady;
         invoiceButton.title = company.billingDetailsReady
           ? "Jahresrechnung erstellen"
@@ -1699,7 +1714,40 @@
         invoiceButton.addEventListener("click", () => {
           startInvoiceForCompany(company.id);
         });
-        actionCell.append(invoiceButton);
+        if (company.accessMode === "pilot" && paidEnrollmentEnabled &&
+            company.status === "active" && company.billingStatus !== "suspended" &&
+            !company.cancellationEffectiveAtMs && annualPrice !== null) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "secondary-action";
+          button.textContent = "Auf kostenpflichtig umstellen";
+          button.addEventListener("click", async () => {
+            const confirmed = window.confirm(
+              company.name + " für " + formatCurrency(annualPrice) +
+              " pro Jahr (" + company.seatLimit + " Plätze) umstellen?\n\n" +
+              "Der kostenlose Pilotzugang endet sofort. Erstelle anschliessend die " +
+              "Rechnung. Die Firmenfunktionen werden bei verbuchter Zahlung freigeschaltet."
+            );
+            if (!confirmed) return;
+            button.disabled = true;
+            try {
+              const result = await activatePaidCompanyCall({
+                companyId: company.id, seatLimit: company.seatLimit,
+                annualCents: Math.round(annualPrice * 100)
+              });
+              await loadCompanies();
+              setStatus(result.data.changed ? "Firma auf kostenpflichtig umgestellt." :
+                "Die Firma war bereits umgestellt.");
+            } catch (error) {
+              setStatus(mapFunctionError(error), "error", 7000);
+            } finally {
+              button.disabled = false;
+            }
+          });
+          actionCell.append(button);
+        } else {
+          actionCell.append(invoiceButton);
+        }
 
         row.append(
           companyCell,
@@ -1795,6 +1843,11 @@
       return result;
     }
 
+    function invoiceBlockedByCancellation(company) {
+      return company.cancellationEffectiveAtMs > 0 &&
+        (!company.pendingChange || company.cancellationEffectiveAtMs < Date.now());
+    }
+
     function populateInvoiceCompanies() {
       const selectedValue = invoiceCompany.value;
       invoiceCompany.replaceChildren();
@@ -1807,7 +1860,7 @@
       for (const company of [...companies].sort((a, b) =>
         a.name.localeCompare(b.name, "de", {sensitivity: "base"})
       )) {
-        if (company.accessMode !== "paid" || getMonthlyRate(company.seatLimit) === null) {
+        if (company.accessMode !== "paid" || invoiceBlockedByCancellation(company) || getMonthlyRate(company.seatLimit) === null) {
           continue;
         }
 
@@ -2170,6 +2223,7 @@
         const result = await getAdminCompaniesCall();
         if (viewEpoch !== adminViewEpoch || viewUid !== auth.currentUser?.uid) return;
 
+        paidEnrollmentEnabled = result.data?.program?.paidEnrollmentEnabled === true;
         renderCompanyAdminExtras(result.data, loadCompanies);
         const rawCompanies = Array.isArray(result?.data?.companies)
           ? result.data.companies

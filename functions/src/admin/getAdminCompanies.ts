@@ -228,7 +228,15 @@ export const getAdminCompanies = onCall(async (request) => {
     if (data.accessMode === "pilot" && storedBillingStatus !== "suspended") {
       billingStatus = "pilot";
     }
+    const endMs = timestampToMillis(data.subscriptionEndsAt);
+    if (endMs !== null && endMs < nowMs && billingStatus !== "suspended") {
+      billingStatus = "ended";
+    } else if (billingStatus === "not_configured" &&
+        storedBillingStatus === "payment_pending" && !latestInvoice) {
+      billingStatus = "payment_pending";
+    }
     return {
+      cancellationEffectiveAtMs: endMs,
       accessMode: readString(data.accessMode, "migration_required"),
       creditBalanceCents: Number(
         subscription?.get("creditBalanceCents") || 0,

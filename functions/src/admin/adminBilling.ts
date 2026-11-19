@@ -223,7 +223,8 @@ export const createCompanyInvoice = onCall(async (request) => {
 
     if (
       companySnapshot.get("accessMode") !== "paid" ||
-      !companySnapshot.get("paidTariffAcceptedAt")
+      (!companySnapshot.get("paidTariffAcceptedAt") &&
+        !companySnapshot.get("paidTariffActivatedByAdminAt"))
     ) {
       throw new HttpsError(
         "failed-precondition",
