@@ -50,9 +50,11 @@ export {
   getCompanySubscription,
   quoteCompanyTariff,
   changeCompanyTariff,
+  cancelCompanySubscription,
   cancelPendingCompanyTariff,
   requestPaidCompanySubscription,
 } from "./company/companySubscription";
+export {getCompanyAppEntitlement} from "./company/companyAppEntitlement";
 export {
   migrateCompanySubscriptions,
   markCompanyNotificationRead,

@@ -766,6 +766,9 @@
     .permission-yes { color: #176534; font-size: 1.2rem; font-weight: bold; }
     .permission-no { color: #a51b1b; font-size: 1.2rem; font-weight: bold; }
 
+    #subscriptionTerm { margin-top: 12px; }
+    #subscriptionTerm[hidden], #subscriptionTerm [hidden] { display: none !important; }
+
     /* Compact disclosure sections; existing actions and role checks are unchanged. */
     .compact-disclosure { min-width: 0; }
     .compact-disclosure > summary {
@@ -892,6 +895,11 @@
       <h2 id="companyNameHeading">Company</h2>
 
       <section id="subscriptionPanel" class="subscription-panel" hidden></section>
+      <details id="subscriptionTerm" class="compact-disclosure management-card" hidden>
+        <summary>Subscription term and cancellation</summary>
+        <p></p>
+        <button type="button" class="button-secondary"></button>
+      </details>
 
       <div class="summary-grid">
         <div class="summary-item">
@@ -1123,6 +1131,7 @@
                   <td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td>
                   <td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td>
                 </tr>
+<tr><th scope="row">Cancel the company subscription at the end of its term</th><td><span class="permission-yes" role="img" aria-label="Allowed">✓</span></td><td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td><td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td><td><span class="permission-no" role="img" aria-label="Not allowed">✕</span></td></tr>
 </tbody>
               </table>
             </div>
@@ -1621,6 +1630,7 @@
   </div>
 </dialog>
 <script type="module">
+    import {createSubscriptionTermPanel} from "./assets/company-subscription-term.js";
     import {createMachineGroupVisibility} from "./assets/company-machine-groups.js";
     import {setupCreationTariffs, selectedCreationTariff, updateSubscriptionUI,
       resetSubscriptionUI} from "./assets/company-subscription.js";
@@ -2588,6 +2598,17 @@
       }).format(date);
     }
 
+    let displayedEndMarker;
+    const subscriptionTerm = createSubscriptionTermPanel({
+      panel: document.getElementById("subscriptionTerm"),
+      context: () => ({uid: auth.currentUser?.uid === currentUser?.uid ? currentUser?.uid : null,
+        companyId: currentCompanyId, company: currentCompany, membership: currentMembership}),
+      cancel: httpsCallable(functions, "cancelCompanySubscription"),
+      catalog: httpsCallable(functions, "getCompanyTariffs"),
+      order: httpsCallable(functions, "requestPaidCompanySubscription"),
+      notify: (message, type) => setStatus(message, type, 8000)
+    });
+
     const groupVisibility = createMachineGroupVisibility({
       db, functions, language: "en",
       getContext: () => ({companyId: currentCompanyId, uid: currentUser?.uid,
@@ -2628,6 +2649,8 @@
       readOnlyMemberList.replaceChildren();
       clearBillingForms();
       resetCreationReview();
+      subscriptionTerm.reset();
+      displayedEndMarker = undefined;
       resetSubscriptionUI();
       managementPanel.classList.add("hidden");
     }
@@ -2657,6 +2680,7 @@
     }
 
     function renderCompany() {
+      subscriptionTerm.refresh();
       if (
         !currentCompanyId ||
         !currentCompany ||
@@ -2671,6 +2695,11 @@
       noCompanyPanel.classList.add("hidden");
       companyPanel.classList.remove("hidden");
 
+      const endMarker = currentCompany.subscriptionEndsAt?.toMillis?.() ?? null;
+      if (displayedEndMarker !== undefined && displayedEndMarker !== endMarker) {
+        resetSubscriptionUI(); // Re-read invoices when a renewal was cancelled.
+      }
+      displayedEndMarker = endMarker;
       updateSubscriptionUI(currentCompanyId);
       companyNameHeading.textContent = currentCompany.name || "Company";
 
@@ -4286,6 +4315,8 @@ deleteCompanyButton.addEventListener(
         doc(db, "companies", companyId),
         (snapshot) => {
           if (!snapshot.exists()) {
+            currentCompany = null;
+            renderCompany();
             setStatus("The company was not found.", "error");
             return;
           }
@@ -4293,13 +4324,19 @@ deleteCompanyButton.addEventListener(
           currentCompany = snapshot.data();
           renderCompany();
         },
-        (error) => setStatus(error.message, "error")
+        (error) => {
+          currentCompany = null;
+          renderCompany();
+          setStatus(error.message, "error");
+        }
       );
 
       unsubscribeMembership = onSnapshot(
         doc(db, "companies", companyId, "members", currentUser.uid),
         (snapshot) => {
           if (!snapshot.exists()) {
+            currentMembership = null;
+            renderCompany();
             setStatus("The company membership was not found.", "error");
             return;
           }
@@ -4307,7 +4344,11 @@ deleteCompanyButton.addEventListener(
           currentMembership = snapshot.data();
           renderCompany();
         },
-        (error) => setStatus(error.message, "error")
+        (error) => {
+          currentMembership = null;
+          renderCompany();
+          setStatus(error.message, "error");
+        }
       );
     }
 

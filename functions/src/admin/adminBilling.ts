@@ -240,6 +240,17 @@ export const createCompanyInvoice = onCall(async (request) => {
     }
     const pendingChange = subscriptionSnapshot.get("pendingChange");
     const isTariffChange = !!pendingChange;
+    const end = companySnapshot.get("subscriptionEndsAt");
+    if (
+      end instanceof Timestamp &&
+      (!isTariffChange || end.toMillis() < Date.now())
+    ) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Das Firmenabo ist gekündigt. Keine weitere Jahresrechnung.",
+        {reason: "subscription_ending"},
+      );
+    }
     const companyName = normalizeText(companySnapshot.get("name"), "", 120);
     const ownerUid = normalizeText(companySnapshot.get("ownerUid"), "", 200);
     const customerBilling = normalizeCompanyBillingDetails(
@@ -564,6 +575,18 @@ export const markCompanyInvoicePaid = onCall(async (request) => {
       .collection("companySubscriptions")
       .doc(companyId);
     const subscription = await transaction.get(subscriptionRef);
+    const cutoff = companySnapshot.get("subscriptionEndsAt");
+    const annual = invoiceSnapshot.get("kind") !== "tariff_change";
+    if (
+      cutoff instanceof Timestamp &&
+      (annual || cutoff.toMillis() < Date.now())
+    ) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Diese Rechnung kann das gekündigte Abo nicht aktivieren.",
+        {reason: "subscription_ending"},
+      );
+    }
     const periods = await readServicePeriods(transaction, companyId);
     if (invoiceSnapshot.get("kind") === "tariff_change") {
       const change = subscription.get("pendingChange");

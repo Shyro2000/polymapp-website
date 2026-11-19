@@ -170,7 +170,7 @@ async function memberContext(
   if (ownerOnly && !isOwner) {
     throw new HttpsError(
       "permission-denied",
-      "Nur der Inhaber darf den Tarif ändern.",
+      "Nur der Inhaber darf das Firmenabo verwalten.",
     );
   }
   return {companyId, company, member, subscription, isOwner};
@@ -190,6 +190,14 @@ async function buildQuote(
   subscription: DocumentSnapshot,
   target: number,
 ) {
+  const endsAt = company.get("subscriptionEndsAt");
+  if (endsAt instanceof Timestamp && endsAt.toMillis() < Date.now()) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Das Firmenabo ist beendet.",
+      {reason: "subscription_ended"},
+    );
+  }
   const price = tariffPrice(target);
   const [members, invitations, periods] = await Promise.all([
     tx.get(company.ref.collection("members").where("status", "==", "active")),
@@ -317,6 +325,8 @@ export const getCompanySubscription = onCall(async (request) => {
       role: ctx.member.get("role"),
       status,
       accessActive: hasCompanyAccess(data),
+      cancellationEffectiveAtMs: data.subscriptionEndsAt instanceof Timestamp ?
+        data.subscriptionEndsAt.toMillis() : null,
       seatLimit: data.seatLimit,
       activeMemberCount: data.activeMemberCount,
       validUntilMs:
@@ -497,6 +507,136 @@ export const changeCompanyTariff = onCall(async (request) => {
   });
 });
 
+/**
+ * Gives notice for the original, already paid term. A pending renewal is
+ * not prepaid service; an open tariff change for this term remains payable.
+ */
+export const cancelCompanySubscription = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Bitte anmelden.");
+  }
+  const uid = request.auth.uid;
+  const {companyId, expectedEndMs} = request.data || {};
+  if (typeof companyId !== "string" || !Number.isSafeInteger(expectedEndMs)) {
+    throw new HttpsError("invalid-argument", "Firma und Laufzeit fehlen.");
+  }
+  return db.runTransaction(async (tx) => {
+    const ctx = await memberContext(tx, uid, true);
+    if (ctx.companyId !== companyId) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Die Firma hat gewechselt.",
+        {reason: "term_changed"},
+      );
+    }
+    const end = ctx.company.get("billingValidUntil");
+    const start = ctx.company.get("billingValidFrom");
+    const previous = ctx.company.get("subscriptionEndsAt");
+    if (
+      previous instanceof Timestamp &&
+      previous.toMillis() === expectedEndMs
+    ) {
+      return {changed: false, effectiveAtMs: expectedEndMs};
+    }
+    const now = Date.now();
+    if (
+      previous != null ||
+      ctx.company.get("accessMode") !== "paid" ||
+      !(end instanceof Timestamp) ||
+      end.toMillis() !== expectedEndMs ||
+      !(start instanceof Timestamp) ||
+      start.toMillis() > now ||
+      end.toMillis() < now
+    ) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Laufzeit erneut prüfen.",
+        {reason: "term_changed"},
+      );
+    }
+    // Only one open invoice can be issued by createCompanyInvoice. Also
+    // cover legacy renewals with no pointer; no composite index required.
+    const invoices = await tx.get(
+      db.collection("companyInvoices").where("companyId", "==", companyId),
+    );
+    let restored = 0;
+    let clearPending = false;
+    const voidedInvoices: string[] = [];
+    for (const invoice of invoices.docs) {
+      const nextStart = invoice.get("periodStartAt");
+      if (
+        invoice.get("status") !== "open" ||
+        invoice.get("kind") === "tariff_change" ||
+        !(nextStart instanceof Timestamp) ||
+        nextStart.toMillis() <= expectedEndMs
+      ) {
+        continue;
+      }
+      const credit = Number(invoice.get("creditUsedCents") || 0);
+      if (!Number.isSafeInteger(credit) || credit < 0) {
+        throw new HttpsError("internal", "Ungültige Rechnungsgutschrift.");
+      }
+      voidedInvoices.push(invoice.get("invoiceNumber") || invoice.id);
+      tx.update(invoice.ref, {
+        status: "cancelled",
+        cancellationReason: "subscription_ends",
+        cancelledAt: FieldValue.serverTimestamp(),
+        cancelledByUid: uid,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      if (credit) {
+        restored += credit;
+        const entry = ctx.subscription.ref.collection("ledger")
+          .doc(`cancelled-${invoice.id}`);
+        tx.create(entry, {
+          kind: "invoice_credit_restored",
+          invoiceId: invoice.id,
+          amountCents: credit,
+          createdAt: FieldValue.serverTimestamp(),
+        });
+      }
+      if (invoice.id === ctx.company.get("billingPendingInvoiceId")) {
+        clearPending = true;
+      }
+    }
+    tx.update(ctx.company.ref, {
+      subscriptionEndsAt: end,
+      ...(clearPending ? {billingPendingInvoiceId: FieldValue.delete()} : {}),
+      subscriptionRevision: FieldValue.increment(1),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    tx.set(ctx.subscription.ref, {
+      ...(restored ? {creditBalanceCents: FieldValue.increment(restored)} : {}),
+      revision: FieldValue.increment(1),
+      updatedAt: FieldValue.serverTimestamp(),
+    }, {merge: true});
+    tx.create(
+      ctx.subscription.ref.collection("operations")
+        .doc(`term_end_${expectedEndMs}`),
+      {
+        kind: "cancel_at_term_end",
+        effectiveAt: end,
+        createdByUid: uid,
+        voidedInvoices,
+        restoredCreditCents: restored,
+        createdAt: FieldValue.serverTimestamp(),
+      },
+    );
+    const day = end.toDate().toISOString().slice(0, 10);
+    const invoiceNote = voidedInvoices.length ?
+      " Stornierte Folgerechnung(en): " + voidedInvoices.join(", ") + "." : "";
+    queueCompanyNotification(
+      tx,
+      `end-${companyId}-${expectedEndMs}`,
+      companyId,
+      "Kündigung des Firmenabos",
+      `${ctx.company.get("name")}: gekündigt zum ${day} (UTC). ` +
+        "Keine weitere Jahresrechnung ausstellen." + invoiceNote,
+    );
+    return {changed: true, effectiveAtMs: expectedEndMs};
+  });
+});
+
 export const requestPaidCompanySubscription = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Bitte anmelden.");
@@ -519,10 +659,40 @@ export const requestPaidCompanySubscription = onCall(async (request) => {
     if (program.get("paidEnrollmentEnabled") !== true) {
       throw new HttpsError(
         "failed-precondition",
-        "Das kostenpflichtige Firmenabo " + "wurde noch nicht eingeführt.",
+        "Das kostenpflichtige Firmenabo wurde noch nicht eingeführt.",
+        {reason: "enrollment_disabled"},
       );
     }
-    if (ctx.company.get("accessMode") === "paid") return {changed: false};
+    const previousEnd = ctx.company.get("subscriptionEndsAt");
+    const restarting = previousEnd instanceof Timestamp;
+    if (request.data?.previousEndMs != null || restarting) {
+      if (
+        request.data?.companyId !== ctx.companyId ||
+        !restarting ||
+        previousEnd.toMillis() !== request.data?.previousEndMs ||
+        previousEnd.toMillis() >= Date.now() ||
+        request.data?.seatLimit !== ctx.company.get("seatLimit") ||
+        ctx.company.get("billingStatus") === "suspended"
+      ) {
+        throw new HttpsError(
+          "failed-precondition",
+          "Angebot erneut prüfen.",
+          {reason: "term_changed"},
+        );
+      }
+      if (
+        ctx.company.get("billingPendingInvoiceId") ||
+        ctx.subscription.get("pendingChange")
+      ) {
+        throw new HttpsError(
+          "failed-precondition",
+          "Bitte zuerst offene Tarifänderungen oder Rechnungen klären.",
+          {reason: "billing_change_pending"},
+        );
+      }
+    } else if (ctx.company.get("accessMode") === "paid") {
+      return {changed: false};
+    }
     const price = tariffPrice(Number(ctx.company.get("seatLimit")));
     tx.update(ctx.company.ref, {
       accessMode: "paid",
@@ -530,11 +700,18 @@ export const requestPaidCompanySubscription = onCall(async (request) => {
       paidTariffAcceptedAt: FieldValue.serverTimestamp(),
       paidTariffAcceptedByUid: uid,
       acceptedPricingVersion: PRICING_VERSION,
+      ...(restarting ? {
+        subscriptionEndsAt: FieldValue.delete(),
+        billingValidFrom: FieldValue.delete(),
+        billingValidUntil: FieldValue.delete(),
+        subscriptionRevision: FieldValue.increment(1),
+      } : {}),
       updatedAt: FieldValue.serverTimestamp(),
     });
     queueCompanyNotification(
       tx,
-      `paid-${ctx.companyId}`,
+      restarting ? `paid-${ctx.companyId}-${previousEnd.toMillis()}` :
+        `paid-${ctx.companyId}`,
       ctx.companyId,
       "Firmenabo zur Verrechnung bestätigt",
       `${ctx.company.get("name")}: ` +
