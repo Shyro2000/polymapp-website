@@ -917,6 +917,10 @@
               <input id="issuerEmail" name="email" type="email" maxlength="254">
             </div>
             <div class="input-group full-width">
+              <label for="issuerPhone">Geschäftstelefon</label>
+              <input id="issuerPhone" name="phone" type="tel" maxlength="40">
+            </div>
+            <div class="input-group full-width">
               <label for="issuerBankName">Bank</label>
               <input id="issuerBankName" name="bankName" maxlength="160">
             </div>
@@ -1117,6 +1121,7 @@
       city: "Bülach",
       country: "Schweiz",
       email: "info@polymapp.ch",
+      phone: "+41 78 207 75 57",
       bankName: "Zürcher Kantonalbank",
       iban: "CH47 0070 0110 0014 6863 6",
       uidVat: "",
@@ -1468,6 +1473,10 @@
           typeof rawSettings.email === "string"
             ? rawSettings.email
             : "info@polymapp.ch",
+        phone:
+          typeof rawSettings.phone === "string" && rawSettings.phone.trim()
+            ? rawSettings.phone
+            : "+41 78 207 75 57",
         bankName:
           typeof rawSettings.bankName === "string"
             ? rawSettings.bankName
@@ -1506,6 +1515,7 @@
         city: String(formData.get("city") || "").trim(),
         country: String(formData.get("country") || "").trim(),
         email: String(formData.get("email") || "").trim(),
+        phone: String(formData.get("phone") || "").trim(),
         bankName: String(formData.get("bankName") || "").trim(),
         iban: String(formData.get("iban") || "").trim(),
         uidVat: String(formData.get("uidVat") || "").trim(),

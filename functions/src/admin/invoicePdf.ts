@@ -1,5 +1,6 @@
 import {Timestamp} from "firebase-admin/firestore";
 import qrcode = require("qrcode-generator");
+import {loadInvoiceLogo, PdfLogo} from "./pdfLogo";
 import {
   CompanyBillingDetails,
   InvoiceIssuerSettings,
@@ -177,6 +178,30 @@ function textCommand(
     `${x.toFixed(2)} ${y.toFixed(2)} Td`,
     `(${pdfString(value)}) Tj`,
     "ET",
+  ].join("\n");
+}
+
+/**
+ * Places the embedded PolymApp logo without stretching it.
+ * @param {PdfLogo} logo Image resource.
+ * @return {string} PDF drawing instructions.
+ */
+function logoCommand(logo: PdfLogo): string {
+  const maxWidth = 155;
+  const maxHeight = 39;
+  const scale = Math.min(maxWidth / logo.width, maxHeight / logo.height);
+  const width = logo.width * scale;
+  const height = logo.height * scale;
+  const x = 48;
+  const top = 35;
+  const y = PAGE_HEIGHT - top - height;
+
+  return [
+    "q",
+    `${width.toFixed(2)} 0 0 ${height.toFixed(2)} ` +
+      `${x.toFixed(2)} ${y.toFixed(2)} cm`,
+    "/Im1 Do",
+    "Q",
   ].join("\n");
 }
 
@@ -504,6 +529,7 @@ function swissQrCommands(payload: string, x: number, top: number): string[] {
  * @param {number} annualAmount Annual amount.
  * @param {string} reference Invoice reference.
  * @param {boolean} activationOnPayment Activation mode.
+ * @param {PdfLogo} logo Embedded PolymApp logo.
  * @return {string} PDF page content.
  */
 function buildInvoicePage(
@@ -518,19 +544,22 @@ function buildInvoicePage(
   annualAmount: number,
   reference: string,
   activationOnPayment: boolean,
+  logo: PdfLogo,
 ): string {
   const commands: string[] = [
     "0 G",
     "0.7 w",
-    textCommand("F2", 18, 48, 58, issuer.businessName || "PolymApp"),
+    logoCommand(logo),
   ];
 
-  let senderTop = 78;
+  let senderTop = 85;
   for (const line of [
     issuer.contactName,
+    issuer.businessName,
     issuer.street,
     [issuer.postalCode, issuer.city].filter(Boolean).join(" "),
     issuer.country,
+    `Tel.: ${issuer.phone}`,
     issuer.email,
   ].filter(Boolean)) {
     commands.push(textCommand("F1", 9, 48, senderTop, line));
@@ -542,10 +571,10 @@ function buildInvoicePage(
     textCommand("F1", 9, 390, 88, `Nr. ${invoiceNumber}`),
     textCommand("F1", 9, 390, 103, `Datum: ${formatDate(data.createdAt)}`),
     textCommand("F1", 9, 390, 118, `Fällig: ${formatIsoDate(data.dueDate)}`),
-    textCommand("F1", 8, 48, 164, "Rechnung an"),
+    textCommand("F1", 8, 48, 185, "Rechnung an"),
   );
 
-  let customerTop = 183;
+  let customerTop = 203;
   for (const line of [
     customer.invoiceCompanyName || companyName,
     customer.recipientName,
@@ -564,12 +593,18 @@ function buildInvoicePage(
     );
   }
 
+  // Reserve enough space for optional recipient fields and billing email.
+  const shift = Math.max(
+    18,
+    customerTop + (customer.billingEmail ? 23 : 8) - 282,
+  );
+
   commands.push(
-    lineCommand(48, 547, 282),
-    textCommand("F2", 9, 48, 304, "Beschreibung"),
-    textCommand("F2", 9, 320, 304, "Berechnung"),
-    textCommand("F2", 9, 472, 304, "Betrag"),
-    lineCommand(48, 547, 314),
+    lineCommand(48, 547, 282 + shift),
+    textCommand("F2", 9, 48, 304 + shift, "Beschreibung"),
+    textCommand("F2", 9, 320, 304 + shift, "Berechnung"),
+    textCommand("F2", 9, 472, 304 + shift, "Betrag"),
+    lineCommand(48, 547, 314 + shift),
   );
 
   const description =
@@ -584,7 +619,7 @@ function buildInvoicePage(
     typeof data.creditUsedCents === "number" ? data.creditUsedCents / 100 : 0;
   const descriptionLines = wrapText(description, 50);
 
-  let descriptionTop = 338;
+  let descriptionTop = 338 + shift;
   for (const line of descriptionLines) {
     commands.push(textCommand("F1", 10, 48, descriptionTop, line));
     descriptionTop += 14;
@@ -601,7 +636,7 @@ function buildInvoicePage(
       "F1",
       9,
       320,
-      338,
+      338 + shift,
       data.kind === "tariff_change" ?
         "Anteilig / taggenau" :
         `${seatLimit} x CHF ${formatRate(monthlyRate)} x 12 Monate`,
@@ -610,7 +645,7 @@ function buildInvoicePage(
       "F2",
       10,
       472,
-      338,
+      338 + shift,
       currency === "CHF" ?
         formatCurrency(grossAmount) :
         `${grossAmount.toFixed(2)} ${currency}`,
@@ -619,45 +654,55 @@ function buildInvoicePage(
       "F1",
       9,
       48,
-      379,
+      379 + shift,
       creditAmount > 0 ? "Verrechnete Tarifgutschrift" : "",
     ),
     textCommand(
       "F1",
       9,
       472,
-      379,
+      379 + shift,
       creditAmount > 0 ? `- ${formatCurrency(creditAmount)}` : "",
     ),
-    lineCommand(48, 547, 392),
-    textCommand("F2", 11, 410, 420, "Total"),
+    lineCommand(48, 547, 392 + shift),
+    textCommand("F2", 11, 410, 420 + shift, "Total"),
     textCommand(
       "F2",
       12,
       472,
-      420,
+      420 + shift,
       currency === "CHF" ?
         formatCurrency(annualAmount) :
         `${annualAmount.toFixed(2)} ${currency}`,
     ),
   );
 
+  // No Swiss VAT is charged while PolymApp is not VAT registered.
+  // A UID/VAT number is not a substitute for VAT calculation.
+  if (!issuer.uidVat || !/MWST|TVA|IVA/i.test(issuer.uidVat)) {
+    commands.push(textCommand(
+      "F1", 8, 48, 449 + shift,
+      "Nicht im MWST-Register eingetragen. Keine MWST ausgewiesen.",
+    ));
+  }
+
   if (reference) {
-    commands.push(textCommand("F1", 9, 48, 450, `Referenz: ${reference}`));
+    commands.push(textCommand("F1", 9, 48, 471 + shift,
+      `Referenz: ${reference}`));
   }
 
   if (customer.uidVat) {
-    commands.push(
-      textCommand("F1", 8, 48, 470, `Kunden-UID/MWST: ${customer.uidVat}`),
-    );
+    commands.push(textCommand(
+      "F1", 8, 48, 489 + shift, `Kunden-UID/MWST: ${customer.uidVat}`,
+    ));
   }
 
   commands.push(
-    lineCommand(48, 547, 510),
-    textCommand("F2", 10, 48, 535, "Zahlungsinformationen"),
+    lineCommand(48, 547, 519 + shift),
+    textCommand("F2", 10, 48, 544 + shift, "Zahlungsinformationen"),
   );
 
-  let paymentTop = 555;
+  let paymentTop = 564 + shift;
   for (const line of [
     issuer.bankName,
     issuer.iban ? `IBAN: ${issuer.iban}` : "",
@@ -674,15 +719,10 @@ function buildInvoicePage(
     );
   }
 
-  commands.push(
-    textCommand(
-      "F1",
-      8,
-      48,
-      775,
-      "Vielen Dank für Ihr Vertrauen in PolymApp.",
-    ),
-  );
+  commands.push(textCommand(
+    "F1", 8, 48, 775,
+    "Vielen Dank für Ihr Vertrauen in PolymApp.",
+  ));
 
   return commands.join("\n");
 }
@@ -817,71 +857,112 @@ function buildSwissQrPage(
  * Builds a PDF with one or two pages.
  * @param {string} firstPage First page content.
  * @param {string | null} secondPage Optional second page content.
+ * @param {PdfLogo} logo Embedded PolymApp logo.
  * @return {Buffer} PDF bytes.
  */
 function buildPdfDocument(
   firstPage: string,
   secondPage: string | null,
+  logo: PdfLogo,
 ): Buffer {
-  const firstLength = Buffer.byteLength(firstPage, "latin1");
-  const objects: string[] = [
-    "<< /Type /Catalog /Pages 2 0 R >>",
-    secondPage ?
-      "<< /Type /Pages /Kids [3 0 R 7 0 R] /Count 2 >>" :
-      "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-    [
-      "<< /Type /Page /Parent 2 0 R",
-      `/MediaBox [0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}]`,
-      "/Resources << /Font << /F1 4 0 R /F2 5 0 R >> >>",
-      "/Contents 6 0 R >>",
-    ].join(" "),
+  const objects: Buffer[] = [];
+  const asBytes = (value: string): Buffer => Buffer.from(value, "latin1");
+  const addObject = (value: Buffer | string = ""): number => {
+    objects.push(typeof value === "string" ? asBytes(value) : value);
+    return objects.length;
+  };
+  const streamObject = (data: Buffer): Buffer => Buffer.concat([
+    asBytes(`<< /Length ${data.length} >>\nstream\n`),
+    data,
+    asBytes("\nendstream"),
+  ]);
+
+  const catalogId = addObject();
+  const pagesId = addObject();
+  const page1Id = addObject();
+  const font1Id = addObject(
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica " +
       "/Encoding /WinAnsiEncoding >>",
+  );
+  const font2Id = addObject(
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold " +
       "/Encoding /WinAnsiEncoding >>",
-    `<< /Length ${firstLength} >>\nstream\n` + `${firstPage}\nendstream`,
-  ];
+  );
+  const content1Id = addObject(streamObject(asBytes(firstPage)));
+  const page2Id = secondPage ? addObject() : 0;
+  const content2Id = secondPage ?
+    addObject(streamObject(asBytes(secondPage))) : 0;
+  const imageId = addObject(Buffer.concat([
+    asBytes([
+      "<< /Type /XObject /Subtype /Image",
+      `/Width ${logo.width} /Height ${logo.height}`,
+      "/ColorSpace /DeviceRGB /BitsPerComponent 8",
+      "/Filter /FlateDecode",
+      `/Length ${logo.compressedRgb.length} >>\nstream\n`,
+    ].join(" ")),
+    logo.compressedRgb,
+    asBytes("\nendstream"),
+  ]));
+  const resources =
+    `<< /Font << /F1 ${font1Id} 0 R /F2 ${font2Id} 0 R >> ` +
+    `/XObject << /Im1 ${imageId} 0 R >> >>`;
 
-  if (secondPage) {
-    const secondLength = Buffer.byteLength(secondPage, "latin1");
-
-    objects.push(
-      [
-        "<< /Type /Page /Parent 2 0 R",
-        `/MediaBox [0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}]`,
-        "/Resources << /Font << /F1 4 0 R /F2 5 0 R >> >>",
-        "/Contents 8 0 R >>",
-      ].join(" "),
-      `<< /Length ${secondLength} >>\nstream\n` + `${secondPage}\nendstream`,
-    );
+  objects[page1Id - 1] = asBytes([
+    "<< /Type /Page",
+    `/Parent ${pagesId} 0 R`,
+    `/MediaBox [0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}]`,
+    `/Resources ${resources}`,
+    `/Contents ${content1Id} 0 R >>`,
+  ].join(" "));
+  if (page2Id && content2Id) {
+    objects[page2Id - 1] = asBytes([
+      "<< /Type /Page",
+      `/Parent ${pagesId} 0 R`,
+      `/MediaBox [0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}]`,
+      `/Resources ${resources}`,
+      `/Contents ${content2Id} 0 R >>`,
+    ].join(" "));
   }
+  objects[pagesId - 1] = asBytes(
+    `<< /Type /Pages /Kids [${page1Id} 0 R` +
+      (page2Id ? ` ${page2Id} 0 R` : "") +
+      `] /Count ${page2Id ? 2 : 1} >>`,
+  );
+  objects[catalogId - 1] = asBytes(
+    `<< /Type /Catalog /Pages ${pagesId} 0 R >>`,
+  );
 
-  let pdf = "%PDF-1.4\n";
+  const chunks: Buffer[] = [asBytes("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n")];
   const offsets: number[] = [0];
+  let position = chunks[0].length;
+  const append = (part: Buffer): void => {
+    chunks.push(part);
+    position += part.length;
+  };
 
   for (let index = 0; index < objects.length; index += 1) {
-    offsets.push(Buffer.byteLength(pdf, "latin1"));
-    pdf += `${index + 1} 0 obj\n${objects[index]}\nendobj\n`;
+    offsets.push(position);
+    append(asBytes(`${index + 1} 0 obj\n`));
+    append(objects[index]);
+    append(asBytes("\nendobj\n"));
   }
 
-  const xrefOffset = Buffer.byteLength(pdf, "latin1");
-  pdf += `xref\n0 ${objects.length + 1}\n`;
-  pdf += "0000000000 65535 f \n";
-
+  const xrefOffset = position;
+  append(asBytes(`xref\n0 ${objects.length + 1}\n`));
+  append(asBytes("0000000000 65535 f \n"));
   for (let index = 1; index < offsets.length; index += 1) {
-    pdf += `${String(offsets[index]).padStart(10, "0")} 00000 n \n`;
+    append(asBytes(`${String(offsets[index]).padStart(10, "0")} 00000 n \n`));
   }
-
-  pdf += [
+  append(asBytes([
     "trailer",
-    `<< /Size ${objects.length + 1} /Root 1 0 R >>`,
+    `<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>`,
     "startxref",
     String(xrefOffset),
     "%%EOF",
     "",
-  ].join("\n");
+  ].join("\n")));
 
-  return Buffer.from(pdf, "latin1");
+  return Buffer.concat(chunks);
 }
 
 /**
@@ -922,6 +1003,7 @@ export function buildInvoicePdf(
   const activationOnPayment = data.activationOnPayment === true &&
     !toDate(data.activatedPeriodStartAt);
 
+  const logo = loadInvoiceLogo();
   const firstPage = buildInvoicePage(
     issuer,
     customer,
@@ -934,6 +1016,7 @@ export function buildInvoicePdf(
     annualAmount,
     reference,
     activationOnPayment,
+    logo,
   );
 
   const hasSwissQrPage =
@@ -946,7 +1029,7 @@ export function buildInvoicePdf(
     buildSwissQrPage(issuer, customer, invoiceNumber, annualAmount) :
     null;
 
-  const buffer = buildPdfDocument(firstPage, secondPage);
+  const buffer = buildPdfDocument(firstPage, secondPage, logo);
 
   return {
     base64: buffer.toString("base64"),

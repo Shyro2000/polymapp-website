@@ -4,6 +4,7 @@ import {warn} from "firebase-functions/logger";
 import {HttpsError, onCall} from "firebase-functions/https";
 import {db} from "../firebase";
 import {hasCompanyAccess} from "../shared/companyAccess";
+import {androidCompanyPolicy} from "./androidCompanyPolicy";
 
 const FLAG = "company_subscription_unlocks_all_features";
 const FLAG_TTL_MS = 60_000;
@@ -52,12 +53,15 @@ async function readSwitch(): Promise<SwitchState> {
   return inFlight;
 }
 
-/** Additive app benefit only. Never sets a personal subscription or role. */
+/** Legacy additive grant or explicit v2 policy. Always read-only. */
 export const getCompanyAppEntitlement = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Bitte anmelden.");
   }
   const uid = request.auth.uid;
+  if (request.data?.policyVersion === 2) {
+    return androidCompanyPolicy(uid, request.data.companyId);
+  }
   const flag = await readSwitch();
   const denied = {
     grantsAllFeatures: false, validUntilMs: null, recheckAtMs: flag.expiresMs,

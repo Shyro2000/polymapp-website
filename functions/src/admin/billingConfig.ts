@@ -21,6 +21,7 @@ export interface InvoiceIssuerSettings {
   city: string;
   country: string;
   email: string;
+  phone: string;
   bankName: string;
   iban: string;
   uidVat: string;
@@ -48,6 +49,7 @@ export const DEFAULT_ISSUER_SETTINGS: InvoiceIssuerSettings = {
   city: "Bülach",
   country: "Schweiz",
   email: "info@polymapp.ch",
+  phone: "+41 78 207 75 57",
   bankName: "Zürcher Kantonalbank",
   iban: "CH47 0070 0110 0014 6863 6",
   uidVat: "",
@@ -196,6 +198,21 @@ export function normalizeCompanyBillingDetails(
 }
 
 /**
+ * Uses the configured sender field or its default when the field is blank.
+ * @param {unknown} value Raw setting.
+ * @param {string} fallback Default value.
+ * @param {number} maxLength Maximum length.
+ * @return {string} Sender field.
+ */
+function issuerTextOrDefault(
+  value: unknown,
+  fallback: string,
+  maxLength: number,
+): string {
+  return normalizeText(value, "", maxLength) || fallback;
+}
+
+/**
  * Normalizes invoice issuer settings.
  * @param {unknown} value Stored object.
  * @return {InvoiceIssuerSettings} Normalized settings.
@@ -216,32 +233,32 @@ export function normalizeIssuerSettings(
       DEFAULT_ISSUER_SETTINGS.paymentTermsDays;
 
   return {
-    businessName: normalizeText(
+    businessName: issuerTextOrDefault(
       data.businessName,
       DEFAULT_ISSUER_SETTINGS.businessName,
       120,
     ),
-    contactName: normalizeText(
+    contactName: issuerTextOrDefault(
       data.contactName,
       DEFAULT_ISSUER_SETTINGS.contactName,
       120,
     ),
-    street: normalizeText(
+    street: issuerTextOrDefault(
       data.street,
       DEFAULT_ISSUER_SETTINGS.street,
       160,
     ),
-    postalCode: normalizeText(
+    postalCode: issuerTextOrDefault(
       data.postalCode,
       DEFAULT_ISSUER_SETTINGS.postalCode,
       30,
     ),
-    city: normalizeText(
+    city: issuerTextOrDefault(
       data.city,
       DEFAULT_ISSUER_SETTINGS.city,
       100,
     ),
-    country: normalizeText(
+    country: issuerTextOrDefault(
       data.country,
       DEFAULT_ISSUER_SETTINGS.country,
       100,
@@ -251,6 +268,11 @@ export function normalizeIssuerSettings(
       DEFAULT_ISSUER_SETTINGS.email,
       254,
     ).toLowerCase(),
+    phone: issuerTextOrDefault(
+      data.phone,
+      DEFAULT_ISSUER_SETTINGS.phone,
+      40,
+    ),
     bankName: normalizeText(
       data.bankName,
       DEFAULT_ISSUER_SETTINGS.bankName,
